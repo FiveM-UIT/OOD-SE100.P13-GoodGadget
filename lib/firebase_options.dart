@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -50,20 +47,31 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD19PvPONLG89r_mW99GZJmSSt4JfWTa_E',
-    appId: '1:413433346211:android:b0d022c6183f1e6c73a716',
-    messagingSenderId: '413433346211',
-    projectId: 'se121p11-gizmoglobe',
-    storageBucket: 'se121p11-gizmoglobe.firebasestorage.app',
+    apiKey: 'AIzaSyC38mapy5t-s7g0IIl3zFATzH7rF7Gms9w',
+    appId: '1:793097928357:android:9b5dfb9beb58b4ecb2d74c',
+    messagingSenderId: '793097928357',
+    projectId: 'se100p13-nerdhub',
+    storageBucket: 'se100p13-nerdhub.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCq4dF121oymhtwO5gtkzDXZNEQDN9jaKw',
-    appId: '1:413433346211:ios:1b0f95ea2bf4835d73a716',
-    messagingSenderId: '413433346211',
-    projectId: 'se121p11-gizmoglobe',
-    storageBucket: 'se121p11-gizmoglobe.firebasestorage.app',
-    iosBundleId: 'com.example.gizmoglobeClient',
+    apiKey: 'AIzaSyAkZjfTpb091EdXcq1mlD6MGPDKSujHBn0',
+    appId: '1:793097928357:ios:b731a7442d16da7fb2d74c',
+    messagingSenderId: '793097928357',
+    projectId: 'se100p13-nerdhub',
+    storageBucket: 'se100p13-nerdhub.firebasestorage.app',
+    iosClientId: '793097928357-plto1r3549n60b0d46q6tpipitrl8gmt.apps.googleusercontent.com',
+    iosBundleId: 'com.example.goodgadget',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBTyMnvllITeRrLX1UQRynaZ5_D-icwxQg',
+    appId: '1:793097928357:web:9f39111219883d2eb2d74c',
+    messagingSenderId: '793097928357',
+    projectId: 'se100p13-nerdhub',
+    authDomain: 'se100p13-nerdhub.firebaseapp.com',
+    storageBucket: 'se100p13-nerdhub.firebasestorage.app',
+    measurementId: 'G-3VC79RFBJB',
   );
 
 }

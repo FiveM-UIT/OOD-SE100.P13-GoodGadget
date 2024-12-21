@@ -2,7 +2,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gizmoglobe_client/objects/product_related/product.dart';
 import 'package:gizmoglobe_client/screens/main/main_screen/main_screen_cubit.dart';
+import 'package:gizmoglobe_client/screens/stakeholder/stakeholder_screen_view.dart';
 import '../../../widgets/general/selectable_gradient_icon.dart';
 import '../../cart/cart_screen/cart_screen_view.dart';
 import '../../home/home_screen/home_screen_view.dart';
@@ -25,6 +27,7 @@ class _MainScreenState extends State<MainScreen> {
         () => HomeScreen.newInstance(),
         () => Container(),
         () => UserScreen.newInstance(),
+        () => StakeholderScreen.newInstance(),
   ];
 
   @override
@@ -68,6 +71,7 @@ class _MainScreenState extends State<MainScreen> {
                   icon: SelectableGradientIcon(
                     icon: Icons.home,
                     isSelected: index == 0,
+                    label: 'Home',
                   ),
                   label: "Home",
                 ),
@@ -84,6 +88,14 @@ class _MainScreenState extends State<MainScreen> {
                     isSelected: index == 2,
                   ),
                   label: "User",
+                ),
+                BottomNavigationBarItem(
+                  icon: SelectableGradientIcon(
+                    icon: Icons.groups,
+                    isSelected: index == 3,
+                    label: 'Stakeholder',
+                  ),
+                  label: "Home",
                 ),
               ],
             ),

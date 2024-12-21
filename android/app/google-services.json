@@ -14,11 +14,35 @@
       },
       "oauth_client": [
         {
+          "client_id": "793097928357-msv1m2uc2vdd0vptdepiqgpki4giiref.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.goodgadget",
+            "certificate_hash": "c060c00a6a7614fe5fcb674fccae521e96210650"
+          }
+        },
+        {
+          "client_id": "793097928357-oebegl40l5hqgtnpds1d27t1b73amn92.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.goodgadget",
+            "certificate_hash": "c894737a03db30db6a50b5d0e7f1932f46c2d91a"
+          }
+        },
+        {
           "client_id": "793097928357-r3gcjt3uujl36oikmak8k0o0k6o7e28s.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.goodgadget",
             "certificate_hash": "be532ae0cf22cb3e82fc2e5a8ccf9bbe42e9b973"
+          }
+        },
+        {
+          "client_id": "793097928357-ttt59sbdht9thogp4ri6h687a3telan9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.goodgadget",
+            "certificate_hash": "919cb3e64af3160d5b820a449e8df7fcc689d836"
           }
         },
         {

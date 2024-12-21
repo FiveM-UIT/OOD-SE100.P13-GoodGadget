@@ -104,13 +104,8 @@ class SignInCubit extends Cubit<SignInState> {
             .doc(userCredential.user!.uid)
             .set({
           'email': userCredential.user!.email,
-          'displayName': userCredential.user!.displayName,
-          'photoURL': userCredential.user!.photoURL,
           'username': username,
-          'lastSignIn': FieldValue.serverTimestamp(),
-          'createdAt': FieldValue.serverTimestamp(),
-          'role': 'user',
-          'isActive': true,
+          'userID': userCredential.user!.uid,
         }, SetOptions(merge: true));
 
         print('Successfully signed in: ${userCredential.user?.email}');

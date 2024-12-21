@@ -45,7 +45,7 @@ class _CartScreen extends State<CartScreen> {
           title: const Padding(
             padding: EdgeInsets.only(top: 16.0),
             child: GradientText(text: 'Cart'),
-            ),
+          ),
         ),
         body: Center(
           child: Column(

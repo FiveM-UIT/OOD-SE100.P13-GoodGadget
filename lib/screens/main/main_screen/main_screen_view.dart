@@ -28,6 +28,7 @@ class _MainScreenState extends State<MainScreen> {
         () => Container(),
         () => UserScreen.newInstance(),
         () => StakeholderScreen.newInstance(),
+        () => UserScreen.newInstance(),
   ];
 
   @override
@@ -77,17 +78,19 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 const BottomNavigationBarItem(
                   icon: SelectableGradientIcon(
-                    icon: Icons.shopping_cart,
+                    icon: Icons.inventory,
                     isSelected: false,
+                    label: 'Product',
                   ),
-                  label: "Cart",
+                  label: "Product",
                 ),
                 BottomNavigationBarItem(
                   icon: SelectableGradientIcon(
-                    icon: Icons.person,
+                    icon: Icons.receipt,
                     isSelected: index == 2,
+                    label: 'Invoice',
                   ),
-                  label: "User",
+                  label: "Invoice",
                 ),
                 BottomNavigationBarItem(
                   icon: SelectableGradientIcon(
@@ -96,6 +99,14 @@ class _MainScreenState extends State<MainScreen> {
                     label: 'Stakeholder',
                   ),
                   label: "Home",
+                ),
+                BottomNavigationBarItem(
+                  icon: SelectableGradientIcon(
+                    icon: Icons.account_circle,
+                    isSelected: index == 4,
+                    label: 'Profile',
+                  ),
+                  label: "Profile",
                 ),
               ],
             ),

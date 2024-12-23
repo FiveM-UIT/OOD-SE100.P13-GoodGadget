@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
+import '../../../data/firebase/firebase.dart';
 import '../../../widgets/general/invisible_gradient_button.dart';
 import '../../../widgets/general/vertical_icon_button.dart';
 import 'user_screen_cubit.dart';
@@ -35,6 +36,52 @@ class _UserScreen extends State<UserScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              heroTag: 'pushProducts',
+              onPressed: () async {
+                try {
+                  await pushProductSamplesToFirebase();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Đã đẩy dữ liệu sản phẩm mẫu thành công')),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Lỗi khi đẩy sản phẩm: $e')),
+                    );
+                  }
+                }
+              },
+              child: const Icon(Icons.shopping_cart),
+            ),
+            const SizedBox(height: 16),
+            FloatingActionButton(
+              heroTag: 'pushCustomers',
+              onPressed: () async {
+                try {
+                  await Firebase().pushCustomerSampleData();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Đã đẩy dữ liệu khách hàng mẫu thành công')),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Lỗi khi đẩy khách hàng: $e')),
+                    );
+                  }
+                }
+              },
+              child: const Icon(Icons.person),
+            ),
+          ],
+        ),
         body: Center(
           child: Column(
             children: [

@@ -9,7 +9,6 @@ import 'package:gizmoglobe_client/screens/authentication/sign_up_screen/sign_up_
 import 'package:gizmoglobe_client/screens/home/home_screen/home_screen_view.dart';
 import 'package:gizmoglobe_client/screens/main/main_screen/main_screen_cubit.dart';
 import 'package:gizmoglobe_client/screens/main/main_screen/main_screen_view.dart';
-import 'package:gizmoglobe_client/screens/main/drawer/drawer_cubit.dart';
 import 'package:gizmoglobe_client/data/database/database.dart';
 import 'package:gizmoglobe_client/firebase_options.dart';
 import 'package:gizmoglobe_client/widgets/filter/advanced_filter_search/advanced_filter_search_state.dart';
@@ -43,7 +42,6 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => MainScreenCubit()),
-        BlocProvider(create: (context) => DrawerCubit()),
       ],
       child: MaterialApp(
         title: 'GizmoGlobe',

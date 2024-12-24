@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gizmoglobe_client/objects/employee.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'employees_screen_cubit.dart';
+import 'employees_screen_state.dart';
+import 'employee_detail/employee_detail_view.dart';
 
 class EmployeesScreen extends StatefulWidget {
   const EmployeesScreen({super.key});
@@ -19,37 +22,206 @@ class EmployeesScreen extends StatefulWidget {
 
 class _EmployeesScreenState extends State<EmployeesScreen> {
   final TextEditingController searchController = TextEditingController();
+  EmployeesScreenCubit get cubit => context.read<EmployeesScreenCubit>();
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: FieldWithIcon(
-                  controller: searchController,
-                  hintText: 'Find employees...',
-                  fillColor: Theme.of(context).colorScheme.surface,
-                  onChanged: (value) {
-                    // TODO: Implement search
-                  },
+    return BlocBuilder<EmployeesScreenCubit, EmployeesScreenState>(
+      builder: (context, state) {
+        return GestureDetector(
+          onTap: () {
+            if (state.selectedIndex != null) {
+              cubit.setSelectedIndex(null);
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: FieldWithIcon(
+                        controller: searchController,
+                        hintText: 'Find employees...',
+                        fillColor: Theme.of(context).colorScheme.surface,
+                        onChanged: (value) {
+                          cubit.searchEmployees(value);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GradientIconButton(
+                      icon: Icons.person_add,
+                      iconSize: 32,
+                      onPressed: () {
+                        // TODO: Implement add employee
+                      },
+                    )
+                  ],
                 ),
-              ),
-              const SizedBox(width: 8),
-              GradientIconButton(
-                icon: FontAwesomeIcons.magnifyingGlass,
-                iconSize: 32,
-                onPressed: () {
-                  // TODO: Implement search
-                },
-              )
-            ],
+                const SizedBox(height: 16),
+                Expanded(
+                  child: BlocBuilder<EmployeesScreenCubit, EmployeesScreenState>(
+                    builder: (context, state) {
+                      if (state.isLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (state.employees.isEmpty) {
+                        return const Center(
+                          child: Text(
+                            'No employees found',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: state.employees.length,
+                        itemBuilder: (context, index) {
+                          final employee = state.employees[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EmployeeDetailScreen(
+                                    employee: employee,
+                                  ),
+                                ),
+                              );
+                            },
+                            onLongPress: () {
+                              cubit.setSelectedIndex(index);
+                              showDialog(
+                                context: context,
+                                barrierDismissible: true,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    backgroundColor: Colors.transparent,
+                                    contentPadding: EdgeInsets.zero,
+                                    content: Container(
+                                      width: 120,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).cardColor,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ListTile(
+                                            dense: true,
+                                            leading: const Icon(
+                                              Icons.visibility_outlined,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                            title: const Text('View'),
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              cubit.setSelectedIndex(null);
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => EmployeeDetailScreen(
+                                                    employee: employee,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          ListTile(
+                                            dense: true,
+                                            leading: const Icon(
+                                              Icons.edit_outlined,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                            title: const Text('Edit'),
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              cubit.setSelectedIndex(null);
+                                              // TODO: Navigate to edit screen
+                                            },
+                                          ),
+                                          ListTile(
+                                            dense: true,
+                                            leading: Icon(
+                                              Icons.delete_outlined,
+                                              size: 20,
+                                              color: Theme.of(context).colorScheme.error,
+                                            ),
+                                            title: Text(
+                                              'Delete',
+                                              style: TextStyle(
+                                                color: Theme.of(context).colorScheme.error,
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              cubit.setSelectedIndex(null);
+                                              // TODO: Implement delete action
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ).then((_) {
+                                cubit.setSelectedIndex(null);
+                              });
+                            },
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 200),
+                              opacity: state.selectedIndex == null || state.selectedIndex == index ? 1.0 : 0.3,
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                decoration: BoxDecoration(
+                                  color: state.selectedIndex == index 
+                                      ? Theme.of(context).primaryColor.withOpacity(0.1) 
+                                      : Theme.of(context).cardColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                        child: Icon(
+                                          Icons.person,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Text(
+                                          employee.employeeName,
+                                          style: Theme.of(context).textTheme.bodyLarge,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

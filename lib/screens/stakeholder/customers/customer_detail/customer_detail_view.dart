@@ -132,7 +132,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                               style: TextStyle(color: Colors.white),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
+                            backgroundColor: Colors.green,
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                         ),
@@ -171,8 +171,14 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.delete),
-                          label: const Text('Delete'),
+                          icon: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                          ),
+                          label: const Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.white),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             padding: const EdgeInsets.symmetric(vertical: 12),

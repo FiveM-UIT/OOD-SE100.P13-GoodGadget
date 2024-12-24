@@ -12,6 +12,7 @@ import '../../../enums/processing/sort_enum.dart';
 import '../../../enums/product_related/category_enum.dart';
 import '../../../widgets/filter/advanced_filter_search/advanced_filter_search_view.dart';
 import '../../../widgets/general/app_text_style.dart';
+import '../product_detail/product_detail_view.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
@@ -57,25 +58,18 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
       child: Scaffold(
         appBar: AppBar(
           elevation: 0,
-          leading: GradientIconButton(
-            icon: Icons.menu_outlined,
-            onPressed: () {
-            },
-            fillColor: Colors.transparent,
-          ),
-
           title: FieldWithIcon(
             height: 40,
             controller: searchController,
             focusNode: searchFocusNode,
             hintText: 'Find your item',
             fillColor: Theme.of(context).colorScheme.surface,
-            suffixIcon: Icon(
+            prefixIcon: Icon(
               FontAwesomeIcons.magnifyingGlass,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            onSuffixIconPressed: () {
-              cubit.updateSearchText(searchController.text);
+            onChanged: (value) {
+              cubit.updateSearchText(value);
             },
           ),
 
@@ -186,9 +180,18 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
                       itemCount: state.productList.length,
                       itemBuilder: (context, index) {
                         final product = state.productList[index];
-                        return ListTile(
-                          title: Text(product.productName),
-                          subtitle: Text('đ${product.stock}'),
+                        return InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ProductDetailScreen.newInstance(product),
+                              ),
+                            );
+                          },
+                          child: ListTile(
+                            title: Text(product.productName),
+                            subtitle: Text('đ${product.stock}'),
+                          ),
                         );
                       },
                     );

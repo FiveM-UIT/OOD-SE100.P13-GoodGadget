@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gizmoglobe_client/enums/product_related/mainboard_enums/mainboard_compatibility.dart';
+import 'package:gizmoglobe_client/enums/stakeholders/employee_role.dart';
 import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
 import 'package:gizmoglobe_client/objects/customer.dart';
@@ -15,6 +16,7 @@ import '../../enums/product_related/gpu_enums/gpu_capacity.dart';
 import '../../enums/product_related/gpu_enums/gpu_series.dart';
 import '../../enums/product_related/mainboard_enums/mainboard_form_factor.dart';
 import '../../enums/product_related/mainboard_enums/mainboard_series.dart';
+import '../../enums/product_related/product_status_enum.dart';
 import '../../enums/product_related/psu_enums/psu_efficiency.dart';
 import '../../enums/product_related/psu_enums/psu_modular.dart';
 import '../../enums/product_related/ram_enums/ram_bus.dart';
@@ -96,7 +98,19 @@ class Database {
             {
               'productID': doc.id,
               'productName': data['productName'],
-              'price': data['price'].toDouble(),
+              'importPrice': data['importPrice'].toDouble(),
+              'sellingPrice': data['sellingPrice'].toDouble(),
+              'discount': data['discount'].toDouble(),
+              'release': (data['release'] as Timestamp).toDate(),
+              'sales': data['sales'],
+              'stock': data['stock'],
+              'status': ProductStatusEnum.values.firstWhere(
+                    (s) => s.getName() == data['status'],
+                orElse: () {
+                  print('Invalid status for product ${doc.id}');
+                  throw Exception('Invalid status for product ${doc.id}');
+                },
+              ),
               'manufacturer': manufacturer,
               ...specificData,
             },
@@ -110,7 +124,7 @@ class Database {
       print('Số lượng products trong list: ${productList.length}');
 
     } catch (e) {
-      print('L���i chi tiết khi lấy dữ liệu: $e');
+      print('Error fetching data: $e');
       // _initializeSampleData();
     }
   }
@@ -239,7 +253,13 @@ class Database {
       // DDR3 RAM samples
       ProductFactory.createProduct(CategoryEnum.ram, {
         'productName': 'Kingston HyperX Fury DDR3',
-        'price': 49.99,
+        'importPrice': 49.99,
+        'sellingPrice': 59.99,
+        'discount': 0.1,
+        'release': DateTime(2015, 1, 1),
+        'sales': 100,
+        'stock': 50,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[3], // Kingston
         'bus': RAMBus.mhz1600,
         'capacity': RAMCapacity.gb8,
@@ -247,7 +267,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.ram, {
         'productName': 'Corsair Vengeance DDR3',
-        'price': 89.99,
+        'importPrice': 69.99,
+        'sellingPrice': 79.99,
+        'discount': 0.12,
+        'release': DateTime(2016, 1, 1),
+        'sales': 200,
+        'stock': 100,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[0], // Corsair
         'bus': RAMBus.mhz2133,
         'capacity': RAMCapacity.gb16,
@@ -257,7 +283,13 @@ class Database {
       // DDR4 RAM samples
       ProductFactory.createProduct(CategoryEnum.ram, {
         'productName': 'G.Skill Ripjaws V DDR4',
-        'price': 69.99,
+        'importPrice': 79.99,
+        'sellingPrice': 89.99,
+        'discount': 0.11,
+        'release': DateTime(2017, 1, 1),
+        'sales': 300,
+        'stock': 150,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[1], // G.Skill
         'bus': RAMBus.mhz2400,
         'capacity': RAMCapacity.gb16,
@@ -265,7 +297,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.ram, {
         'productName': 'Crucial Ballistix DDR4',
-        'price': 129.99,
+        'importPrice': 99.99,
+        'sellingPrice': 109.99,
+        'discount': 0.09,
+        'release': DateTime(2018, 1, 1),
+        'sales': 400,
+        'stock': 200,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[2], // Crucial
         'bus': RAMBus.mhz3200,
         'capacity': RAMCapacity.gb32,
@@ -273,7 +311,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.ram, {
         'productName': 'Corsair Dominator DDR4',
-        'price': 249.99,
+        'importPrice': 149.99,
+        'sellingPrice': 159.99,
+        'discount': 0.06,
+        'release': DateTime(2019, 1, 1),
+        'sales': 500,
+        'stock': 250,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[0], // Corsair
         'bus': RAMBus.mhz3200,
         'capacity': RAMCapacity.gb64,
@@ -283,7 +327,13 @@ class Database {
       // DDR5 RAM samples
       ProductFactory.createProduct(CategoryEnum.ram, {
         'productName': 'G.Skill Trident Z5 DDR5',
-        'price': 159.99,
+        'importPrice': 199.99,
+        'sellingPrice': 219.99,
+        'discount': 0.09,
+        'release': DateTime(2020, 1, 1),
+        'sales': 600,
+        'stock': 300,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[1], // G.Skill
         'bus': RAMBus.mhz4800,
         'capacity': RAMCapacity.gb32,
@@ -291,7 +341,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.ram, {
         'productName': 'Corsair Vengeance DDR5',
-        'price': 299.99,
+        'importPrice': 299.99,
+        'sellingPrice': 329.99,
+        'discount': 0.08,
+        'release': DateTime(2021, 1, 1),
+        'sales': 0,
+        'stock': 0,
+        'status': ProductStatusEnum.discontinued,
         'manufacturer': manufacturerList[0], // Corsair
         'bus': RAMBus.mhz4800,
         'capacity': RAMCapacity.gb64,
@@ -299,7 +355,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.ram, {
         'productName': 'Kingston Fury Beast DDR5',
-        'price': 599.99,
+        'importPrice': 399.99,
+        'sellingPrice': 429.99,
+        'discount': 0.07,
+        'release': DateTime(2022, 1, 1),
+        'sales': 0,
+        'stock': 0,
+        'status': ProductStatusEnum.discontinued,
         'manufacturer': manufacturerList[3], // Kingston
         'bus': RAMBus.mhz4800,
         'capacity': RAMCapacity.gb128,
@@ -309,7 +371,13 @@ class Database {
       // CPU samples
       ProductFactory.createProduct(CategoryEnum.cpu, {
         'productName': 'Intel Core i3-13100',
-        'price': 149.99,
+        'importPrice': 99.99,
+        'sellingPrice': 119.99,
+        'discount': 0.17,
+        'release': DateTime(2021, 1, 1),
+        'sales': 100,
+        'stock': 50,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[4], // Intel
         'family': CPUFamily.corei3Ultra3,
         'core': 4,
@@ -318,7 +386,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.cpu, {
         'productName': 'Intel Core i5-13600K',
-        'price': 319.99,
+        'importPrice': 199.99,
+        'sellingPrice': 229.99,
+        'discount': 0.13,
+        'release': DateTime(2021, 1, 1),
+        'sales': 200,
+        'stock': 100,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[4], // Intel
         'family': CPUFamily.corei5Ultra5,
         'core': 14,
@@ -327,7 +401,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.cpu, {
         'productName': 'Intel Core i7-13700K',
-        'price': 419.99,
+        'importPrice': 299.99,
+        'sellingPrice': 349.99,
+        'discount': 0.14,
+        'release': DateTime(2021, 1, 1),
+        'sales': 300,
+        'stock': 150,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[4], // Intel
         'family': CPUFamily.corei7Ultra7,
         'core': 16,
@@ -336,7 +416,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.cpu, {
         'productName': 'Intel Xeon W-3475X',
-        'price': 1499.99,
+        'importPrice': 999.99,
+        'sellingPrice': 1199.99,
+        'discount': 0.17,
+        'release': DateTime(2021, 1, 1),
+        'sales': 400,
+        'stock': 200,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[4], // Intel
         'family': CPUFamily.xeon,
         'core': 36,
@@ -345,7 +431,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.cpu, {
         'productName': 'AMD Ryzen 3 4100',
-        'price': 99.99,
+        'importPrice': 99.99,
+        'sellingPrice': 119.99,
+        'discount': 0.17,
+        'release': DateTime(2021, 1, 1),
+        'sales': 100,
+        'stock': 50,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[5], // AMD
         'family': CPUFamily.ryzen3,
         'core': 4,
@@ -354,7 +446,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.cpu, {
         'productName': 'AMD Ryzen 5 7600X',
-        'price': 299.99,
+        'importPrice': 199.99,
+        'sellingPrice': 229.99,
+        'discount': 0.13,
+        'release': DateTime(2021, 1, 1),
+        'sales': 200,
+        'stock': 100,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[5], // AMD
         'family': CPUFamily.ryzen5,
         'core': 6,
@@ -363,7 +461,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.cpu, {
         'productName': 'AMD Ryzen 7 7800X3D',
-        'price': 449.99,
+        'importPrice': 299.99,
+        'sellingPrice': 349.99,
+        'discount': 0.14,
+        'release': DateTime(2021, 1, 1),
+        'sales': 300,
+        'stock': 150,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[5], // AMD
         'family': CPUFamily.ryzen7,
         'core': 8,
@@ -372,7 +476,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.cpu, {
         'productName': 'AMD Threadripper PRO 5995WX',
-        'price': 6499.99,
+        'importPrice': 999.99,
+        'sellingPrice': 1199.99,
+        'discount': 0.17,
+        'release': DateTime(2021, 1, 1),
+        'sales': 400,
+        'stock': 200,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[5], // AMD
         'family': CPUFamily.threadripper,
         'core': 64,
@@ -383,7 +493,13 @@ class Database {
       // GPU samples
       ProductFactory.createProduct(CategoryEnum.gpu, {
         'productName': 'ASUS ROG STRIX GTX 1660 SUPER',
-        'price': 299.99,
+        'importPrice': 299.99,
+        'sellingPrice': 349.99,
+        'discount': 0.14,
+        'release': DateTime(2019, 1, 1),
+        'sales': 100,
+        'stock': 50,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[6], // ASUS
         'series': GPUSeries.gtx,
         'capacity': GPUCapacity.gb6,
@@ -392,7 +508,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.gpu, {
         'productName': 'MSI Gaming X RTX 4070',
-        'price': 599.99,
+        'importPrice': 499.99,
+        'sellingPrice': 599.99,
+        'discount': 0.17,
+        'release': DateTime(2020, 1, 1),
+        'sales': 200,
+        'stock': 100,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[7], // MSI
         'series': GPUSeries.rtx,
         'capacity': GPUCapacity.gb12,
@@ -401,7 +523,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.gpu, {
         'productName': 'NVIDIA Quadro RTX A6000',
-        'price': 4499.99,
+        'importPrice': 1999.99,
+        'sellingPrice': 2299.99,
+        'discount': 0.13,
+        'release': DateTime(2021, 1, 1),
+        'sales': 300,
+        'stock': 150,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[6], // ASUS
         'series': GPUSeries.quadro,
         'capacity': GPUCapacity.gb24,
@@ -410,7 +538,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.gpu, {
         'productName': 'Gigabyte RX 7900 XTX',
-        'price': 999.99,
+        'importPrice': 299.99,
+        'sellingPrice': 349.99,
+        'discount': 0.14,
+        'release': DateTime(2022, 1, 1),
+        'sales': 400,
+        'stock': 200,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[8], // Gigabyte
         'series': GPUSeries.rx,
         'capacity': GPUCapacity.gb24,
@@ -419,7 +553,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.gpu, {
         'productName': 'AMD FirePro W9100',
-        'price': 3999.99,
+        'importPrice': 999.99,
+        'sellingPrice': 1199.99,
+        'discount': 0.17,
+        'release': DateTime(2015, 1, 1),
+        'sales': 500,
+        'stock': 250,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[5], // AMD
         'series': GPUSeries.firePro,
         'capacity': GPUCapacity.gb16,
@@ -428,7 +568,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.gpu, {
         'productName': 'Intel Arc A770',
-        'price': 349.99,
+        'importPrice': 199.99,
+        'sellingPrice': 229.99,
+        'discount': 0.13,
+        'release': DateTime(2022, 1, 1),
+        'sales': 600,
+        'stock': 300,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[4], // Intel
         'series': GPUSeries.arc,
         'capacity': GPUCapacity.gb16,
@@ -437,7 +583,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.gpu, {
         'productName': 'MSI Gaming X RTX 4090',
-        'price': 1999.99,
+        'importPrice': 999.99,
+        'sellingPrice': 1199.99,
+        'discount': 0.17,
+        'release': DateTime(2022, 1, 1),
+        'sales': 700,
+        'stock': 350,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[7], // MSI
         'series': GPUSeries.rtx,
         'capacity': GPUCapacity.gb24,
@@ -446,7 +598,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.gpu, {
         'productName': 'Gigabyte RX 6600',
-        'price': 249.99,
+        'importPrice': 299.99,
+        'sellingPrice': 349.99,
+        'discount': 0.14,
+        'release': DateTime(2022, 1, 1),
+        'sales': 800,
+        'stock': 400,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[8], // Gigabyte
         'series': GPUSeries.rx,
         'capacity': GPUCapacity.gb8,
@@ -457,7 +615,13 @@ class Database {
       // Mainboard samples
       ProductFactory.createProduct(CategoryEnum.mainboard, {
         'productName': 'ASUS PRIME H610M-K',
-        'price': 89.99,
+        'importPrice': 79.99,
+        'sellingPrice': 89.99,
+        'discount': 0.1,
+        'release': DateTime(2021, 1, 1),
+        'sales': 100,
+        'stock': 50,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[6], // ASUS
         'formFactor': MainboardFormFactor.microATX,
         'series': MainboardSeries.h,
@@ -465,7 +629,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.mainboard, {
         'productName': 'MSI PRO H610I',
-        'price': 119.99,
+        'importPrice': 99.99,
+        'sellingPrice': 109.99,
+        'discount': 0.09,
+        'release': DateTime(2021, 1, 1),
+        'sales': 200,
+        'stock': 100,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[7], // MSI
         'formFactor': MainboardFormFactor.miniITX,
         'series': MainboardSeries.h,
@@ -473,7 +643,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.mainboard, {
         'productName': 'Gigabyte B650 AORUS ELITE AX',
-        'price': 229.99,
+        'importPrice': 149.99,
+        'sellingPrice': 169.99,
+        'discount': 0.12,
+        'release': DateTime(2021, 1, 1),
+        'sales': 300,
+        'stock': 150,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[8], // Gigabyte
         'formFactor': MainboardFormFactor.atx,
         'series': MainboardSeries.b,
@@ -481,7 +657,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.mainboard, {
         'productName': 'MSI MAG B760M MORTAR',
-        'price': 179.99,
+        'importPrice': 199.99,
+        'sellingPrice': 229.99,
+        'discount': 0.13,
+        'release': DateTime(2021, 1, 1),
+        'sales': 400,
+        'stock': 200,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[7], // MSI
         'formFactor': MainboardFormFactor.microATX,
         'series': MainboardSeries.b,
@@ -489,7 +671,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.mainboard, {
         'productName': 'ASUS ROG STRIX B650E-I',
-        'price': 289.99,
+        'importPrice': 299.99,
+        'sellingPrice': 349.99,
+        'discount': 0.14,
+        'release': DateTime(2021, 1, 1),
+        'sales': 500,
+        'stock': 250,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[6], // ASUS
         'formFactor': MainboardFormFactor.miniITX,
         'series': MainboardSeries.b,
@@ -497,7 +685,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.mainboard, {
         'productName': 'ASUS ROG MAXIMUS Z790 HERO',
-        'price': 629.99,
+        'importPrice': 399.99,
+        'sellingPrice': 449.99,
+        'discount': 0.1,
+        'release': DateTime(2022, 1, 1),
+        'sales': 600,
+        'stock': 300,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[6], // ASUS
         'formFactor': MainboardFormFactor.atx,
         'series': MainboardSeries.z,
@@ -505,7 +699,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.mainboard, {
         'productName': 'MSI MPG Z790M EDGE',
-        'price': 399.99,
+        'importPrice': 499.99,
+        'sellingPrice': 549.99,
+        'discount': 0.09,
+        'release': DateTime(2022, 1, 1),
+        'sales': 700,
+        'stock': 350,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[7], // MSI
         'formFactor': MainboardFormFactor.microATX,
         'series': MainboardSeries.z,
@@ -513,7 +713,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.mainboard, {
         'productName': 'Gigabyte X670E AORUS MASTER',
-        'price': 499.99,
+        'importPrice': 599.99,
+        'sellingPrice': 649.99,
+        'discount': 0.08,
+        'release': DateTime(2022, 1, 1),
+        'sales': 800,
+        'stock': 400,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[8], // Gigabyte
         'formFactor': MainboardFormFactor.atx,
         'series': MainboardSeries.x,
@@ -521,7 +727,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.mainboard, {
         'productName': 'ASUS ROG STRIX X670E-I',
-        'price': 469.99,
+        'importPrice': 699.99,
+        'sellingPrice': 749.99,
+        'discount': 0.07,
+        'release': DateTime(2022, 1, 1),
+        'sales': 900,
+        'stock': 450,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[6], // ASUS
         'formFactor': MainboardFormFactor.miniITX,
         'series': MainboardSeries.x,
@@ -531,77 +743,143 @@ class Database {
       // Drive samples
       ProductFactory.createProduct(CategoryEnum.drive, {
         'productName': 'Seagate Barracuda',
-        'price': 49.99,
+        'importPrice': 49.99,
+        'sellingPrice': 59.99,
+        'discount': 0.1,
+        'release': DateTime(2015, 1, 1),
+        'sales': 100,
+        'stock': 50,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[11], // Seagate
         'type': DriveType.hdd,
         'capacity': DriveCapacity.tb2,
       }),
       ProductFactory.createProduct(CategoryEnum.drive, {
         'productName': 'WD Blue HDD',
-        'price': 89.99,
+        'importPrice': 69.99,
+        'sellingPrice': 79.99,
+        'discount': 0.12,
+        'release': DateTime(2016, 1, 1),
+        'sales': 200,
+        'stock': 100,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[10], // Western Digital
         'type': DriveType.hdd,
         'capacity': DriveCapacity.tb4,
       }),
       ProductFactory.createProduct(CategoryEnum.drive, {
         'productName': 'Samsung 870 EVO',
-        'price': 69.99,
+        'importPrice': 79.99,
+        'sellingPrice': 89.99,
+        'discount': 0.11,
+        'release': DateTime(2017, 1, 1),
+        'sales': 300,
+        'stock': 150,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[9], // Samsung
         'type': DriveType.sataSSD,
         'capacity': DriveCapacity.gb512,
       }),
       ProductFactory.createProduct(CategoryEnum.drive, {
         'productName': 'Crucial MX500',
-        'price': 89.99,
+        'importPrice': 99.99,
+        'sellingPrice': 109.99,
+        'discount': 0.09,
+        'release': DateTime(2018, 1, 1),
+        'sales': 400,
+        'stock': 200,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[2], // Crucial
         'type': DriveType.sataSSD,
         'capacity': DriveCapacity.tb1,
       }),
       ProductFactory.createProduct(CategoryEnum.drive, {
         'productName': 'WD Blue SATA SSD',
-        'price': 159.99,
+        'importPrice': 119.99,
+        'sellingPrice': 129.99,
+        'discount': 0.07,
+        'release': DateTime(2019, 1, 1),
+        'sales': 500,
+        'stock': 250,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[10], // Western Digital
         'type': DriveType.sataSSD,
         'capacity': DriveCapacity.tb2,
       }),
       ProductFactory.createProduct(CategoryEnum.drive, {
         'productName': 'Samsung 860 EVO M.2',
-        'price': 79.99,
+        'importPrice': 149.99,
+        'sellingPrice': 159.99,
+        'discount': 0.06,
+        'release': DateTime(2020, 1, 1),
+        'sales': 600,
+        'stock': 300,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[9], // Samsung
         'type': DriveType.m2NGFF,
         'capacity': DriveCapacity.gb512,
       }),
       ProductFactory.createProduct(CategoryEnum.drive, {
         'productName': 'WD Blue M.2 SATA',
-        'price': 109.99,
+        'importPrice': 199.99,
+        'sellingPrice': 219.99,
+        'discount': 0.09,
+        'release': DateTime(2021, 1, 1),
+        'sales': 700,
+        'stock': 350,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[10], // Western Digital
         'type': DriveType.m2NGFF,
         'capacity': DriveCapacity.tb1,
       }),
       ProductFactory.createProduct(CategoryEnum.drive, {
         'productName': 'Samsung 970 EVO Plus',
-        'price': 119.99,
+        'importPrice': 299.99,
+        'sellingPrice': 329.99,
+        'discount': 0.08,
+        'release': DateTime(2022, 1, 1),
+        'sales': 800,
+        'stock': 400,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[9], // Samsung
         'type': DriveType.m2NVME,
         'capacity': DriveCapacity.gb512,
       }),
       ProductFactory.createProduct(CategoryEnum.drive, {
         'productName': 'WD Black SN850X',
-        'price': 159.99,
+        'importPrice': 399.99,
+        'sellingPrice': 429.99,
+        'discount': 0.07,
+        'release': DateTime(2022, 1, 1),
+        'sales': 900,
+        'stock': 450,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[10], // Western Digital
         'type': DriveType.m2NVME,
         'capacity': DriveCapacity.tb1,
       }),
       ProductFactory.createProduct(CategoryEnum.drive, {
         'productName': 'Seagate FireCuda 530',
-        'price': 359.99,
+        'importPrice': 499.99,
+        'sellingPrice': 549.99,
+        'discount': 0.06,
+        'release': DateTime(2022, 1, 1),
+        'sales': 1000,
+        'stock': 500,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[11], // Seagate
         'type': DriveType.m2NVME,
         'capacity': DriveCapacity.tb2,
       }),
       ProductFactory.createProduct(CategoryEnum.drive, {
         'productName': 'Corsair Force MP600',
-        'price': 699.99,
+        'importPrice': 599.99,
+        'sellingPrice': 649.99,
+        'discount': 0.05,
+        'release': DateTime(2022, 1, 1),
+        'sales': 1100,
+        'stock': 550,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[0], // Corsair
         'type': DriveType.m2NVME,
         'capacity': DriveCapacity.tb4,
@@ -610,7 +888,13 @@ class Database {
       // PSU samples
       ProductFactory.createProduct(CategoryEnum.psu, {
         'productName': 'Thermaltake Smart 500W',
-        'price': 44.99,
+        'importPrice': 39.99,
+        'sellingPrice': 49.99,
+        'discount': 0.2,
+        'release': DateTime(2015, 1, 1),
+        'sales': 100,
+        'stock': 50,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[14], // Thermaltake
         'wattage': 500,
         'efficiency': PSUEfficiency.white,
@@ -618,7 +902,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.psu, {
         'productName': 'Corsair CV650',
-        'price': 69.99,
+        'importPrice': 49.99,
+        'sellingPrice': 59.99,
+        'discount': 0.17,
+        'release': DateTime(2016, 1, 1),
+        'sales': 200,
+        'stock': 100,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[0], // Corsair
         'wattage': 650,
         'efficiency': PSUEfficiency.bronze,
@@ -626,7 +916,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.psu, {
         'productName': 'be quiet! Pure Power 11',
-        'price': 89.99,
+        'importPrice': 69.99,
+        'sellingPrice': 79.99,
+        'discount': 0.13,
+        'release': DateTime(2017, 1, 1),
+        'sales': 300,
+        'stock': 150,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[13], // be quiet!
         'wattage': 600,
         'efficiency': PSUEfficiency.bronze,
@@ -634,7 +930,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.psu, {
         'productName': 'Seasonic FOCUS GX-750',
-        'price': 129.99,
+        'importPrice': 99.99,
+        'sellingPrice': 109.99,
+        'discount': 0.09,
+        'release': DateTime(2018, 1, 1),
+        'sales': 400,
+        'stock': 200,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[12], // Seasonic
         'wattage': 750,
         'efficiency': PSUEfficiency.gold,
@@ -642,7 +944,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.psu, {
         'productName': 'Corsair RM850x',
-        'price': 149.99,
+        'importPrice': 129.99,
+        'sellingPrice': 139.99,
+        'discount': 0.07,
+        'release': DateTime(2019, 1, 1),
+        'sales': 500,
+        'stock': 250,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[0], // Corsair
         'wattage': 850,
         'efficiency': PSUEfficiency.gold,
@@ -650,7 +958,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.psu, {
         'productName': 'be quiet! Straight Power 11',
-        'price': 189.99,
+        'importPrice': 149.99,
+        'sellingPrice': 159.99,
+        'discount': 0.06,
+        'release': DateTime(2020, 1, 1),
+        'sales': 600,
+        'stock': 300,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[13], // be quiet!
         'wattage': 850,
         'efficiency': PSUEfficiency.platinum,
@@ -658,7 +972,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.psu, {
         'productName': 'Seasonic PRIME TX-1000',
-        'price': 309.99,
+        'importPrice': 199.99,
+        'sellingPrice': 219.99,
+        'discount': 0.09,
+        'release': DateTime(2021, 1, 1),
+        'sales': 700,
+        'stock': 350,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[12], // Seasonic
         'wattage': 1000,
         'efficiency': PSUEfficiency.titanium,
@@ -666,7 +986,13 @@ class Database {
       }),
       ProductFactory.createProduct(CategoryEnum.psu, {
         'productName': 'be quiet! Dark Power Pro 12',
-        'price': 399.99,
+        'importPrice': 299.99,
+        'sellingPrice': 329.99,
+        'discount': 0.08,
+        'release': DateTime(2022, 1, 1),
+        'sales': 800,
+        'stock': 400,
+        'status': ProductStatusEnum.active,
         'manufacturer': manufacturerList[13], // be quiet!
         'wattage': 1200,
         'efficiency': PSUEfficiency.titanium,
@@ -705,25 +1031,34 @@ class Database {
     // Generate employee samples
     employeeList = [
       Employee(
-        employeeID: '1',
-        employeeName: 'John Smith',
-        email: 'john.smith@company.com',
-        phoneNumber: '0123456789',
-        role: 'Sales Manager',
+        employeeName: 'Tran Nhat Tan',
+        phoneNumber: '0901234567',
+        email: 'tan.tran@example.com',
+        role: RoleEnum.manager,
       ),
       Employee(
-        employeeID: '2',
-        employeeName: 'Sarah Johnson',
-        email: 'sarah.j@company.com',
-        phoneNumber: '0987654321',
-        role: 'Sales Representative',
+        employeeName: 'Phan Nguyen Khoa',
+        phoneNumber: '0912345678',
+        email: 'khoa.phan@example.com',
+        role: RoleEnum.employee,
       ),
       Employee(
-        employeeID: '3',
-        employeeName: 'Mike Wilson',
-        email: 'mike.w@company.com',
-        phoneNumber: '0123498765',
-        role: 'Technical Support',
+        employeeName: 'Do Hong Quan',
+        phoneNumber: '0923456789',
+        email: 'quan.do@example.com',
+        role: RoleEnum.owner,
+      ),
+      Employee(
+        employeeName: 'To Vinh Tien',
+        phoneNumber: '0934567890',
+        email: 'tien.to@example.com',
+        role: RoleEnum.owner,
+      ),
+      Employee(
+        employeeName: 'Nguyen Duy Vu',
+        phoneNumber: '0945678901',
+        email: 'vu.nguyen@example.com',
+        role: RoleEnum.manager,
       ),
     ];
   }

@@ -81,12 +81,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                           const SizedBox(height: 16),
                           _buildInfoRow('Email', state.employee.email),
                           _buildInfoRow('Phone', state.employee.phoneNumber),
-                          _buildInfoRow('Role', state.employee.role),
-                          _buildInfoRow(
-                            'Status',
-                            state.employee.isActive ? 'Active' : 'Inactive',
-                            valueColor: state.employee.isActive ? Colors.green : Colors.red,
-                          ),
+                          _buildInfoRow('Role', state.employee.role.toString()),
                         ],
                       ),
                     ),
@@ -107,26 +102,6 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            context.read<EmployeeDetailCubit>().toggleEmployeeStatus();
-                          },
-                          icon: Icon(
-                            state.employee.isActive ? Icons.block : Icons.check_circle,
-                            color: Colors.white,
-                          ),
-                          label: Text(
-                            state.employee.isActive ? 'Deactivate' : 'Activate',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: state.employee.isActive ? Colors.orange : Colors.green,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                        ),
-                      ),
                       const SizedBox(height: 8),
                       Row(
                         children: [

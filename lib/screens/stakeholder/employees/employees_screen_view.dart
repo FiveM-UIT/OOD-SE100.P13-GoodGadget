@@ -45,7 +45,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         controller: searchController,
                         hintText: 'Find employees...',
                         fillColor: Theme.of(context).colorScheme.surface,
-                        onChange: (value) {
+                        onChanged: (value) {
                           cubit.searchEmployees(value);
                         },
                       ),

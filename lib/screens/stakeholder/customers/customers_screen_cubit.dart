@@ -62,14 +62,6 @@ class CustomersScreenCubit extends Cubit<CustomersScreenState> {
     emit(state.copyWith(customers: filteredCustomers));
   }
 
-  Future<void> toggleBanStatus(String customerId, bool currentStatus) async {
-    try {
-      await _firebase.toggleCustomerBanStatus(customerId, !currentStatus);
-    } catch (e) {
-      print('Lỗi khi thay đổi trạng thái ban: $e');
-    }
-  }
-
   void setSelectedIndex(int? index) {
     emit(state.copyWith(selectedIndex: index));
   }

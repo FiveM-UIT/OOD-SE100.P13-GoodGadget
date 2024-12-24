@@ -84,11 +84,6 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                           const SizedBox(height: 24),
                           _buildInfoRow('Email', state.customer.email),
                           _buildInfoRow('Phone', state.customer.phoneNumber),
-                          _buildInfoRow(
-                            'Status',
-                            state.customer.banStatus ? 'Banned' : 'Active',
-                            valueColor: state.customer.banStatus ? Colors.red : Colors.green,
-                          ),
                         ],
                       ),
                     ),

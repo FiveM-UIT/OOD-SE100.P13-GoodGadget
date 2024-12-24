@@ -26,7 +26,13 @@ Future<void> pushProductSamplesToFirebase() async {
     for (var product in Database().productList) {
       Map<String, dynamic> productData = {
         'productName': product.productName,
-        'price': product.price,
+        'importPrice': product.importPrice,
+        'sellingPrice': product.sellingPrice,
+        'discount': product.discount,
+        'release': product.release,
+        'sales': product.sales,
+        'stock': product.stock,
+        'status': product.status.getName(),
         'manufacturerID': product.manufacturer.manufacturerID,
         'category': product.category.getName(),
       };
@@ -109,7 +115,7 @@ class Firebase {
   Future<void> pushCustomerSampleData() async {
     try {
       final FirebaseFirestore firestore = FirebaseFirestore.instance;
-      
+
       // Generate sample data
       Database().generateSampleData();
 
@@ -148,35 +154,31 @@ class Firebase {
             'customerName': doc['username'] ?? '',
             'phoneNumber': doc['phoneNumber'] ?? '',
             'email': doc['email'] ?? '',
-            'banStatus': false,
           });
         }
       }
 
       // Sync users with employees
-      QuerySnapshot employeeUserSnapshot = await firestore
-          .collection('users')
-          .where('role', isEqualTo: 'employee')
-          .get();
-
-      for (var doc in employeeUserSnapshot.docs) {
-        // Check if user exists in employees
-        QuerySnapshot existingEmployee = await firestore
-            .collection('employees')
-            .where('email', isEqualTo: doc['email'])
-            .get();
-
-        // Add if not exists
-        if (existingEmployee.docs.isEmpty) {
-          await firestore.collection('employees').add({
-            'employeeName': doc['username'] ?? '',
-            'phoneNumber': doc['phoneNumber'] ?? '',
-            'email': doc['email'] ?? '',
-            'role': doc['employeeRole'] ?? 'Staff',
-            'isActive': true,
-          });
-        }
-      }
+      // QuerySnapshot employeeUserSnapshot = await firestore
+      //     .collection('users')
+      //     .where('role', isEqualTo: 'employee')
+      //     .get();
+      //
+      // for (var doc in employeeUserSnapshot.docs) {
+      //   // Check if user exists in employees
+      //   QuerySnapshot existingEmployee = await firestore
+      //       .collection('employees')
+      //       .where('email', isEqualTo: doc['email'])
+      //       .get();
+      //
+      //   // Add if not exists
+      //   if (existingEmployee.docs.isEmpty) {
+      //     await firestore.collection('employees').add({
+      //       'employeeName': doc['username'] ?? '',
+      //       'phoneNumber': doc['phoneNumber'] ?? '',
+      //       'email': doc['email'] ?? '',
+      //     });
+      //   }
 
       print('Successfully pushed and synced customer and employee data');
     } catch (e) {
@@ -200,17 +202,7 @@ class Firebase {
     }
   }
 
-  Future<void> toggleCustomerBanStatus(String customerId, bool newStatus) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('customers')
-          .doc(customerId)
-          .update({'banStatus': newStatus});
-    } catch (e) {
-      print('Lỗi khi cập nhật trạng thái ban của khách hàng: $e');
-      rethrow;
-    }
-  }
+
 
   Stream<List<Customer>> customersStream() {
     return FirebaseFirestore.instance
@@ -236,7 +228,6 @@ class Firebase {
         'customerName': customer.customerName,
         'email': customer.email,
         'phoneNumber': customer.phoneNumber,
-        'banStatus': customer.banStatus,
       });
     } catch (e) {
       print('Lỗi khi cập nhật khách hàng: $e');
@@ -383,18 +374,6 @@ class Firebase {
       employee.employeeID = docRef.id;
     } catch (e) {
       print('Lỗi khi tạo nhân viên mới: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> toggleEmployeeStatus(String employeeId, bool newStatus) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('employees')
-          .doc(employeeId)
-          .update({'isActive': newStatus});
-    } catch (e) {
-      print('Lỗi khi cập nhật trạng thái nhân viên: $e');
       rethrow;
     }
   }

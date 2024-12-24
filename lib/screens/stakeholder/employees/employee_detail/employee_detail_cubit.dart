@@ -37,23 +37,4 @@ class EmployeeDetailCubit extends Cubit<EmployeeDetailState> {
       ));
     }
   }
-
-  Future<void> toggleEmployeeStatus() async {
-    emit(state.copyWith(isLoading: true));
-    try {
-      final newStatus = !state.employee.isActive;
-      await _firebase.toggleEmployeeStatus(state.employee.employeeID!, newStatus);
-      
-      final updatedEmployee = state.employee.copyWith(isActive: newStatus);
-      emit(state.copyWith(
-        employee: updatedEmployee,
-        isLoading: false,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      ));
-    }
-  }
 } 

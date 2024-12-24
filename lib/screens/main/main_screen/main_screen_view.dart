@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
 import 'package:gizmoglobe_client/screens/main/main_screen/main_screen_cubit.dart';
+import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_view.dart';
 import 'package:gizmoglobe_client/screens/stakeholder/stakeholder_screen_view.dart';
 import '../../../widgets/general/selectable_gradient_icon.dart';
-import '../../cart/cart_screen/cart_screen_view.dart';
 import '../../home/home_screen/home_screen_view.dart';
 import '../../user/user_screen/user_screen_view.dart';
 import '../drawer/drawer_cubit.dart';
@@ -25,7 +25,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget Function()> widgetList = [
         () => HomeScreen.newInstance(),
-        () => Container(),
+        () => ProductScreen.newInstance(),
         () => UserScreen.newInstance(),
         () => StakeholderScreen.newInstance(),
         () => UserScreen.newInstance(),
@@ -51,12 +51,7 @@ class _MainScreenState extends State<MainScreen> {
             child: BottomNavigationBar(
               type: BottomNavigationBarType.fixed,
               onTap: (value) {
-                if (value == 1) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CartScreen()),
-                  );
-                } else if (value != index) {
+                if (value != index) {
                   setState(() {
                     index = value;
                   });
@@ -76,10 +71,10 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   label: "Home",
                 ),
-                const BottomNavigationBarItem(
+                BottomNavigationBarItem(
                   icon: SelectableGradientIcon(
                     icon: Icons.inventory,
-                    isSelected: false,
+                    isSelected: index == 1,
                     label: 'Product',
                   ),
                   label: "Product",

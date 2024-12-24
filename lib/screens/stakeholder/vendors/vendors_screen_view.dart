@@ -33,7 +33,7 @@ class _VendorsScreenState extends State<VendorsScreen> {
                   controller: searchController,
                   hintText: 'Find vendors...',
                   fillColor: Theme.of(context).colorScheme.surface,
-                  onChange: (value) {
+                  onChanged: (value) {
                     // TODO: Implement search
                   },
                 ),

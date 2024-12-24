@@ -73,7 +73,7 @@ class _HomeScreen extends State<HomeScreen> {
                             controller: searchController,
                             hintText: 'What do you need?',
                             fillColor: Theme.of(context).colorScheme.surface,
-                            onChange: (value) {
+                            onChanged: (value) {
                               cubit.changeSearchText(value);
                             },
                           ),

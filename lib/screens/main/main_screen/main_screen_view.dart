@@ -9,9 +9,6 @@ import 'package:gizmoglobe_client/screens/stakeholder/stakeholder_screen_view.da
 import '../../../widgets/general/selectable_gradient_icon.dart';
 import '../../home/home_screen/home_screen_view.dart';
 import '../../user/user_screen/user_screen_view.dart';
-import '../drawer/drawer_cubit.dart';
-import '../drawer/drawer_state.dart';
-import '../drawer/drawer_view.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -108,26 +105,6 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ),
         ),
-        BlocBuilder<DrawerCubit, DrawerState>(
-          builder: (context, state) {
-            if (state.isOpen) {
-              return GestureDetector(
-                onTap: () => context.read<DrawerCubit>().closeDrawer(),
-                child: Container(
-                  color: Colors.black.withOpacity(0.5),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                    child: Container(
-                      color: Colors.black.withOpacity(0.5),
-                    ),
-                  ),
-                ),
-              );
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-        const DrawerView(),
       ],
     );
   }

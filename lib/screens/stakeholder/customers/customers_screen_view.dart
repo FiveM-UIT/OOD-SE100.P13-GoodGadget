@@ -6,6 +6,7 @@ import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'customers_screen_cubit.dart';
 import 'customers_screen_state.dart';
 import 'customer_detail/customer_detail_view.dart';
+import 'customer_edit/customer_edit_view.dart';
 
 class CustomersScreen extends StatefulWidget {
   const CustomersScreen({super.key});
@@ -143,40 +144,60 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                               final updatedCustomer = await Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) => CustomerDetailScreen(
+                                                  builder: (context) => CustomerEditScreen(
                                                     customer: customer,
                                                   ),
                                                 ),
                                               );
                                               
-                                              /*if (updatedCustomer != null) {
+                                              if (updatedCustomer != null) {
                                                 await cubit.updateCustomer(updatedCustomer);
-                                              }*/
+                                              }
                                             },
                                           ),
                                           ListTile(
                                             dense: true,
-                                            leading: const Icon(
+                                            leading: Icon(
                                               Icons.delete_outlined,
                                               size: 20,
-                                              color: Colors.white,
+                                              color: Theme.of(context).colorScheme.error,
                                             ),
-                                            title: const Text('Delete', style: TextStyle()),
-                                            onTap: () async {
+                                            title: Text(
+                                              'Delete',
+                                              style: TextStyle(
+                                                color: Theme.of(context).colorScheme.error,
+                                              ),
+                                            ),
+                                            onTap: () {
                                               Navigator.pop(context);
                                               cubit.setSelectedIndex(null);
-                                              final updatedCustomer = await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => CustomerDetailScreen(
-                                                    customer: customer,
-                                                  ),
-                                                ),
+                                              showDialog(
+                                                context: context,
+                                                builder: (BuildContext context) {
+                                                  return AlertDialog(
+                                                    title: const Text('Delete Customer'),
+                                                    content: Text('Are you sure you want to delete ${customer.customerName}?'),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () => Navigator.pop(context),
+                                                        child: const Text('Cancel'),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () async {
+                                                          Navigator.pop(context);
+                                                          await cubit.deleteCustomer(customer.customerID!);
+                                                        },
+                                                        child: Text(
+                                                          'Delete',
+                                                          style: TextStyle(
+                                                            color: Theme.of(context).colorScheme.error,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
                                               );
-
-                                              /*if (updatedCustomer != null) {
-                                                await cubit.updateCustomer(updatedCustomer);
-                                              }*/
                                             },
                                           ),
                                         ],

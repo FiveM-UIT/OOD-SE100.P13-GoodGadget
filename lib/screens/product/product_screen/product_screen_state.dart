@@ -3,7 +3,9 @@ import 'package:gizmoglobe_client/enums/product_related/category_enum.dart';
 import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
 
-class ProductListSearchState extends Equatable {
+import '../../../enums/processing/sort_enum.dart';
+
+class ProductScreenState extends Equatable {
   final String? searchText;
   final List<Product> productList;
   final List<Manufacturer> manufacturerList;
@@ -11,9 +13,10 @@ class ProductListSearchState extends Equatable {
   final List<CategoryEnum> selectedCategoryList;
   final String minPrice;
   final String maxPrice;
+  final SortEnum selectedSortOption;
+  final int selectedTabIndex;
 
-
-  const ProductListSearchState({
+  const ProductScreenState({
     this.searchText,
     this.productList = const [],
     this.manufacturerList = const [],
@@ -21,12 +24,24 @@ class ProductListSearchState extends Equatable {
     this.selectedCategoryList = const [],
     this.minPrice = '',
     this.maxPrice = '',
+    this.selectedSortOption = SortEnum.releaseLatest,
+    this.selectedTabIndex = 0,
   });
 
   @override
-  List<Object?> get props => [searchText, productList, manufacturerList, selectedManufacturerList, selectedCategoryList, minPrice, maxPrice];
+  List<Object?> get props => [
+    searchText,
+    productList,
+    manufacturerList,
+    selectedManufacturerList,
+    selectedCategoryList,
+    minPrice,
+    maxPrice,
+    selectedSortOption,
+    selectedTabIndex,
+  ];
 
-  ProductListSearchState copyWith({
+  ProductScreenState copyWith({
     String? searchText,
     List<Product>? productList,
     List<Manufacturer>? manufacturerList,
@@ -34,8 +49,10 @@ class ProductListSearchState extends Equatable {
     List<CategoryEnum>? selectedCategoryList,
     String? minPrice,
     String? maxPrice,
+    SortEnum? selectedSortOption,
+    int? selectedTabIndex,
   }) {
-    return ProductListSearchState(
+    return ProductScreenState(
       searchText: searchText ?? this.searchText,
       productList: productList ?? this.productList,
       manufacturerList: manufacturerList ?? this.manufacturerList,
@@ -43,6 +60,8 @@ class ProductListSearchState extends Equatable {
       selectedCategoryList: selectedCategoryList ?? this.selectedCategoryList,
       minPrice: minPrice ?? this.minPrice,
       maxPrice: maxPrice ?? this.maxPrice,
+      selectedSortOption: selectedSortOption ?? this.selectedSortOption,
+      selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
     );
   }
 }

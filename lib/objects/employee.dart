@@ -1,10 +1,11 @@
+import 'package:gizmoglobe_client/enums/stakeholders/employee_role.dart';
+
 class Employee {
   String? employeeID;
   String employeeName;
   String email;
   String phoneNumber;
-  String role;
-  bool isActive;
+  RoleEnum role;
 
   Employee({
     this.employeeID,
@@ -12,7 +13,6 @@ class Employee {
     required this.email,
     required this.phoneNumber,
     required this.role,
-    this.isActive = true,
   });
 
   Employee copyWith({
@@ -20,16 +20,15 @@ class Employee {
     String? employeeName,
     String? email,
     String? phoneNumber,
-    String? role,
-    bool? isActive,
+    required RoleEnum role,
+
   }) {
     return Employee(
       employeeID: employeeID ?? this.employeeID,
       employeeName: employeeName ?? this.employeeName,
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      role: role ?? this.role,
-      isActive: isActive ?? this.isActive,
+      role: role,
     );
   }
 
@@ -38,8 +37,7 @@ class Employee {
       'employeeName': employeeName,
       'email': email,
       'phoneNumber': phoneNumber,
-      'role': role,
-      'isActive': isActive,
+      'role': role.getName(),
     };
   }
 
@@ -49,8 +47,7 @@ class Employee {
       employeeName: map['employeeName'] ?? '',
       email: map['email'] ?? '',
       phoneNumber: map['phoneNumber'] ?? '',
-      role: map['role'] ?? '',
-      isActive: map['isActive'] ?? true,
+      role: RoleEnum.values.firstWhere((e) => e.getName() == map['role']),
     );
   }
 } 

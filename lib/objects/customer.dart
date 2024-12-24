@@ -3,14 +3,12 @@ class Customer {
   String customerName;
   String email;
   String phoneNumber;
-  bool banStatus;
 
   Customer({
     this.customerID,
     required this.customerName,
     required this.email,
     required this.phoneNumber,
-    this.banStatus = false,
   });
 
   Customer copyWith({
@@ -25,7 +23,6 @@ class Customer {
       customerName: customerName ?? this.customerName,
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      banStatus: banStatus ?? this.banStatus,
     );
   }
 
@@ -34,7 +31,6 @@ class Customer {
       'customerName': customerName,
       'email': email,
       'phoneNumber': phoneNumber,
-      'banStatus': banStatus,
     };
   }
 
@@ -44,7 +40,6 @@ class Customer {
       customerName: map['customerName'] ?? '',
       email: map['email'] ?? '',
       phoneNumber: map['phoneNumber'] ?? '',
-      banStatus: map['banStatus'] ?? false,
     );
   }
 } 

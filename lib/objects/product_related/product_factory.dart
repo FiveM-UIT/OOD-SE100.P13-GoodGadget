@@ -13,8 +13,12 @@ class ProductFactory {
       case CategoryEnum.ram:
         return RAM(
           productName: properties['productName'],
-          price: properties['price'],
           manufacturer: properties['manufacturer'],
+          category: category,
+          importPrice: properties['importPrice'],
+          sellingPrice: properties['sellingPrice'],
+          discount: properties['discount'],
+          release: properties['release'],
           bus: properties['bus'],
           capacity: properties['capacity'],
           ramType: properties['ramType'],
@@ -22,8 +26,12 @@ class ProductFactory {
       case CategoryEnum.cpu:
         return CPU(
           productName: properties['productName'],
-          price: properties['price'],
           manufacturer: properties['manufacturer'],
+          category: category,
+          importPrice: properties['importPrice'],
+          sellingPrice: properties['sellingPrice'],
+          discount: properties['discount'],
+          release: properties['release'],
           family: properties['family'],
           core: properties['core'],
           thread: properties['thread'],
@@ -32,8 +40,12 @@ class ProductFactory {
       case CategoryEnum.psu:
         return PSU(
           productName: properties['productName'],
-          price: properties['price'],
           manufacturer: properties['manufacturer'],
+          category: category,
+          importPrice: properties['importPrice'],
+          sellingPrice: properties['sellingPrice'],
+          discount: properties['discount'],
+          release: properties['release'],
           wattage: properties['wattage'],
           efficiency: properties['efficiency'],
           modular: properties['modular'],
@@ -41,8 +53,12 @@ class ProductFactory {
       case CategoryEnum.gpu:
         return GPU(
           productName: properties['productName'],
-          price: properties['price'],
           manufacturer: properties['manufacturer'],
+          category: category,
+          importPrice: properties['importPrice'],
+          sellingPrice: properties['sellingPrice'],
+          discount: properties['discount'],
+          release: properties['release'],
           series: properties['series'],
           capacity: properties['capacity'],
           bus: properties['busWidth'],
@@ -51,8 +67,12 @@ class ProductFactory {
       case CategoryEnum.mainboard:
         return Mainboard(
           productName: properties['productName'],
-          price: properties['price'],
           manufacturer: properties['manufacturer'],
+          category: category,
+          importPrice: properties['importPrice'],
+          sellingPrice: properties['sellingPrice'],
+          discount: properties['discount'],
+          release: properties['release'],
           formFactor: properties['formFactor'],
           series: properties['series'],
           compatibility: properties['compatibility'],
@@ -60,13 +80,16 @@ class ProductFactory {
       case CategoryEnum.drive:
         return Drive(
           productName: properties['productName'],
-          price: properties['price'],
           manufacturer: properties['manufacturer'],
+          category: category,
+          importPrice: properties['importPrice'],
+          sellingPrice: properties['sellingPrice'],
+          discount: properties['discount'],
+          release: properties['release'],
           type: properties['type'],
           capacity: properties['capacity'],
         )..productID = properties['productID'];
       default:
         throw Exception('Invalid product category');
     }
-  }
-}
+  }}

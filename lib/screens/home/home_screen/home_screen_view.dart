@@ -7,7 +7,6 @@ import 'package:gizmoglobe_client/widgets/general/gradient_button.dart';
 import '../../../widgets/general/gradient_icon_button.dart';
 import '../../../widgets/general/field_with_icon.dart';
 import '../../main/drawer/drawer_cubit.dart';
-import '../product_list_search/product_list_search_view.dart';
 import 'home_screen_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -26,7 +25,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreen extends State<HomeScreen> {
   HomeScreenCubit get cubit => context.read<HomeScreenCubit>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
@@ -62,37 +60,12 @@ class _HomeScreen extends State<HomeScreen> {
                   SizedBox(width: 48),
                 ],
               ),
-              body: Padding(
-                padding: const EdgeInsets.all(16.0),
+              body: const Padding(
+                padding: EdgeInsets.all(16.0),
                 child: Column(
                   children: [
                     Row(
                       children: [
-                        Expanded(
-                          child: FieldWithIcon(
-                            controller: searchController,
-                            hintText: 'What do you need?',
-                            fillColor: Theme.of(context).colorScheme.surface,
-                            onChange: (value) {
-                              cubit.changeSearchText(value);
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-
-                        GradientIconButton(
-                          icon: FontAwesomeIcons.magnifyingGlass,
-                          iconSize: 32,
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => ProductListSearchScreen.newInstance(
-                                  initialSearchText: searchController.text,
-                                ),
-                              ),
-                            );
-                          },
-                        )
                       ],
                     )
                   ],

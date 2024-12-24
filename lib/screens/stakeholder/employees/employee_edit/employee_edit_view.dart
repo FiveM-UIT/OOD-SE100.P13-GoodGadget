@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gizmoglobe_client/enums/stakeholders/employee_role.dart';
 import 'package:gizmoglobe_client/objects/employee.dart';
 
 class EmployeeEditScreen extends StatefulWidget {
@@ -23,7 +24,7 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
     employeeName = widget.employee.employeeName;
     email = widget.employee.email;
     phoneNumber = widget.employee.phoneNumber;
-    role = widget.employee.role;
+    role = widget.employee.role as String;
   }
 
   @override
@@ -112,7 +113,9 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
                         employeeName: employeeName,
                         email: email,
                         phoneNumber: phoneNumber,
-                        role: role,
+                        role: RoleEnum.values.firstWhere(
+                          (element) => element.toString() == role,
+                        ),
                       );
                       Navigator.pop(context, updatedEmployee);
                     }

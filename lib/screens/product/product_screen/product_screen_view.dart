@@ -58,25 +58,18 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
       child: Scaffold(
         appBar: AppBar(
           elevation: 0,
-          leading: GradientIconButton(
-            icon: Icons.menu_outlined,
-            onPressed: () {
-            },
-            fillColor: Colors.transparent,
-          ),
-
           title: FieldWithIcon(
             height: 40,
             controller: searchController,
             focusNode: searchFocusNode,
             hintText: 'Find your item',
             fillColor: Theme.of(context).colorScheme.surface,
-            suffixIcon: Icon(
+            prefixIcon: Icon(
               FontAwesomeIcons.magnifyingGlass,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            onSuffixIconPressed: () {
-              cubit.updateSearchText(searchController.text);
+            onChanged: (value) {
+              cubit.updateSearchText(value);
             },
           ),
 

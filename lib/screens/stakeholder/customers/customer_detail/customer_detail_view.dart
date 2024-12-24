@@ -60,14 +60,17 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          Text(
-                            state.customer.customerName,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          Container(
+                            width: double.infinity,
+                            child: Text(
+                              state.customer.customerName,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 32),
                           const Text(
@@ -78,7 +81,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                               color: Colors.blue,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 24),
                           _buildInfoRow('Email', state.customer.email),
                           _buildInfoRow('Phone', state.customer.phoneNumber),
                           _buildInfoRow(

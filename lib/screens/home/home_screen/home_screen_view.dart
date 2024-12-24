@@ -6,7 +6,6 @@ import 'package:gizmoglobe_client/widgets/general/gradient_button.dart';
 
 import '../../../widgets/general/gradient_icon_button.dart';
 import '../../../widgets/general/field_with_icon.dart';
-import '../../main/drawer/drawer_cubit.dart';
 import 'home_screen_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -46,19 +45,9 @@ class _HomeScreen extends State<HomeScreen> {
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
                 elevation: 0,
-                leading: GradientIconButton(
-                  icon: Icons.menu_outlined,
-                  onPressed: () {
-                    context.read<DrawerCubit>().toggleDrawer();
-                  },
-                  fillColor: Theme.of(context).colorScheme.surface,
-                ),
                 title: const Center(
                     child: AppLogo(height: 60,)
                 ),
-                actions: const [
-                  SizedBox(width: 48),
-                ],
               ),
               body: const Padding(
                 padding: EdgeInsets.all(16.0),

@@ -7,6 +7,7 @@ import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'employees_screen_cubit.dart';
 import 'employees_screen_state.dart';
 import 'employee_detail/employee_detail_view.dart';
+import 'employee_edit/employee_edit_view.dart';
 
 class EmployeesScreen extends StatefulWidget {
   const EmployeesScreen({super.key});
@@ -140,10 +141,21 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                                               color: Colors.white,
                                             ),
                                             title: const Text('Edit'),
-                                            onTap: () {
+                                            onTap: () async {
                                               Navigator.pop(context);
                                               cubit.setSelectedIndex(null);
-                                              // TODO: Navigate to edit screen
+                                              final updatedEmployee = await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => EmployeeEditScreen(
+                                                    employee: employee,
+                                                  ),
+                                                ),
+                                              );
+                                              
+                                              if (updatedEmployee != null) {
+                                                await cubit.updateEmployee(updatedEmployee);
+                                              }
                                             },
                                           ),
                                           ListTile(
@@ -162,7 +174,33 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                                             onTap: () {
                                               Navigator.pop(context);
                                               cubit.setSelectedIndex(null);
-                                              // TODO: Implement delete action
+                                              showDialog(
+                                                context: context,
+                                                builder: (BuildContext context) {
+                                                  return AlertDialog(
+                                                    title: const Text('Delete Employee'),
+                                                    content: Text('Are you sure you want to delete ${employee.employeeName}?'),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () => Navigator.pop(context),
+                                                        child: const Text('Cancel'),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () async {
+                                                          Navigator.pop(context);
+                                                          await cubit.deleteEmployee(employee.employeeID!);
+                                                        },
+                                                        child: Text(
+                                                          'Delete',
+                                                          style: TextStyle(
+                                                            color: Theme.of(context).colorScheme.error,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
                                             },
                                           ),
                                         ],

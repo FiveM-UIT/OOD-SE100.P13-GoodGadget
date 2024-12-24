@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gizmoglobe_client/screens/home/product_list_search/product_list_search_state.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_cubit.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_state.dart';
 import 'package:gizmoglobe_client/widgets/general/app_logo.dart';
@@ -128,7 +127,7 @@ class _ProductScreenState extends State<ProductScreen> {
                         icon: const Icon(Icons.arrow_downward),
                         onChanged: (SortEnum? newValue) {
                           setState(() {
-                            state.selectedSortOption = newValue!;
+                            cubit.updateSortOption(newValue ?? SortEnum.releaseLatest);
                             cubit.updateSortOption(state.selectedSortOption);
                             cubit.applyFilters();
                           });
@@ -138,7 +137,7 @@ class _ProductScreenState extends State<ProductScreen> {
                             value: value,
                             child: Row(
                               children: [
-                                if (value == selectedSortOption) Icon(Icons.check, color: Theme.of(context).colorScheme.primary),
+                                if (value == state.selectedSortOption) Icon(Icons.check, color: Theme.of(context).colorScheme.primary),
                                 Text(value.toString()),
                               ],
                             ),
@@ -201,7 +200,7 @@ class _ProductScreenState extends State<ProductScreen> {
                         final product = state.productList[index];
                         return ListTile(
                           title: Text(product.productName),
-                          subtitle: Text('đ${product.price}'),
+                          subtitle: Text('đ${product.stock}'),
                         );
                       },
                     );

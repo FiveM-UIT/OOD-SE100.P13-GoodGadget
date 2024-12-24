@@ -2,11 +2,12 @@ import 'package:gizmoglobe_client/enums/product_related/drive_enums/drive_capaci
 import 'package:gizmoglobe_client/enums/product_related/drive_enums/drive_type.dart';
 
 import '../../enums/product_related/category_enum.dart';
+import '../manufacturer.dart';
 import 'product.dart';
 
 class Drive extends Product {
-  final DriveType type;
-  final DriveCapacity capacity;
+  DriveType type;
+  DriveCapacity capacity;
 
   Drive({
     required super.productName,
@@ -19,4 +20,31 @@ class Drive extends Product {
     required this.type,
     required this.capacity,
   });
+
+  @override
+  void updateProduct({
+    String? productName,
+    double? importPrice,
+    double? sellingPrice,
+    double? discount,
+    DateTime? release,
+    int? sales,
+    int? stock,
+    Manufacturer? manufacturer,
+    DriveType? type,
+    DriveCapacity? capacity,
+  }) {
+    super.updateProduct(
+      productName: productName,
+      importPrice: importPrice,
+      sellingPrice: sellingPrice,
+      discount: discount,
+      release: release,
+      sales: sales,
+      manufacturer: manufacturer,
+    );
+
+    this.type = type ?? this.type;
+    this.capacity = capacity ?? this.capacity;
+  }
 }

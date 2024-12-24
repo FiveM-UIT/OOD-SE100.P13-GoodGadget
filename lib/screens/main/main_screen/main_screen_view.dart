@@ -22,6 +22,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int index = 0;
+  MainScreenCubit get cubit => context.read<MainScreenCubit>();
 
   final List<Widget Function()> widgetList = [
         () => HomeScreen.newInstance(),
@@ -34,7 +35,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<MainScreenCubit>().getUserName();
+    cubit.getUserName();
   }
 
   @override

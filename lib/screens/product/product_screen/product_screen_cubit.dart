@@ -17,8 +17,6 @@ class ProductScreenCubit extends Cubit<ProductScreenState> {
       selectedManufacturerList: Database().manufacturerList,
       selectedCategoryList: CategoryEnum.values.toList(),
     ));
-
-    updateSearchText(state.searchText);
     applyFilters();
   }
 
@@ -53,28 +51,27 @@ class ProductScreenCubit extends Cubit<ProductScreenState> {
       final matchesSearchText = state.searchText == null || product.productName.toLowerCase().contains(state.searchText!.toLowerCase());
       final matchesCategory = state.selectedCategoryList.contains(product.category);
       final matchesManufacturer = state.selectedManufacturerList.contains(product.manufacturer);
-      final matchesPrice = (product.price >= min) && (product.price <= max);
-      return matchesSearchText & matchesCategory && matchesManufacturer && matchesPrice;
+      return matchesSearchText & matchesCategory && matchesManufacturer;
     }).toList();
 
     switch (state.selectedSortOption) {
       case SortEnum.releaseLatest:
-        //filteredProducts.sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
+        filteredProducts.sort((a, b) => b.release.compareTo(a.release));
         break;
       case SortEnum.releaseOldest:
-        //filteredProducts.sort((a, b) => a.releaseDate.compareTo(b.releaseDate));
+        filteredProducts.sort((a, b) => a.release.compareTo(b.release));
         break;
       case SortEnum.stockHighest:
-        //filteredProducts.sort((a, b) => b.stock.compareTo(a.stock));
+        filteredProducts.sort((a, b) => b.stock.compareTo(a.stock));
         break;
       case SortEnum.stockLowest:
-        //filteredProducts.sort((a, b) => a.stock.compareTo(b.stock));
+        filteredProducts.sort((a, b) => a.stock.compareTo(b.stock));
         break;
       case SortEnum.salesHighest:
-        //filteredProducts.sort((a, b) => b.sales.compareTo(a.sales));
+        filteredProducts.sort((a, b) => b.sales.compareTo(a.sales));
         break;
       case SortEnum.salesLowest:
-        //filteredProducts.sort((a, b) => a.sales.compareTo(b.sales));
+        filteredProducts.sort((a, b) => a.sales.compareTo(b.sales));
     }
 
     emit(state.copyWith(productList: filteredProducts));

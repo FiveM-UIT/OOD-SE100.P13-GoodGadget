@@ -2,12 +2,13 @@ import 'package:gizmoglobe_client/enums/product_related/psu_enums/psu_efficiency
 import 'package:gizmoglobe_client/enums/product_related/psu_enums/psu_modular.dart';
 
 import '../../enums/product_related/category_enum.dart';
+import '../manufacturer.dart';
 import 'product.dart';
 
 class PSU extends Product {
-  final int wattage;
-  final PSUEfficiency efficiency;
-  final PSUModular modular;
+  int wattage;
+  PSUEfficiency efficiency;
+  PSUModular modular;
 
   PSU({
     required super.productName,
@@ -15,11 +16,39 @@ class PSU extends Product {
     required super.sellingPrice,
     required super.discount,
     required super.release,
-    required super.sales,
     required super.manufacturer,
     super.category = CategoryEnum.psu,
     required this.wattage,
     required this.efficiency,
     required this.modular,
   });
+
+  @override
+  void updateProduct({
+    String? productName,
+    double? importPrice,
+    double? sellingPrice,
+    double? discount,
+    DateTime? release,
+    int? sales,
+    int? stock,
+    Manufacturer? manufacturer,
+    int? wattage,
+    PSUEfficiency? efficiency,
+    PSUModular? modular,
+  }) {
+    super.updateProduct(
+      productName: productName,
+      importPrice: importPrice,
+      sellingPrice: sellingPrice,
+      discount: discount,
+      release: release,
+      sales: sales,
+      manufacturer: manufacturer,
+    );
+
+    this.wattage = wattage ?? this.wattage;
+    this.efficiency = efficiency ?? this.efficiency;
+    this.modular = modular ?? this.modular;
+  }
 }

@@ -46,7 +46,6 @@ class ProductFactory {
           sellingPrice: properties['sellingPrice'],
           discount: properties['discount'],
           release: properties['release'],
-          sales: properties['sales'],
           wattage: properties['wattage'],
           efficiency: properties['efficiency'],
           modular: properties['modular'],

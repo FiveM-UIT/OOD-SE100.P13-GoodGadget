@@ -6,15 +6,15 @@ import 'product_factory.dart';
 
 abstract class Product {
   String? productID;
-  final String productName;
-  final CategoryEnum category;
-  final double importPrice;
-  final double sellingPrice;
-  final double discount;
-  final double release;
-  final double sales;
-  final double stock;
-  final Manufacturer manufacturer;
+  String productName;
+  CategoryEnum category;
+  double importPrice;
+  double sellingPrice;
+  double discount;
+  DateTime release;
+  int sales;
+  int stock;
+  Manufacturer manufacturer;
   ProductStatusEnum status;
 
   Product({
@@ -39,4 +39,25 @@ abstract class Product {
   void updateStatus(ProductStatusEnum newStatus) {
     status = newStatus;
   }
+
+  void updateProduct({
+    String? productName,
+    double? importPrice,
+    double? sellingPrice,
+    double? discount,
+    DateTime? release,
+    int? sales,
+    int? stock,
+    Manufacturer? manufacturer,
+  }) {
+    this.productName = productName ?? this.productName;
+    this.importPrice = importPrice ?? this.importPrice;
+    this.sellingPrice = sellingPrice ?? this.sellingPrice;
+    this.discount = discount ?? this.discount;
+    this.release = release ?? this.release;
+    this.sales = sales ?? this.sales;
+    this.stock = stock ?? this.stock;
+    this.manufacturer = manufacturer ?? this.manufacturer;
+  }
+
 }

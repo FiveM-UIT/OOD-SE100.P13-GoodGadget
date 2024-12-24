@@ -12,6 +12,7 @@ import '../../../enums/processing/sort_enum.dart';
 import '../../../enums/product_related/category_enum.dart';
 import '../../../widgets/filter/advanced_filter_search/advanced_filter_search_view.dart';
 import '../../../widgets/general/app_text_style.dart';
+import '../product_detail/product_detail_view.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
@@ -186,9 +187,18 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
                       itemCount: state.productList.length,
                       itemBuilder: (context, index) {
                         final product = state.productList[index];
-                        return ListTile(
-                          title: Text(product.productName),
-                          subtitle: Text('đ${product.stock}'),
+                        return InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ProductDetailScreen.newInstance(product),
+                              ),
+                            );
+                          },
+                          child: ListTile(
+                            title: Text(product.productName),
+                            subtitle: Text('đ${product.stock}'),
+                          ),
                         );
                       },
                     );

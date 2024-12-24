@@ -44,7 +44,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                         controller: searchController,
                         hintText: 'Find customers...',
                         fillColor: Theme.of(context).colorScheme.surface,
-                        onChange: (value) {
+                        onChanged: (value) {
                           cubit.searchCustomers(value);
                         },
                       ),

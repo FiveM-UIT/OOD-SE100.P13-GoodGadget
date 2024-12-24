@@ -57,7 +57,7 @@ class EmployeesScreenCubit extends Cubit<EmployeesScreenState> {
       return employee.employeeName.toLowerCase().contains(query.toLowerCase()) ||
           employee.email.toLowerCase().contains(query.toLowerCase()) ||
           employee.phoneNumber.contains(query) ||
-          employee.role.toLowerCase().contains(query.toLowerCase());
+          employee.role.toString().contains(query);
     }).toList();
 
     emit(state.copyWith(employees: filteredEmployees));

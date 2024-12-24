@@ -14,7 +14,7 @@ class ProductScreenState extends Equatable {
   final String minPrice;
   final String maxPrice;
   final SortEnum selectedSortOption;
-
+  final int selectedTabIndex;
 
   const ProductScreenState({
     this.searchText,
@@ -25,6 +25,7 @@ class ProductScreenState extends Equatable {
     this.minPrice = '',
     this.maxPrice = '',
     this.selectedSortOption = SortEnum.releaseLatest,
+    this.selectedTabIndex = 0,
   });
 
   @override
@@ -37,6 +38,7 @@ class ProductScreenState extends Equatable {
     minPrice,
     maxPrice,
     selectedSortOption,
+    selectedTabIndex,
   ];
 
   ProductScreenState copyWith({
@@ -48,6 +50,7 @@ class ProductScreenState extends Equatable {
     String? minPrice,
     String? maxPrice,
     SortEnum? selectedSortOption,
+    int? selectedTabIndex,
   }) {
     return ProductScreenState(
       searchText: searchText ?? this.searchText,
@@ -58,6 +61,7 @@ class ProductScreenState extends Equatable {
       minPrice: minPrice ?? this.minPrice,
       maxPrice: maxPrice ?? this.maxPrice,
       selectedSortOption: selectedSortOption ?? this.selectedSortOption,
+      selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
     );
   }
 }

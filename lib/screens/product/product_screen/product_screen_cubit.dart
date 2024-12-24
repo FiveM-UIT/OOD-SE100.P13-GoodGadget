@@ -20,6 +20,11 @@ class ProductScreenCubit extends Cubit<ProductScreenState> {
     applyFilters();
   }
 
+  void updateSelectedTabIndex(int index) {
+    emit(state.copyWith(selectedTabIndex: index));
+    applyFilters();
+  }
+
   void updateFilter({
     List<CategoryEnum>? selectedCategoryList,
     List<Manufacturer>? selectedManufacturerList,
@@ -36,6 +41,7 @@ class ProductScreenCubit extends Cubit<ProductScreenState> {
 
   void updateSearchText(String? searchText) {
     emit(state.copyWith(searchText: searchText));
+    applyFilters();
   }
 
   void updateSortOption(SortEnum selectedOption) {
@@ -49,9 +55,32 @@ class ProductScreenCubit extends Cubit<ProductScreenState> {
 
     final filteredProducts = Database().productList.where((product) {
       final matchesSearchText = state.searchText == null || product.productName.toLowerCase().contains(state.searchText!.toLowerCase());
-      final matchesCategory = state.selectedCategoryList.contains(product.category);
       final matchesManufacturer = state.selectedManufacturerList.contains(product.manufacturer);
-      return matchesSearchText & matchesCategory && matchesManufacturer;
+      final bool matchesCategory;
+
+      switch (state.selectedTabIndex) {
+        case 1:
+          matchesCategory = product.category == CategoryEnum.ram;
+          break;
+        case 2:
+          matchesCategory = product.category == CategoryEnum.cpu;
+          break;
+        case 3:
+          matchesCategory = product.category == CategoryEnum.psu;
+          break;
+        case 4:
+          matchesCategory = product.category == CategoryEnum.gpu;
+          break;
+        case 5:
+          matchesCategory = product.category == CategoryEnum.drive;
+          break;
+        case 6:
+          matchesCategory = product.category == CategoryEnum.mainboard;
+          break;
+        default:
+          matchesCategory = state.selectedCategoryList.contains(product.category);
+      }
+      return matchesSearchText && matchesManufacturer && matchesCategory;
     }).toList();
 
     switch (state.selectedSortOption) {

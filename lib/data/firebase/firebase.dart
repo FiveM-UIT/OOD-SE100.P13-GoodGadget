@@ -7,6 +7,9 @@ import 'package:gizmoglobe_client/objects/product_related/mainboard.dart';
 import 'package:gizmoglobe_client/objects/product_related/psu.dart';
 import 'package:gizmoglobe_client/objects/product_related/ram.dart';
 
+import '../../objects/customer.dart';
+import '../../objects/employee.dart';
+
 Future<void> pushProductSamplesToFirebase() async {
   try {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -107,21 +110,291 @@ class Firebase {
     try {
       final FirebaseFirestore firestore = FirebaseFirestore.instance;
       
-      // Tạo dữ liệu mẫu
+      // Generate sample data
       Database().generateSampleData();
 
-      // Đẩy manufacturers
-
-      // Đẩy customers
+      // Push customers
       for (var customer in Database().customerList) {
-        await firestore.collection('customers').doc(customer.customerID).set(
+        DocumentReference docRef = await firestore.collection('customers').add(
           customer.toMap(),
         );
+        customer.customerID = docRef.id;
       }
 
-      print('Đã đẩy dữ liệu mẫu thành công');
+      // Push employees
+      for (var employee in Database().employeeList) {
+        DocumentReference docRef = await firestore.collection('employees').add(
+          employee.toMap(),
+        );
+        employee.employeeID = docRef.id;
+      }
+
+      // Sync users with customers
+      QuerySnapshot userSnapshot = await firestore
+          .collection('users')
+          .where('role', isEqualTo: 'customer')
+          .get();
+
+      for (var doc in userSnapshot.docs) {
+        // Check if user exists in customers
+        QuerySnapshot existingCustomer = await firestore
+            .collection('customers')
+            .where('email', isEqualTo: doc['email'])
+            .get();
+
+        // Add if not exists
+        if (existingCustomer.docs.isEmpty) {
+          await firestore.collection('customers').add({
+            'customerName': doc['username'] ?? '',
+            'phoneNumber': doc['phoneNumber'] ?? '',
+            'email': doc['email'] ?? '',
+            'banStatus': false,
+          });
+        }
+      }
+
+      // Sync users with employees
+      QuerySnapshot employeeUserSnapshot = await firestore
+          .collection('users')
+          .where('role', isEqualTo: 'employee')
+          .get();
+
+      for (var doc in employeeUserSnapshot.docs) {
+        // Check if user exists in employees
+        QuerySnapshot existingEmployee = await firestore
+            .collection('employees')
+            .where('email', isEqualTo: doc['email'])
+            .get();
+
+        // Add if not exists
+        if (existingEmployee.docs.isEmpty) {
+          await firestore.collection('employees').add({
+            'employeeName': doc['username'] ?? '',
+            'phoneNumber': doc['phoneNumber'] ?? '',
+            'email': doc['email'] ?? '',
+            'role': doc['employeeRole'] ?? 'Staff',
+            'isActive': true,
+          });
+        }
+      }
+
+      print('Successfully pushed and synced customer and employee data');
     } catch (e) {
-      print('Lỗi khi đẩy dữ liệu mẫu: $e');
+      print('Error pushing sample data: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Customer>> getCustomers() async {
+    try {
+      final QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('customers')
+          .get();
+
+      return snapshot.docs.map((doc) {
+        return Customer.fromMap(doc.id, doc.data() as Map<String, dynamic>);
+      }).toList();
+    } catch (e) {
+      print('Lỗi khi lấy danh sách khách hàng: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> toggleCustomerBanStatus(String customerId, bool newStatus) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('customers')
+          .doc(customerId)
+          .update({'banStatus': newStatus});
+    } catch (e) {
+      print('Lỗi khi cập nhật trạng thái ban của khách hàng: $e');
+      rethrow;
+    }
+  }
+
+  Stream<List<Customer>> customersStream() {
+    return FirebaseFirestore.instance
+        .collection('customers')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return Customer.fromMap(doc.id, doc.data());
+      }).toList();
+    });
+  }
+
+  Future<void> updateCustomer(Customer customer) async {
+    try {
+      if (customer.customerID == null) {
+        throw Exception('Customer ID cannot be null');
+      }
+      
+      await FirebaseFirestore.instance
+          .collection('customers')
+          .doc(customer.customerID)
+          .update({
+        'customerName': customer.customerName,
+        'email': customer.email,
+        'phoneNumber': customer.phoneNumber,
+        'banStatus': customer.banStatus,
+      });
+    } catch (e) {
+      print('Lỗi khi cập nhật khách hàng: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteCustomer(String customerId) async {
+    try {
+      // Xóa khách hàng từ collection customers
+      await FirebaseFirestore.instance
+          .collection('customers')
+          .doc(customerId)
+          .delete();
+
+      // Xóa tài khoản user tương ứng nếu có
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: customerId)
+          .get();
+
+      for (var doc in userSnapshot.docs) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(doc.id)
+            .delete();
+      }
+
+      // Có thể thêm logic để xóa các dữ liệu liên quan khác
+      // như orders, cart items, etc.
+      
+    } catch (e) {
+      print('Lỗi khi xóa khách hàng: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> createCustomer(Customer customer) async {
+    try {
+      DocumentReference docRef = await FirebaseFirestore.instance
+          .collection('customers')
+          .add(customer.toMap());
+      
+      customer.customerID = docRef.id;
+    } catch (e) {
+      print('Lỗi khi tạo khách hàng mới: $e');
+      rethrow;
+    }
+  }
+
+  Future<Customer?> getCustomerByEmail(String email) async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('customers')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (snapshot.docs.isEmpty) return null;
+
+      return Customer.fromMap(
+        snapshot.docs.first.id,
+        snapshot.docs.first.data() as Map<String, dynamic>,
+      );
+    } catch (e) {
+      print('Lỗi khi tìm khách hàng theo email: $e');
+      rethrow;
+    }
+  }
+
+  // Employee-related functions
+  Future<List<Employee>> getEmployees() async {
+    try {
+      final QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('employees')
+          .get();
+
+      return snapshot.docs.map((doc) {
+        return Employee.fromMap(doc.id, doc.data() as Map<String, dynamic>);
+      }).toList();
+    } catch (e) {
+      print('Lỗi khi lấy danh sách nhân viên: $e');
+      rethrow;
+    }
+  }
+
+  Stream<List<Employee>> employeesStream() {
+    return FirebaseFirestore.instance
+        .collection('employees')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return Employee.fromMap(doc.id, doc.data());
+      }).toList();
+    });
+  }
+
+  Future<void> updateEmployee(Employee employee) async {
+    try {
+      if (employee.employeeID == null) {
+        throw Exception('Employee ID cannot be null');
+      }
+      
+      await FirebaseFirestore.instance
+          .collection('employees')
+          .doc(employee.employeeID)
+          .update(employee.toMap());
+    } catch (e) {
+      print('Lỗi khi cập nhật nhân viên: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteEmployee(String employeeId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('employees')
+          .doc(employeeId)
+          .delete();
+
+      // Delete associated user account if exists
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: employeeId)
+          .get();
+
+      for (var doc in userSnapshot.docs) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(doc.id)
+            .delete();
+      }
+    } catch (e) {
+      print('Lỗi khi xóa nhân viên: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> createEmployee(Employee employee) async {
+    try {
+      DocumentReference docRef = await FirebaseFirestore.instance
+          .collection('employees')
+          .add(employee.toMap());
+      
+      employee.employeeID = docRef.id;
+    } catch (e) {
+      print('Lỗi khi tạo nhân viên mới: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> toggleEmployeeStatus(String employeeId, bool newStatus) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('employees')
+          .doc(employeeId)
+          .update({'isActive': newStatus});
+    } catch (e) {
+      print('Lỗi khi cập nhật trạng thái nhân viên: $e');
       rethrow;
     }
   }

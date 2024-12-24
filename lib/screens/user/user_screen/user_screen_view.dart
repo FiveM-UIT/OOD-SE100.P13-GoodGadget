@@ -67,13 +67,18 @@ class _UserScreen extends State<UserScreen> {
                   await Firebase().pushCustomerSampleData();
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Đã đẩy dữ liệu khách hàng mẫu thành công')),
+                      const SnackBar(
+                        content: Text('Sample data updated successfully'),
+                      ),
                     );
                   }
                 } catch (e) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Lỗi khi đẩy khách hàng: $e')),
+                      SnackBar(
+                        content: Text('Error updating sample data: $e'),
+                        backgroundColor: Colors.red,
+                      ),
                     );
                   }
                 }

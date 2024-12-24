@@ -4,6 +4,7 @@ import 'package:gizmoglobe_client/enums/product_related/mainboard_enums/mainboar
 import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
 import 'package:gizmoglobe_client/objects/customer.dart';
+import 'package:gizmoglobe_client/objects/employee.dart';
 
 import '../../enums/product_related/category_enum.dart';
 import '../../enums/product_related/cpu_enums/cpu_family.dart';
@@ -30,6 +31,7 @@ class Database {
   List<Manufacturer> manufacturerList = [];
   List<Product> productList = [];
   List<Customer> customerList = [];
+  List<Employee> employeeList = [];
 
   factory Database() {
     return _database;
@@ -108,7 +110,7 @@ class Database {
       print('Số lượng products trong list: ${productList.length}');
 
     } catch (e) {
-      print('Lỗi chi tiết khi lấy dữ liệu: $e');
+      print('L���i chi tiết khi lấy dữ liệu: $e');
       // _initializeSampleData();
     }
   }
@@ -674,34 +676,54 @@ class Database {
 
     customerList = [
       Customer(
-        customerID: 'customer1',
         customerName: 'Tran Nhat Tan',
         phoneNumber: '0901234567',
         email: 'tan.tran@example.com',
       ),
       Customer(
-        customerID: 'customer2',
         customerName: 'Phan Nguyen Khoa',
         phoneNumber: '0912345678',
         email: 'khoa.phan@example.com',
       ),
       Customer(
-        customerID: 'customer3',
         customerName: 'Do Hong Quan',
         phoneNumber: '0923456789',
         email: 'quan.do@example.com',
       ),
       Customer(
-        customerID: 'customer4',
         customerName: 'To Vinh Tien',
         phoneNumber: '0934567890',
         email: 'tien.to@example.com',
       ),
       Customer(
-        customerID: 'customer5',
         customerName: 'Nguyen Duy Vu',
         phoneNumber: '0945678901',
         email: 'vu.nguyen@example.com',
+      ),
+    ];
+
+    // Generate employee samples
+    employeeList = [
+      Employee(
+        employeeID: '1',
+        employeeName: 'John Smith',
+        email: 'john.smith@company.com',
+        phoneNumber: '0123456789',
+        role: 'Sales Manager',
+      ),
+      Employee(
+        employeeID: '2',
+        employeeName: 'Sarah Johnson',
+        email: 'sarah.j@company.com',
+        phoneNumber: '0987654321',
+        role: 'Sales Representative',
+      ),
+      Employee(
+        employeeID: '3',
+        employeeName: 'Mike Wilson',
+        email: 'mike.w@company.com',
+        phoneNumber: '0123498765',
+        role: 'Technical Support',
       ),
     ];
   }

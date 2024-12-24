@@ -92,115 +92,134 @@ class _CustomersScreenState extends State<CustomersScreen> {
                             },
                             onLongPress: () {
                               cubit.setSelectedIndex(index);
+                              showDialog(
+                                context: context,
+                                barrierDismissible: true,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    backgroundColor: Colors.transparent,
+                                    contentPadding: EdgeInsets.zero,
+                                    content: Container(
+                                      width: 120,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).cardColor,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ListTile(
+                                            dense: true,
+                                            leading: const Icon(
+                                              Icons.visibility_outlined,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                            title: const Text('View'),
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              cubit.setSelectedIndex(null);
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => CustomerDetailScreen(
+                                                    customer: customer,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          ListTile(
+                                            dense: true,
+                                            leading: const Icon(
+                                              Icons.edit_outlined,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                            title: const Text('Edit'),
+                                            onTap: () async {
+                                              Navigator.pop(context);
+                                              cubit.setSelectedIndex(null);
+                                              final updatedCustomer = await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => CustomerDetailScreen(
+                                                    customer: customer,
+                                                  ),
+                                                ),
+                                              );
+                                              
+                                              /*if (updatedCustomer != null) {
+                                                await cubit.updateCustomer(updatedCustomer);
+                                              }*/
+                                            },
+                                          ),
+                                          ListTile(
+                                            dense: true,
+                                            leading: const Icon(
+                                              Icons.delete_outlined,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                            title: const Text('Delete', style: TextStyle()),
+                                            onTap: () async {
+                                              Navigator.pop(context);
+                                              cubit.setSelectedIndex(null);
+                                              final updatedCustomer = await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => CustomerDetailScreen(
+                                                    customer: customer,
+                                                  ),
+                                                ),
+                                              );
+
+                                              /*if (updatedCustomer != null) {
+                                                await cubit.updateCustomer(updatedCustomer);
+                                              }*/
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ).then((_) {
+                                cubit.setSelectedIndex(null);
+                              });
                             },
                             child: AnimatedOpacity(
                               duration: const Duration(milliseconds: 200),
-                              opacity: state.selectedIndex == null || isSelected ? 1.0 : 0.3,
-                              child: Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                                    child: Row(
-                                      children: [
-                                        CircleAvatar(
-                                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                                          child: Icon(
-                                            Icons.person,
-                                            color: Theme.of(context).colorScheme.primary,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Text(
-                                          customer.customerName,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (isSelected)
-                                    Positioned(
-                                      right: 8,
-                                      top: -4,
-                                      child: SizedBox(
-                                        width: 120,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).cardColor,
-                                            borderRadius: BorderRadius.circular(8),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(0.1),
-                                                blurRadius: 8,
-                                                offset: const Offset(0, 2),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              ListTile(
-                                                dense: true,
-                                                leading: const Icon(
-                                                  Icons.visibility_outlined,
-                                                  size: 20,
-                                                  color: Colors.white,
-                                                ),
-                                                title: const Text('View'),
-                                                onTap: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) => CustomerDetailScreen(
-                                                        customer: customer,
-                                                      ),
-                                                    ),
-                                                  );
-                                                  cubit.setSelectedIndex(null);
-                                                },
-                                              ),
-                                              // const Divider(height: 1),
-                                              ListTile(
-                                                dense: true,
-                                                leading: const Icon(
-                                                  Icons.edit_outlined,
-                                                  size: 20,
-                                                  color: Colors.white,
-                                                ),
-                                                title: const Text('Edit'),
-                                                onTap: () {
-                                                  // TODO: Implement edit action
-                                                  cubit.setSelectedIndex(null);
-                                                },
-                                              ),
-                                              // const Divider(height: 1),
-                                              ListTile(
-                                                dense: true,
-                                                leading: Icon(
-                                                  Icons.delete_outline,
-                                                  size: 20,
-                                                  color: Theme.of(context).colorScheme.error,
-                                                ),
-                                                title: Text(
-                                                  'Delete',
-                                                  style: TextStyle(
-                                                    color: Theme.of(context).colorScheme.error,
-                                                  ),
-                                                ),
-                                                onTap: () {
-                                                  // TODO: Implement delete action
-                                                  cubit.setSelectedIndex(null);
-                                                },
-                                              ),
-                                            ],
-                                          ),
+                              opacity: state.selectedIndex == null || state.selectedIndex == index ? 1.0 : 0.3,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: state.selectedIndex == index 
+                                      ? Theme.of(context).primaryColor.withOpacity(0.1) 
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                        child: Icon(
+                                          Icons.person,
+                                          color: Theme.of(context).colorScheme.primary,
                                         ),
                                       ),
-                                    ),
-                                ],
+                                      const SizedBox(width: 16),
+                                      Text(
+                                        customer.customerName,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           );

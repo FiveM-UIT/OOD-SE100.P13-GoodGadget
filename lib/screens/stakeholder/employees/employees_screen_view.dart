@@ -83,107 +83,129 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         itemBuilder: (context, index) {
                           final employee = state.employees[index];
                           return GestureDetector(
-                            onLongPress: () => cubit.setSelectedIndex(index),
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              child: Material(
-                                color: Theme.of(context).cardColor,
-                                borderRadius: BorderRadius.circular(8),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(8),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => EmployeeDetailScreen(employee: employee),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EmployeeDetailScreen(
+                                    employee: employee,
+                                  ),
+                                ),
+                              );
+                            },
+                            onLongPress: () {
+                              cubit.setSelectedIndex(index);
+                              showDialog(
+                                context: context,
+                                barrierDismissible: true,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    backgroundColor: Colors.transparent,
+                                    contentPadding: EdgeInsets.zero,
+                                    content: Container(
+                                      width: 120,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).cardColor,
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                    );
-                                  },
-                                  child: Stack(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 12,
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            CircleAvatar(
-                                              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                                              child: Icon(
-                                                Icons.person,
-                                                color: Theme.of(context).colorScheme.primary,
-                                              ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ListTile(
+                                            dense: true,
+                                            leading: const Icon(
+                                              Icons.visibility_outlined,
+                                              size: 20,
+                                              color: Colors.white,
                                             ),
-                                            const SizedBox(width: 16),
-                                            Expanded(
-                                              child: Text(
-                                                employee.employeeName,
-                                                style: Theme.of(context).textTheme.bodyLarge,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      if (state.selectedIndex == index)
-                                        Positioned(
-                                          top: 0,
-                                          right: 0,
-                                          child: Container(
-                                            constraints: const BoxConstraints(
-                                              maxWidth: 200,
-                                            ),
-                                            child: Card(
-                                              margin: EdgeInsets.zero,
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                children: [
-                                                  ListTile(
-                                                    dense: true,
-                                                    leading: const Icon(Icons.visibility_outlined),
-                                                    title: const Text('View'),
-                                                    onTap: () {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) => EmployeeDetailScreen(employee: employee),
-                                                        ),
-                                                      );
-                                                      cubit.setSelectedIndex(null);
-                                                    },
+                                            title: const Text('View'),
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              cubit.setSelectedIndex(null);
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => EmployeeDetailScreen(
+                                                    employee: employee,
                                                   ),
-                                                  ListTile(
-                                                    dense: true,
-                                                    leading: const Icon(Icons.edit_outlined),
-                                                    title: const Text('Edit'),
-                                                    onTap: () {
-                                                      // TODO: Navigate to edit screen
-                                                      cubit.setSelectedIndex(null);
-                                                    },
-                                                  ),
-                                                  ListTile(
-                                                    dense: true,
-                                                    leading: Icon(
-                                                      Icons.delete_outline,
-                                                      color: Theme.of(context).colorScheme.error,
-                                                    ),
-                                                    title: Text(
-                                                      'Delete',
-                                                      style: TextStyle(
-                                                        color: Theme.of(context).colorScheme.error,
-                                                      ),
-                                                    ),
-                                                    onTap: () {
-                                                      // TODO: Implement delete action
-                                                      cubit.setSelectedIndex(null);
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
+                                                ),
+                                              );
+                                            },
                                           ),
+                                          ListTile(
+                                            dense: true,
+                                            leading: const Icon(
+                                              Icons.edit_outlined,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                            title: const Text('Edit'),
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              cubit.setSelectedIndex(null);
+                                              // TODO: Navigate to edit screen
+                                            },
+                                          ),
+                                          ListTile(
+                                            dense: true,
+                                            leading: Icon(
+                                              Icons.delete_outlined,
+                                              size: 20,
+                                              color: Theme.of(context).colorScheme.error,
+                                            ),
+                                            title: Text(
+                                              'Delete',
+                                              style: TextStyle(
+                                                color: Theme.of(context).colorScheme.error,
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              cubit.setSelectedIndex(null);
+                                              // TODO: Implement delete action
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ).then((_) {
+                                cubit.setSelectedIndex(null);
+                              });
+                            },
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 200),
+                              opacity: state.selectedIndex == null || state.selectedIndex == index ? 1.0 : 0.3,
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                decoration: BoxDecoration(
+                                  color: state.selectedIndex == index 
+                                      ? Theme.of(context).primaryColor.withOpacity(0.1) 
+                                      : Theme.of(context).cardColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                        child: Icon(
+                                          Icons.person,
+                                          color: Theme.of(context).colorScheme.primary,
                                         ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Text(
+                                          employee.employeeName,
+                                          style: Theme.of(context).textTheme.bodyLarge,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),

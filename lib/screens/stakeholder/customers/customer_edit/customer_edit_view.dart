@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gizmoglobe_client/objects/customer.dart';
 
+import '../../../../widgets/general/gradient_icon_button.dart';
+import '../../../../widgets/general/gradient_text.dart';
+
 class CustomerEditScreen extends StatefulWidget {
   final Customer customer;
 
@@ -74,8 +77,15 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Edit Customer'),
+          title: GradientText(text: 'Edit Customer'),
           elevation: 2,
+          automaticallyImplyLeading: false,
+          leading: GradientIconButton(
+            icon: Icons.chevron_left,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -92,65 +102,93 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         children: [
-                          TextFormField(
-                            focusNode: _nameFocusNode,
-                            initialValue: customerName,
-                            decoration: InputDecoration(
-                              labelText: 'Full Name',
-                              prefixIcon: const Icon(Icons.person),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 40),
+                            child: TextFormField(
+                              focusNode: _nameFocusNode,
+                              initialValue: customerName,
+                              decoration: InputDecoration(
+                                labelText: 'Full Name',
+                                labelStyle: const TextStyle(color: Colors.white),
+                                floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                                  (states) => TextStyle(
+                                    color: states.contains(MaterialState.focused) 
+                                      ? Theme.of(context).primaryColor 
+                                      : Colors.white,
+                                  ),
+                                ),
+                                prefixIcon: const Icon(Icons.person, color: Colors.white,),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
+                              textInputAction: TextInputAction.next,
+                              onChanged: (value) => setState(() {
+                                customerName = value;
+                                _isFormDirty = true;
+                              }),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Name is required';
+                                }
+                                if (value.length < 2) {
+                                  return 'Name must be at least 2 characters';
+                                }
+                                return null;
+                              },
                             ),
-                            textInputAction: TextInputAction.next,
-                            onChanged: (value) => setState(() {
-                              customerName = value;
-                              _isFormDirty = true;
-                            }),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Name is required';
-                              }
-                              if (value.length < 2) {
-                                return 'Name must be at least 2 characters';
-                              }
-                              return null;
-                            },
                           ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            focusNode: _emailFocusNode,
-                            initialValue: email,
-                            decoration: InputDecoration(
-                              labelText: 'Email Address',
-                              prefixIcon: const Icon(Icons.email),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 40),
+                            child: TextFormField(
+                              focusNode: _emailFocusNode,
+                              initialValue: email,
+                              decoration: InputDecoration(
+                                labelText: 'Email Address',
+                                labelStyle: const TextStyle(color: Colors.white),
+                                floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                                  (states) => TextStyle(
+                                    color: states.contains(MaterialState.focused) 
+                                      ? Theme.of(context).primaryColor 
+                                      : Colors.white,
+                                  ),
+                                ),
+                                prefixIcon: const Icon(Icons.email, color: Colors.white,),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
+                              onChanged: (value) => setState(() {
+                                email = value;
+                                _isFormDirty = true;
+                              }),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Email is required';
+                                }
+                                if (!isValidEmail(value)) {
+                                  return 'Please enter a valid email';
+                                }
+                                return null;
+                              },
                             ),
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
-                            onChanged: (value) => setState(() {
-                              email = value;
-                              _isFormDirty = true;
-                            }),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Email is required';
-                              }
-                              if (!isValidEmail(value)) {
-                                return 'Please enter a valid email';
-                              }
-                              return null;
-                            },
                           ),
-                          const SizedBox(height: 16),
                           TextFormField(
                             focusNode: _phoneFocusNode,
                             initialValue: phoneNumber,
                             decoration: InputDecoration(
                               labelText: 'Phone Number',
-                              prefixIcon: const Icon(Icons.phone),
+                              labelStyle: const TextStyle(color: Colors.white),
+                              floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                                (states) => TextStyle(
+                                  color: states.contains(MaterialState.focused) 
+                                    ? Theme.of(context).primaryColor 
+                                    : Colors.white,
+                                ),
+                              ),
+                              prefixIcon: const Icon(Icons.phone, color: Colors.white),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -195,9 +233,14 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
                     ),
                     icon: const Icon(Icons.save),
-                    label: const Text('SAVE CHANGES'),
+                    label: const Text(
+                      'SAVE CHANGES',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               ),

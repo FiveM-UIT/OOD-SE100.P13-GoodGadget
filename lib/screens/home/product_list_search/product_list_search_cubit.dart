@@ -55,8 +55,11 @@ class ProductListSearchCubit extends Cubit<ProductListSearchState> {
     final filteredProducts = Database().productList.where((product) {
       final matchesCategory = state.selectedCategoryList.contains(product.category);
       final matchesManufacturer = state.selectedManufacturerList.contains(product.manufacturer);
-      final matchesPrice = (product.price >= min) && (product.price <= max);
-      return matchesCategory && matchesManufacturer && matchesPrice;
+      //final matchesPrice = (product.price >= min) && (product.price <= max);
+      return matchesCategory
+          && matchesManufacturer
+          //&& matchesPrice
+      ;
     }).toList();
 
     emit(state.copyWith(productList: filteredProducts));

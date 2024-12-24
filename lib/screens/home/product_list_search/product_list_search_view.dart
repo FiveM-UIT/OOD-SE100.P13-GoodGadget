@@ -128,7 +128,7 @@ class _ProductListSearchScreenState extends State<ProductListSearchScreen> {
                       final product = state.productList[index];
                       return ListTile(
                         title: Text(product.productName),
-                        subtitle: Text('đ${product.price}'),
+                        subtitle: Text('đ${product.stock}'),
                       );
                     },
                   );

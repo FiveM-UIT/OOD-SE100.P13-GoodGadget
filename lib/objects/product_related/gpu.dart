@@ -13,7 +13,10 @@ class GPU extends Product {
 
   GPU({
     required super.productName,
-    required super.price,
+    required super.importPrice,
+    required super.sellingPrice,
+    required super.discount,
+    required super.release,
     required super.manufacturer,
     super.category = CategoryEnum.gpu,
     required this.series,

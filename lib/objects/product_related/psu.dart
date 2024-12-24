@@ -11,7 +11,11 @@ class PSU extends Product {
 
   PSU({
     required super.productName,
-    required super.price,
+    required super.importPrice,
+    required super.sellingPrice,
+    required super.discount,
+    required super.release,
+    required super.sales,
     required super.manufacturer,
     super.category = CategoryEnum.psu,
     required this.wattage,

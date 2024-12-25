@@ -12,10 +12,7 @@ class WarrantyScreenCubit extends Cubit<WarrantyScreenState> {
     await Future.delayed(const Duration(seconds: 1)); // Simulate API call
     emit(state.copyWith(
       isLoading: false,
-      invoices: [
-        const WarrantyInvoice(id: '001', date: '2024-03-20'),
-        const WarrantyInvoice(id: '002', date: '2024-03-19'),
-      ],
+
     ));
   }
 

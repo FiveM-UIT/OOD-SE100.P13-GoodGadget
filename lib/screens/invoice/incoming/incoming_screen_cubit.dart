@@ -12,10 +12,6 @@ class IncomingScreenCubit extends Cubit<IncomingScreenState> {
     await Future.delayed(const Duration(seconds: 1)); // Simulate API call
     emit(state.copyWith(
       isLoading: false,
-      invoices: [
-        const IncomingInvoice(id: '001', date: '2024-03-20'),
-        const IncomingInvoice(id: '002', date: '2024-03-19'),
-      ],
     ));
   }
 

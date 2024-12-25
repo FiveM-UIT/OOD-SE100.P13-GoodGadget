@@ -10,6 +10,7 @@ import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
 import '../../../enums/processing/sort_enum.dart';
 import '../../../enums/product_related/category_enum.dart';
+import '../../../enums/product_related/product_status_enum.dart';
 import '../../../widgets/filter/advanced_filter_search/advanced_filter_search_view.dart';
 import '../../../widgets/general/app_text_style.dart';
 import '../product_detail/product_detail_view.dart';
@@ -17,11 +18,10 @@ import '../product_detail/product_detail_view.dart';
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
 
-  static Widget newInstance() =>
-      BlocProvider(
-        create: (context) => ProductScreenCubit(),
-        child: const ProductScreen(),
-      );
+  static Widget newInstance() => BlocProvider(
+    create: (context) => ProductScreenCubit(),
+    child: const ProductScreen(),
+  );
 
   @override
   State<ProductScreen> createState() => _ProductScreenState();
@@ -72,7 +72,23 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
               cubit.updateSearchText(value);
             },
           ),
-
+          actions: [
+            ElevatedButton.icon(
+              onPressed: () {
+                // Add your onPressed code here!
+              },
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: const Text('Add', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.onPrimary,
+                padding: const EdgeInsets.fromLTRB(8, 4, 12, 4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(32),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
           bottom: TabBar(
             controller: tabController,
             labelColor: Theme.of(context).colorScheme.primary,
@@ -93,7 +109,6 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
             },
           ),
         ),
-
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Column(
@@ -107,7 +122,6 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
                         style: AppTextStyle.smallText,
                       ),
                       const SizedBox(width: 8),
-
                       DropdownButton<SortEnum>(
                         value: state.selectedSortOption,
                         icon: const Icon(Icons.keyboard_arrow_down),
@@ -128,7 +142,6 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
                         }).toList(),
                       ),
                       const Spacer(),
-
                       Center(
                         child: GradientIconButton(
                           icon: Icons.filter_list_alt,
@@ -137,16 +150,15 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
                             final FilterSearchArguments arguments = FilterSearchArguments(
                               selectedCategories: state.selectedCategoryList,
                               selectedManufacturers: state.selectedManufacturerList,
-                              minPrice: state.minPrice,
-                              maxPrice: state.maxPrice,
+                              minStock: state.minStock,
+                              maxStock: state.maxStock,
                             );
 
                             final result = await Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    AdvancedFilterSearchScreen.newInstance(
-                                      arguments: arguments,
-                                    ),
+                                builder: (context) => AdvancedFilterSearchScreen.newInstance(
+                                  arguments: arguments,
+                                ),
                               ),
                             );
 
@@ -154,8 +166,8 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
                               cubit.updateFilter(
                                 selectedCategoryList: result.selectedCategories,
                                 selectedManufacturerList: result.selectedManufacturers,
-                                minPrice: result.minPrice,
-                                maxPrice: result.maxPrice,
+                                minStock: result.minStock,
+                                maxStock: result.maxStock,
                               );
                               cubit.applyFilters();
                             }
@@ -167,7 +179,6 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
                 },
               ),
               const SizedBox(height: 16),
-
               Expanded(
                 child: BlocBuilder<ProductScreenCubit, ProductScreenState>(
                   builder: (context, state) {
@@ -180,17 +191,193 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
                       itemCount: state.productList.length,
                       itemBuilder: (context, index) {
                         final product = state.productList[index];
-                        return InkWell(
+                        final isSelected = state.selectedProduct == product;
+
+                        IconData getCategoryIcon(CategoryEnum category) {
+                          switch (category) {
+                            case CategoryEnum.ram:
+                              return Icons.memory;
+                            case CategoryEnum.cpu:
+                              return Icons.computer;
+                            case CategoryEnum.psu:
+                              return Icons.power;
+                            case CategoryEnum.gpu:
+                              return Icons.videogame_asset;
+                            case CategoryEnum.drive:
+                              return Icons.storage;
+                            case CategoryEnum.mainboard:
+                              return Icons.developer_board;
+                            default:
+                              return Icons.device_unknown;
+                          }
+                        }
+
+                        return GestureDetector(
                           onTap: () {
+                            cubit.setSelectedProduct(null);
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => ProductDetailScreen.newInstance(product),
                               ),
                             );
                           },
-                          child: ListTile(
-                            title: Text(product.productName),
-                            subtitle: Text('đ${product.stock}'),
+                          onLongPress: () {
+                            cubit.setSelectedProduct(product);
+                            showDialog(
+                              context: context,
+                              barrierDismissible: true,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  backgroundColor: Colors.transparent,
+                                  contentPadding: EdgeInsets.zero,
+                                  content: Container(
+                                    width: 120,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).cardColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
+                                          child: Text(
+                                            product.productName,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ),
+                                        ListTile(
+                                          dense: true,
+                                          leading: const Icon(
+                                            Icons.visibility_outlined,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                          title: const Text('View'),
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                            cubit.setSelectedProduct(null);
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => ProductDetailScreen.newInstance(product),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        ListTile(
+                                          dense: true,
+                                          leading: const Icon(
+                                            Icons.edit_outlined,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                          title: const Text('Edit'),
+                                          onTap: () async {
+                                            Navigator.pop(context);
+                                            cubit.setSelectedProduct(null);
+                                            final updatedProduct = await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => ProductDetailScreen.newInstance(product),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        ListTile(
+                                          dense: true,
+                                          leading: const Icon(
+                                            Icons.delete_outlined,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                          title: const Text('Delete', style: TextStyle()),
+                                          onTap: () async {
+                                            Navigator.pop(context);
+                                            cubit.setSelectedProduct(null);
+                                            final updatedProduct = await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => ProductDetailScreen.newInstance(product),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ).then((_) {
+                              cubit.setSelectedProduct(null);
+                            });
+                          },
+                          child: AnimatedOpacity(
+                            duration: const Duration(milliseconds: 200),
+                            opacity: state.selectedProduct == null || state.selectedProduct == product ? 1.0 : 0.3,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? Theme.of(context).primaryColor.withOpacity(0.1)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      getCategoryIcon(product.category),
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            product.productName,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 16,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          Text(
+                                            product.category.toString(),
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: product.status == ProductStatusEnum.active
+                                            ? Colors.green.withOpacity(0.1)
+                                            : Colors.red.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        product.status.toString(),
+                                        style: TextStyle(
+                                          color: product.status == ProductStatusEnum.active
+                                              ? Colors.green
+                                              : Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         );
                       },

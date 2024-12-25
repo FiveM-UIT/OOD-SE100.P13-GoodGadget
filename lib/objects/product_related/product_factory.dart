@@ -19,6 +19,9 @@ class ProductFactory {
           sellingPrice: properties['sellingPrice'],
           discount: properties['discount'],
           release: properties['release'],
+          stock: properties['stock'],
+          sales: properties['sales'],
+          status: properties['status'],
           bus: properties['bus'],
           capacity: properties['capacity'],
           ramType: properties['ramType'],
@@ -36,6 +39,9 @@ class ProductFactory {
           core: properties['core'],
           thread: properties['thread'],
           clockSpeed: properties['clockSpeed'],
+          stock: properties['stock'],
+          sales: properties['sales'],
+          status: properties['status'],
         )..productID = properties['productID'];
       case CategoryEnum.psu:
         return PSU(
@@ -49,6 +55,9 @@ class ProductFactory {
           wattage: properties['wattage'],
           efficiency: properties['efficiency'],
           modular: properties['modular'],
+          stock: properties['stock'],
+          sales: properties['sales'],
+          status: properties['status'],
         )..productID = properties['productID'];
       case CategoryEnum.gpu:
         return GPU(
@@ -63,6 +72,9 @@ class ProductFactory {
           capacity: properties['capacity'],
           bus: properties['busWidth'],
           clockSpeed: properties['clockSpeed'],
+          stock: properties['stock'],
+          sales: properties['sales'],
+          status: properties['status'],
         )..productID = properties['productID'];
       case CategoryEnum.mainboard:
         return Mainboard(
@@ -76,6 +88,9 @@ class ProductFactory {
           formFactor: properties['formFactor'],
           series: properties['series'],
           compatibility: properties['compatibility'],
+          stock: properties['stock'],
+          sales: properties['sales'],
+          status: properties['status'],
         )..productID = properties['productID'];
       case CategoryEnum.drive:
         return Drive(
@@ -88,6 +103,9 @@ class ProductFactory {
           release: properties['release'],
           type: properties['type'],
           capacity: properties['capacity'],
+          stock: properties['stock'],
+          sales: properties['sales'],
+          status: properties['status'],
         )..productID = properties['productID'];
       default:
         throw Exception('Invalid product category');

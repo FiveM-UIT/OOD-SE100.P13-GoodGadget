@@ -22,6 +22,9 @@ class Mainboard extends Product {
     required this.formFactor,
     required this.series,
     required this.compatibility,
+    required super.sales,
+    required super.stock,
+    required super.status,
   });
 
   @override

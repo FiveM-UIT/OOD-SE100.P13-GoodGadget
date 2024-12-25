@@ -221,7 +221,7 @@ class Firebase {
       if (customer.customerID == null) {
         throw Exception('Customer ID cannot be null');
       }
-      
+
       await FirebaseFirestore.instance
           .collection('customers')
           .doc(customer.customerID)
@@ -259,7 +259,7 @@ class Firebase {
 
       // Có thể thêm logic để xóa các dữ liệu liên quan khác
       // như orders, cart items, etc.
-      
+
     } catch (e) {
       print('Lỗi khi xóa khách hàng: $e');
       rethrow;
@@ -271,7 +271,7 @@ class Firebase {
       DocumentReference docRef = await FirebaseFirestore.instance
           .collection('customers')
           .add(customer.toMap());
-      
+
       customer.customerID = docRef.id;
     } catch (e) {
       print('Lỗi khi tạo khách hàng mới: $e');
@@ -330,7 +330,7 @@ class Firebase {
       if (employee.employeeID == null) {
         throw Exception('Employee ID cannot be null');
       }
-      
+
       await FirebaseFirestore.instance
           .collection('employees')
           .doc(employee.employeeID)
@@ -371,7 +371,7 @@ class Firebase {
       DocumentReference docRef = await FirebaseFirestore.instance
           .collection('employees')
           .add(employee.toMap());
-      
+
       employee.employeeID = docRef.id;
     } catch (e) {
       print('Lỗi khi tạo nhân viên mới: $e');
@@ -419,7 +419,7 @@ class Firebase {
       if (manufacturer.manufacturerID == null) {
         throw Exception('Manufacturer ID cannot be null');
       }
-      
+
       // Find document by manufacturerID field
       final querySnapshot = await FirebaseFirestore.instance
           .collection('manufacturers')
@@ -499,6 +499,40 @@ class Firebase {
       );
     } catch (e) {
       print('Error finding manufacturer by ID: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> addEmployee(Employee employee) async {
+    try {
+      // Kiểm tra xem email đã tồn tại chưa
+      QuerySnapshot existingEmployees = await FirebaseFirestore.instance
+          .collection('employees')
+          .where('email', isEqualTo: employee.email)
+          .get();
+
+      if (existingEmployees.docs.isNotEmpty) {
+        throw Exception('Email đã được sử dụng bởi nhân viên khác');
+      }
+
+      // Thêm nhân viên mới vào collection employees
+      DocumentReference docRef = await FirebaseFirestore.instance
+          .collection('employees')
+          .add(employee.toMap());
+
+      // Cập nhật ID cho nhân viên
+      employee.employeeID = docRef.id;
+
+      // Thêm tài khoản user tương ứng
+      await FirebaseFirestore.instance.collection('users').add({
+        'email': employee.email,
+        'username': employee.employeeName,
+        'phoneNumber': employee.phoneNumber,
+        'role': 'employee', // Trạng thái chờ xác minh
+      });
+
+    } catch (e) {
+      print('Error adding employee: $e');
       rethrow;
     }
   }

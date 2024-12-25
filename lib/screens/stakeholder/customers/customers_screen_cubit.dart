@@ -86,19 +86,21 @@ class CustomersScreenCubit extends Cubit<CustomersScreenState> {
     }
   }
 
-  Future<void> createCustomer(String name, String email, String phone) async {
+  Future<String?> createCustomer(String name, String email, String phone) async {
     try {
       final customer = Customer(
-        customerID: null, // Firebase sẽ tự tạo ID
-        customerName: name,
-        email: email,
-        phoneNumber: phone,
+        customerID: null,
+        customerName: name.trim(),
+        email: email.trim(),
+        phoneNumber: phone.trim(),
       );
+      
       await _firebase.createCustomer(customer);
-      // Stream sẽ tự động cập nhật UI
+      return null; // Return null if successful
+      
     } catch (e) {
       print('Error creating customer: $e');
-      // Xử lý lỗi nếu cần
+      return e.toString(); // Return error message
     }
   }
 }

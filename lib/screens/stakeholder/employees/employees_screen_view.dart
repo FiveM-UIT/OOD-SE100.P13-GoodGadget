@@ -30,6 +30,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     final nameController = TextEditingController();
     final emailController = TextEditingController();
     final phoneController = TextEditingController();
+    final passwordController = TextEditingController();
     RoleEnum selectedRole = RoleEnum.employee;
     final formKey = GlobalKey<FormState>();
 
@@ -69,7 +70,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                             size: 28,
                           ),
                           const SizedBox(width: 12),
-                          Text(
+                          const Text(
                             'Add New Employee',
                             style: TextStyle(
                               fontSize: 24,
@@ -91,7 +92,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         decoration: InputDecoration(
                           labelText: 'Name',
                           hintText: 'Enter employee name',
-                          prefixIcon: Icon(
+                          prefixIcon: const Icon(
                             Icons.person_outline,
                             color: Colors.white,
                           ),
@@ -111,12 +112,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           ),
                           filled: true,
                           fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                          labelStyle: TextStyle(
+                          labelStyle: const TextStyle(
                             color: Colors.white,
                           ),
-                          floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                          floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                             (states) => TextStyle(
-                              color: states.contains(MaterialState.focused)
+                              color: states.contains(WidgetState.focused)
                                   ? Theme.of(context).colorScheme.primary
                                   : Colors.white,
                             ),
@@ -134,15 +135,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter email address';
                           }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                            return 'Please enter a valid email address';
-                          }
                           return null;
                         },
                         decoration: InputDecoration(
                           labelText: 'Email',
                           hintText: 'Enter email address',
-                          prefixIcon: Icon(
+                          prefixIcon: const Icon(
                             Icons.email_outlined,
                             color: Colors.white,
                           ),
@@ -162,12 +160,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           ),
                           filled: true,
                           fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                          labelStyle: TextStyle(
+                          labelStyle: const TextStyle(
                             color: Colors.white,
                           ),
-                          floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                          floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                             (states) => TextStyle(
-                              color: states.contains(MaterialState.focused)
+                              color: states.contains(WidgetState.focused)
                                   ? Theme.of(context).colorScheme.primary
                                   : Colors.white,
                             ),
@@ -185,7 +183,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         decoration: InputDecoration(
                           labelText: 'Phone Number',
                           hintText: 'Enter phone number',
-                          prefixIcon: Icon(
+                          prefixIcon: const Icon(
                             Icons.phone_outlined,
                             color: Colors.white,
                           ),
@@ -205,12 +203,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           ),
                           filled: true,
                           fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                          labelStyle: TextStyle(
+                          labelStyle: const TextStyle(
                             color: Colors.white,
                           ),
-                          floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                          floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                             (states) => TextStyle(
-                              color: states.contains(MaterialState.focused)
+                              color: states.contains(WidgetState.focused)
                                   ? Theme.of(context).colorScheme.primary
                                   : Colors.white,
                             ),
@@ -229,7 +227,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                             value: selectedRole,
                             decoration: InputDecoration(
                               labelText: 'Role',
-                              prefixIcon: Icon(
+                              prefixIcon: const Icon(
                                 Icons.work_outline,
                                 color: Colors.white,
                               ),
@@ -249,12 +247,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                               ),
                               filled: true,
                               fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                              labelStyle: TextStyle(
+                              labelStyle: const TextStyle(
                                 color: Colors.white,
                               ),
-                              floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                              floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                                 (states) => TextStyle(
-                                  color: states.contains(MaterialState.focused)
+                                  color: states.contains(WidgetState.focused)
                                       ? Theme.of(context).colorScheme.primary
                                       : Colors.white,
                                 ),
@@ -265,7 +263,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                                 value: role,
                                 child: Text(
                                   role.toString().split('.').last,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white,
                                   ),
                                 ),
@@ -277,8 +275,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                               }
                             },
                             dropdownColor: Theme.of(context).colorScheme.surface,
-                            icon: Icon(Icons.arrow_drop_down, color: Colors.white),
-                            style: TextStyle(color: Colors.white),
+                            icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           );
                         },
                       ),
@@ -299,14 +297,32 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           ElevatedButton(
                             onPressed: () async {
                               if (formKey.currentState?.validate() ?? false) {
-                                await cubit.createEmployee(
+                                final error = await cubit.createEmployee(
                                   nameController.text,
                                   emailController.text,
                                   phoneController.text,
                                   selectedRole,
                                 );
-                                if (mounted) {
-                                  Navigator.pop(context);
+
+                                if (error != null) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(error),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  if (mounted) {
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Employee added successfully.'),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  }
                                 }
                               }
                             },

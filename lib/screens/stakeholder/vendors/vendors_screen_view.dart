@@ -125,9 +125,37 @@ class _VendorsScreenState extends State<VendorsScreen> {
                     Flexible(
                       child: ElevatedButton(
                         onPressed: () async {
-                          if (nameController.text.isNotEmpty) {
-                            await cubit.createManufacturer(nameController.text);
-                            Navigator.pop(context);
+                          if (nameController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please enter manufacturer name'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
+                          final error = await cubit.createManufacturer(nameController.text);
+
+                          if (error != null) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(error),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          } else {
+                            if (mounted) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Manufacturer added successfully'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(

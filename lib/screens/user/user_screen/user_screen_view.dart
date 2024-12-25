@@ -46,13 +46,13 @@ class _UserScreen extends State<UserScreen> {
                   await pushProductSamplesToFirebase();
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Đã đẩy dữ liệu sản phẩm mẫu thành công')),
+                      const SnackBar(content: Text('Sample product data pushed successfully')),
                     );
                   }
                 } catch (e) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Lỗi khi đẩy sản phẩm: $e')),
+                      SnackBar(content: Text('Error pushing products: $e')),
                     );
                   }
                 }

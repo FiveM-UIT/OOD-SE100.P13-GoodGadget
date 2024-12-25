@@ -196,15 +196,43 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     const SizedBox(width: 12),
                     ElevatedButton(
                       onPressed: () async {
-                        if (nameController.text.isNotEmpty &&
-                            emailController.text.isNotEmpty &&
-                            phoneController.text.isNotEmpty) {
-                          await cubit.createCustomer(
-                            nameController.text,
-                            emailController.text,
-                            phoneController.text,
+                        if (nameController.text.isEmpty ||
+                            emailController.text.isEmpty ||
+                            phoneController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please fill in all fields'),
+                              backgroundColor: Colors.red,
+                            ),
                           );
-                          Navigator.pop(context);
+                          return;
+                        }
+
+                        final error = await cubit.createCustomer(
+                          nameController.text,
+                          emailController.text,
+                          phoneController.text,
+                        );
+
+                        if (error != null) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(error),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        } else {
+                          if (mounted) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Customer added successfully'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          }
                         }
                       },
                       style: ElevatedButton.styleFrom(

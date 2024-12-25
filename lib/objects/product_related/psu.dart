@@ -21,6 +21,9 @@ class PSU extends Product {
     required this.wattage,
     required this.efficiency,
     required this.modular,
+    required super.sales,
+    required super.stock,
+    required super.status,
   });
 
   @override

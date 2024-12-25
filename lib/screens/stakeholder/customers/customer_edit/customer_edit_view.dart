@@ -217,31 +217,32 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        final updatedCustomer = widget.customer.copyWith(
-                          customerName: customerName.trim(),
-                          email: email.trim(),
-                          phoneNumber: phoneNumber.trim(),
-                        );
-                        Navigator.pop(context, updatedCustomer);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          final updatedCustomer = widget.customer.copyWith(
+                            customerName: customerName.trim(),
+                            email: email.trim(),
+                            phoneNumber: phoneNumber.trim(),
+                          );
+                          Navigator.pop(context, updatedCustomer);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
                       ),
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
+                      icon: const Icon(Icons.save, color: Colors.white),
+                      label: const Text(
+                        'SAVE CHANGES',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
-                    icon: const Icon(Icons.save),
-                    label: const Text(
-                      'SAVE CHANGES',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
+                  )
+
                 ],
               ),
             ),

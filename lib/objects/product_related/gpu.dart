@@ -24,6 +24,9 @@ class GPU extends Product {
     required this.capacity,
     required this.bus,
     required this.clockSpeed,
+    required super.sales,
+    required super.stock,
+    required super.status,
   });
 
   @override

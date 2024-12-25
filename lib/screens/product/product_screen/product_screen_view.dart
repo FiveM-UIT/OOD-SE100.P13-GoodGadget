@@ -72,6 +72,23 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
               cubit.updateSearchText(value);
             },
           ),
+          actions: [
+            ElevatedButton.icon(
+              onPressed: () {
+                // Add your onPressed code here!
+              },
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: const Text('Add', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.onPrimary,
+                padding: const EdgeInsets.fromLTRB(8, 4, 12, 4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(32),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
           bottom: TabBar(
             controller: tabController,
             labelColor: Theme.of(context).colorScheme.primary,

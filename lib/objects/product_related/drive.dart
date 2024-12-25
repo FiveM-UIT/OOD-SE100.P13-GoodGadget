@@ -19,6 +19,9 @@ class Drive extends Product {
     super.category = CategoryEnum.drive,
     required this.type,
     required this.capacity,
+    required super.sales,
+    required super.stock,
+    required super.status,
   });
 
   @override

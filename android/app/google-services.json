@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "793097928357-pbs2n3hukqas0rnvmhjcf5p2rb7tj4b3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.goodgadget",
+            "certificate_hash": "14801f80b64cc9019dce139fdfbd46806e46cefb"
+          }
+        },
+        {
           "client_id": "793097928357-r3gcjt3uujl36oikmak8k0o0k6o7e28s.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

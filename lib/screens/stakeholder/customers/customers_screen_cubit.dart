@@ -65,4 +65,40 @@ class CustomersScreenCubit extends Cubit<CustomersScreenState> {
   void setSelectedIndex(int? index) {
     emit(state.copyWith(selectedIndex: index));
   }
+
+  Future<void> updateCustomer(Customer customer) async {
+    try {
+      await _firebase.updateCustomer(customer);
+      // No need to manually update state as the stream will handle it
+    } catch (e) {
+      print('Error updating customer: $e');
+      // You might want to handle the error appropriately
+    }
+  }
+
+  Future<void> deleteCustomer(String customerId) async {
+    try {
+      await _firebase.deleteCustomer(customerId);
+      // No need to manually update state as the stream will handle it
+    } catch (e) {
+      print('Error deleting customer: $e');
+      // You might want to handle the error appropriately
+    }
+  }
+
+  Future<void> createCustomer(String name, String email, String phone) async {
+    try {
+      final customer = Customer(
+        customerID: null, // Firebase sẽ tự tạo ID
+        customerName: name,
+        email: email,
+        phoneNumber: phone,
+      );
+      await _firebase.createCustomer(customer);
+      // Stream sẽ tự động cập nhật UI
+    } catch (e) {
+      print('Error creating customer: $e');
+      // Xử lý lỗi nếu cần
+    }
+  }
 }

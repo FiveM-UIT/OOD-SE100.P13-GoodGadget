@@ -1,6 +1,7 @@
 import 'package:gizmoglobe_client/enums/product_related/cpu_enums/cpu_family.dart';
 
 import '../../enums/product_related/category_enum.dart';
+import '../../enums/product_related/product_status_enum.dart';
 import '../manufacturer.dart';
 import 'product.dart';
 
@@ -22,6 +23,9 @@ class CPU extends Product {
     required this.core,
     required this.thread,
     required this.clockSpeed,
+    required super.sales,
+    required super.stock,
+    required super.status,
   });
 
   @override

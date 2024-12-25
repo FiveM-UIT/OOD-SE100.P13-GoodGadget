@@ -7,6 +7,8 @@ import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'employees_screen_cubit.dart';
 import 'employees_screen_state.dart';
 import 'employee_detail/employee_detail_view.dart';
+import 'employee_edit/employee_edit_view.dart';
+import 'package:gizmoglobe_client/enums/stakeholders/employee_role.dart';
 
 class EmployeesScreen extends StatefulWidget {
   const EmployeesScreen({super.key});
@@ -23,6 +25,322 @@ class EmployeesScreen extends StatefulWidget {
 class _EmployeesScreenState extends State<EmployeesScreen> {
   final TextEditingController searchController = TextEditingController();
   EmployeesScreenCubit get cubit => context.read<EmployeesScreenCubit>();
+
+  void _showAddEmployeeDialog() {
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
+    final phoneController = TextEditingController();
+    RoleEnum selectedRole = RoleEnum.employee;
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person_add,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 28,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Add New Employee',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      TextFormField(
+                        controller: nameController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter employee name';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Name',
+                          hintText: 'Enter employee name',
+                          prefixIcon: Icon(
+                            Icons.person_outline,
+                            color: Colors.white,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.white),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.white),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                          labelStyle: TextStyle(
+                            color: Colors.white,
+                          ),
+                          floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                            (states) => TextStyle(
+                              color: states.contains(MaterialState.focused)
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.white,
+                            ),
+                          ),
+                          hintStyle: const TextStyle(
+                            color: Colors.white70,
+                          ),
+                          errorStyle: TextStyle(color: Theme.of(context).colorScheme.error),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: emailController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter email address';
+                          }
+                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                            return 'Please enter a valid email address';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          hintText: 'Enter email address',
+                          prefixIcon: Icon(
+                            Icons.email_outlined,
+                            color: Colors.white,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.white),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.white),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                          labelStyle: TextStyle(
+                            color: Colors.white,
+                          ),
+                          floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                            (states) => TextStyle(
+                              color: states.contains(MaterialState.focused)
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.white,
+                            ),
+                          ),
+                          hintStyle: const TextStyle(
+                            color: Colors.white70,
+                          ),
+                          errorStyle: TextStyle(color: Theme.of(context).colorScheme.error),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: phoneController,
+                        decoration: InputDecoration(
+                          labelText: 'Phone Number',
+                          hintText: 'Enter phone number',
+                          prefixIcon: Icon(
+                            Icons.phone_outlined,
+                            color: Colors.white,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.white),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.white),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                          labelStyle: TextStyle(
+                            color: Colors.white,
+                          ),
+                          floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                            (states) => TextStyle(
+                              color: states.contains(MaterialState.focused)
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.white,
+                            ),
+                          ),
+                          hintStyle: const TextStyle(
+                            color: Colors.white70,
+                          ),
+                          errorStyle: TextStyle(color: Theme.of(context).colorScheme.error),
+                        ),
+                        keyboardType: TextInputType.phone,
+                      ),
+                      const SizedBox(height: 16),
+                      StatefulBuilder(
+                        builder: (context, setState) {
+                          return DropdownButtonFormField<RoleEnum>(
+                            value: selectedRole,
+                            decoration: InputDecoration(
+                              labelText: 'Role',
+                              prefixIcon: Icon(
+                                Icons.work_outline,
+                                color: Colors.white,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: Colors.white),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: Colors.white),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                              labelStyle: TextStyle(
+                                color: Colors.white,
+                              ),
+                              floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                                (states) => TextStyle(
+                                  color: states.contains(MaterialState.focused)
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Colors.white,
+                                ),
+                              ),
+                            ),
+                            items: RoleEnum.values.map((role) {
+                              return DropdownMenuItem(
+                                value: role,
+                                child: Text(
+                                  role.toString().split('.').last,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (RoleEnum? value) {
+                              if (value != null) {
+                                setState(() => selectedRole = value);
+                              }
+                            },
+                            dropdownColor: Theme.of(context).colorScheme.surface,
+                            icon: Icon(Icons.arrow_drop_down, color: Colors.white),
+                            style: TextStyle(color: Colors.white),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 32),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          ElevatedButton(
+                            onPressed: () async {
+                              if (formKey.currentState?.validate() ?? false) {
+                                await cubit.createEmployee(
+                                  nameController.text,
+                                  emailController.text,
+                                  phoneController.text,
+                                  selectedRole,
+                                );
+                                if (mounted) {
+                                  Navigator.pop(context);
+                                }
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              'Add Employee',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,9 +372,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                     GradientIconButton(
                       icon: Icons.person_add,
                       iconSize: 32,
-                      onPressed: () {
-                        // TODO: Implement add employee
-                      },
+                      onPressed: _showAddEmployeeDialog,
                     )
                   ],
                 ),
@@ -140,10 +456,21 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                                               color: Colors.white,
                                             ),
                                             title: const Text('Edit'),
-                                            onTap: () {
+                                            onTap: () async {
                                               Navigator.pop(context);
                                               cubit.setSelectedIndex(null);
-                                              // TODO: Navigate to edit screen
+                                              final updatedEmployee = await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => EmployeeEditScreen(
+                                                    employee: employee,
+                                                  ),
+                                                ),
+                                              );
+                                              
+                                              if (updatedEmployee != null) {
+                                                await cubit.updateEmployee(updatedEmployee);
+                                              }
                                             },
                                           ),
                                           ListTile(
@@ -162,7 +489,33 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                                             onTap: () {
                                               Navigator.pop(context);
                                               cubit.setSelectedIndex(null);
-                                              // TODO: Implement delete action
+                                              showDialog(
+                                                context: context,
+                                                builder: (BuildContext context) {
+                                                  return AlertDialog(
+                                                    title: const Text('Delete Employee'),
+                                                    content: Text('Are you sure you want to delete ${employee.employeeName}?'),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () => Navigator.pop(context),
+                                                        child: const Text('Cancel'),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () async {
+                                                          Navigator.pop(context);
+                                                          await cubit.deleteEmployee(employee.employeeID!);
+                                                        },
+                                                        child: Text(
+                                                          'Delete',
+                                                          style: TextStyle(
+                                                            color: Theme.of(context).colorScheme.error,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
                                             },
                                           ),
                                         ],
@@ -203,7 +556,10 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                                       Expanded(
                                         child: Text(
                                           employee.employeeName,
-                                          style: Theme.of(context).textTheme.bodyLarge,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 16,
+                                          ),
                                         ),
                                       ),
                                     ],

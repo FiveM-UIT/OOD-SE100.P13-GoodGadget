@@ -21,7 +21,150 @@ class VendorsScreen extends StatefulWidget {
 
 class _VendorsScreenState extends State<VendorsScreen> {
   final TextEditingController searchController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  
   VendorsScreenCubit get cubit => context.read<VendorsScreenCubit>();
+
+  void _showAddManufacturerModal() {
+    // Reset controller
+    nameController.clear();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.business,
+                      color: Theme.of(context).primaryColor,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        'Add New Manufacturer',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Manufacturer Name',
+                    prefixIcon: Icon(
+                      Icons.business_outlined,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    labelStyle: const TextStyle(color: Colors.white),
+                    floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                      (states) => TextStyle(
+                        color: states.contains(MaterialState.focused)
+                            ? Theme.of(context).primaryColor
+                            : Colors.white,
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).primaryColor,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (nameController.text.isNotEmpty) {
+                            await cubit.createManufacturer(nameController.text);
+                            Navigator.pop(context);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Add Manufacturer',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +194,9 @@ class _VendorsScreenState extends State<VendorsScreen> {
                     ),
                     const SizedBox(width: 8),
                     GradientIconButton(
-                      icon: Icons.person_add,
+                      icon: Icons.business_center,
                       iconSize: 32,
-                      onPressed: () {
-                        // TODO: Implement add manufacturer
-                      },
+                      onPressed: _showAddManufacturerModal,
                     )
                   ],
                 ),

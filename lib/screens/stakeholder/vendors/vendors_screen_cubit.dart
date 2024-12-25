@@ -82,14 +82,10 @@ class VendorsScreenCubit extends Cubit<VendorsScreenState> {
 
   Future<void> createManufacturer(String name) async {
     try {
-      // Tạo một ID mới từ tên (có thể thêm logic để đảm bảo unique)
-      final id = name.toUpperCase().replaceAll(' ', '_');
-      
       final manufacturer = Manufacturer(
-        manufacturerID: id,
+        manufacturerID: null,
         manufacturerName: name,
       );
-      
       await _firebase.createManufacturer(manufacturer);
     } catch (e) {
       print('Error creating manufacturer: $e');

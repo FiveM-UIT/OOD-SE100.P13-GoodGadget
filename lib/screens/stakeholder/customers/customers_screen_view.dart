@@ -22,7 +22,227 @@ class CustomersScreen extends StatefulWidget {
 
 class _CustomersScreenState extends State<CustomersScreen> {
   final TextEditingController searchController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  
   CustomersScreenCubit get cubit => context.read<CustomersScreenCubit>();
+
+  void _showAddCustomerModal() {
+    // Reset controllers
+    nameController.clear();
+    emailController.clear();
+    phoneController.clear();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.person_add,
+                      color: Theme.of(context).primaryColor,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Add New Customer',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Full Name',
+                    prefixIcon: Icon(
+                      Icons.person_outline,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    labelStyle: const TextStyle(color: Colors.white),
+                    floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                      (states) => TextStyle(
+                        color: states.contains(MaterialState.focused)
+                            ? Theme.of(context).primaryColor
+                            : Colors.white,
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).primaryColor,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: Icon(
+                      Icons.email_outlined,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    labelStyle: const TextStyle(color: Colors.white),
+                    floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                      (states) => TextStyle(
+                        color: states.contains(MaterialState.focused)
+                            ? Theme.of(context).primaryColor
+                            : Colors.white,
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).primaryColor,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: phoneController,
+                  decoration: InputDecoration(
+                    labelText: 'Phone Number',
+                    prefixIcon: Icon(
+                      Icons.phone_outlined,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    labelStyle: const TextStyle(color: Colors.white),
+                    floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                      (states) => TextStyle(
+                        color: states.contains(MaterialState.focused)
+                            ? Theme.of(context).primaryColor
+                            : Colors.white,
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).primaryColor,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (nameController.text.isNotEmpty &&
+                            emailController.text.isNotEmpty &&
+                            phoneController.text.isNotEmpty) {
+                          await cubit.createCustomer(
+                            nameController.text,
+                            emailController.text,
+                            phoneController.text,
+                          );
+                          Navigator.pop(context);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Add Customer',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,9 +274,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     GradientIconButton(
                       icon: Icons.person_add,
                       iconSize: 32,
-                      onPressed: () {
-                        // TODO: Implement add customer
-                      },
+                      onPressed: _showAddCustomerModal,
                     )
                   ],
                 ),

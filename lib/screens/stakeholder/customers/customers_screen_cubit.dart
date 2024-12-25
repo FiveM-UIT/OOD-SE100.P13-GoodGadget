@@ -85,4 +85,20 @@ class CustomersScreenCubit extends Cubit<CustomersScreenState> {
       // You might want to handle the error appropriately
     }
   }
+
+  Future<void> createCustomer(String name, String email, String phone) async {
+    try {
+      final customer = Customer(
+        customerID: null, // Firebase sẽ tự tạo ID
+        customerName: name,
+        email: email,
+        phoneNumber: phone,
+      );
+      await _firebase.createCustomer(customer);
+      // Stream sẽ tự động cập nhật UI
+    } catch (e) {
+      print('Error creating customer: $e');
+      // Xử lý lỗi nếu cần
+    }
+  }
 }

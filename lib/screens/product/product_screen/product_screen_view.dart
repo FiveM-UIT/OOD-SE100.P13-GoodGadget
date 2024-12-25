@@ -197,6 +197,7 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
 
                         return GestureDetector(
                           onTap: () {
+                            cubit.setSelectedProduct(null);
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => ProductDetailScreen.newInstance(product),
@@ -222,7 +223,7 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.fromLTRB(8, 24, 8, 8),
+                                          padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
                                           child: Text(
                                             product.productName,
                                             style: const TextStyle(
@@ -267,10 +268,6 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
                                                 builder: (context) => ProductDetailScreen.newInstance(product),
                                               ),
                                             );
-
-                                            /*if (updatedProduct != null) {
-                          await cubit.updateProduct(updatedProduct);
-                        }*/
                                           },
                                         ),
                                         ListTile(
@@ -290,10 +287,6 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
                                                 builder: (context) => ProductDetailScreen.newInstance(product),
                                               ),
                                             );
-
-                                            /*if (updatedProduct != null) {
-                          await cubit.updateProduct(updatedProduct);
-                        }*/
                                           },
                                         ),
                                       ],

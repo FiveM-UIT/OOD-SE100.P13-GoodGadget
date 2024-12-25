@@ -66,7 +66,7 @@ class ProductScreenState extends Equatable {
       maxStock: maxStock ?? this.maxStock,
       selectedSortOption: selectedSortOption ?? this.selectedSortOption,
       selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
-      selectedProduct: selectedProduct ?? this.selectedProduct,
+      selectedProduct: selectedProduct,
     );
   }
 }

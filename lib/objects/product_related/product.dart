@@ -26,9 +26,9 @@ abstract class Product {
     required this.sellingPrice,
     required this.discount,
     required this.release,
-    this.sales = 0,
-    this.stock = 0,
-    this.status = ProductStatusEnum.outOfStock,
+    required this.sales,
+    required this.stock,
+    required this.status,
   });
 
   Product changeCategory(CategoryEnum newCategory, Map<String, dynamic> properties) {

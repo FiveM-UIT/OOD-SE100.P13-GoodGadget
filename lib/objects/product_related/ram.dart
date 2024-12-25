@@ -22,6 +22,9 @@ class RAM extends Product {
     required this.bus,
     required this.capacity,
     required this.ramType,
+    required super.sales,
+    required super.stock,
+    required super.status,
   });
 
   @override

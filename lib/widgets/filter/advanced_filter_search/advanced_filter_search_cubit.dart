@@ -16,17 +16,17 @@ class AdvancedFilterSearchCubit extends Cubit<AdvancedFilterSearchState> {
     emit(state.copyWith(
       selectedCategories: initialSelectedCategories,
       selectedManufacturers: initialSelectedManufacturers,
-      minPrice: initialMinPrice?.toString(),
-      maxPrice: initialMaxPrice?.toString(),
+      minStock: initialMinPrice?.toString(),
+      maxStock: initialMaxPrice?.toString(),
     ));
   }
 
-  void updateMinPrice(String value) {
-    emit(state.copyWith(minPrice: value));
+  void updateMinStock(String value) {
+    emit(state.copyWith(minStock: value));
   }
 
-  void updateMaxPrice(String value) {
-    emit(state.copyWith(maxPrice: value));
+  void updateMaxStock(String value) {
+    emit(state.copyWith(maxStock: value));
   }
 
   void toggleCategory(CategoryEnum category) {

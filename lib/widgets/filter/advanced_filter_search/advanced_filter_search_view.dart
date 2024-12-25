@@ -39,13 +39,13 @@ class _AdvancedFilterSearchScreenState extends State<AdvancedFilterSearchScreen>
   @override
   void initState() {
     super.initState();
-    fromController.text = widget.arguments.minPrice ?? '';
-    toController.text = widget.arguments.maxPrice ?? '';
+    fromController.text = widget.arguments.minStock ?? '';
+    toController.text = widget.arguments.maxStock ?? '';
     cubit.initialize(
       initialSelectedCategories: widget.arguments.selectedCategories,
       initialSelectedManufacturers: widget.arguments.selectedManufacturers,
-      initialMinPrice: widget.arguments.minPrice,
-      initialMaxPrice: widget.arguments.maxPrice,
+      initialMinPrice: widget.arguments.minStock,
+      initialMaxPrice: widget.arguments.maxStock,
     );
   }
 
@@ -69,8 +69,7 @@ class _AdvancedFilterSearchScreenState extends State<AdvancedFilterSearchScreen>
                     FilterSearchArguments(
                       selectedCategories: state.selectedCategories,
                       selectedManufacturers: state.selectedManufacturers,
-                      minPrice: state.minPrice,
-                      maxPrice: state.maxPrice,
+                      minStock: state.minStock,
                     ),
                   );
                 },
@@ -98,17 +97,17 @@ class _AdvancedFilterSearchScreenState extends State<AdvancedFilterSearchScreen>
                 const SizedBox(height: 16.0),
 
                 RangeFilter(
-                  name: 'Price',
+                  name: 'Stock',
                   fromController: fromController,
                   toController: toController,
                   onFromValueChanged: (value) {
-                    cubit.updateMinPrice(value);
+                    cubit.updateMinStock(value);
                   },
                   onToValueChanged: (value) {
-                    cubit.updateMaxPrice(value);
+                    cubit.updateMaxStock(value);
                   },
-                  fromValue: state.minPrice,
-                  toValue: state.maxPrice,
+                  fromValue: state.minStock,
+                  toValue: state.maxStock,
                 ),
               ],
             ),
@@ -122,13 +121,13 @@ class _AdvancedFilterSearchScreenState extends State<AdvancedFilterSearchScreen>
 class FilterSearchArguments {
   final List<CategoryEnum> selectedCategories;
   final List<Manufacturer> selectedManufacturers;
-  final String? minPrice;
-  final String? maxPrice;
+  final String? minStock;
+  final String? maxStock;
 
   FilterSearchArguments({
     required this.selectedCategories,
     required this.selectedManufacturers,
-    this.minPrice,
-    this.maxPrice,
+    this.minStock,
+    this.maxStock,
   });
 }

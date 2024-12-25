@@ -236,7 +236,7 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
                     ),
-                    icon: const Icon(Icons.save),
+                    icon: const Icon(Icons.save, color: Colors.white),
                     label: const Text(
                       'SAVE CHANGES',
                       style: TextStyle(color: Colors.white),

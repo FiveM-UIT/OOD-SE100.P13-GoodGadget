@@ -60,14 +60,17 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          Text(
-                            state.employee.employeeName,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          Container(
+                            width: double.infinity,
+                            child: Text(
+                              state.employee.employeeName,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 32),
                           const Text(
@@ -125,7 +128,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                               icon: const Icon(Icons.edit, color: Colors.white),
                               label: const Text('Edit', style: TextStyle(color: Colors.white)),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
+                                backgroundColor: Colors.green,
                                 padding: const EdgeInsets.symmetric(vertical: 12),
                               ),
                             ),
@@ -164,8 +167,11 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                                   ),
                                 );
                               },
-                              icon: const Icon(Icons.delete),
-                              label: const Text('Delete'),
+                              icon: const Icon(Icons.delete, color: Colors.white),
+                              label: const Text(
+                                'Delete',
+                                style: TextStyle(color: Colors.white),
+                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
                                 padding: const EdgeInsets.symmetric(vertical: 12),

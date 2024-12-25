@@ -60,14 +60,17 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          Text(
-                            state.employee.employeeName,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              state.employee.employeeName,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 32),
                           const Text(

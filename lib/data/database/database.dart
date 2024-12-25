@@ -27,8 +27,9 @@ import '../../objects/product_related/product_factory.dart';
 class Database {
   static final Database _database = Database._internal();
 
-  String username = '';
-  String email = '';
+  String? username;
+  String? email;
+  RoleEnum? role;
 
   List<Manufacturer> manufacturerList = [];
   List<Product> productList = [];

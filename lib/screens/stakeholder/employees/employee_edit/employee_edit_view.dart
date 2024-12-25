@@ -16,7 +16,7 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
   late String employeeName;
   late String email;
   late String phoneNumber;
-  late String role;
+  late RoleEnum role;
 
   @override
   void initState() {
@@ -24,7 +24,7 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
     employeeName = widget.employee.employeeName;
     email = widget.employee.email;
     phoneNumber = widget.employee.phoneNumber;
-    role = widget.employee.role as String;
+    role = widget.employee.role as RoleEnum;
   }
 
   @override
@@ -89,16 +89,33 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                initialValue: role,
+              DropdownButtonFormField<RoleEnum>(
+                value: role,
                 decoration: const InputDecoration(
                   labelText: 'Role',
                   border: OutlineInputBorder(),
                 ),
-                onChanged: (value) => role = value,
+                items: RoleEnum.values.map((RoleEnum roleEnum) {
+                  return DropdownMenuItem<RoleEnum>(
+                    value: roleEnum,
+                    child: Text(
+                      roleEnum.toString().split('.').last,
+                      style: const TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (RoleEnum? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      role = newValue;
+                    });
+                  }
+                },
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a role';
+                  if (value == null) {
+                    return 'Please select a role';
                   }
                   return null;
                 },
@@ -113,9 +130,7 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
                         employeeName: employeeName,
                         email: email,
                         phoneNumber: phoneNumber,
-                        role: RoleEnum.values.firstWhere(
-                          (element) => element.toString() == role,
-                        ),
+                        role: role,
                       );
                       Navigator.pop(context, updatedEmployee);
                     }

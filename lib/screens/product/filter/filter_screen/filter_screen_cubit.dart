@@ -11,30 +11,18 @@ class FilterScreenCubit extends Cubit<FilterScreenState> {
   void initialize({
     required FilterArgument initialFilterValue,
     required int selectedTabIndex,
+    required List<Manufacturer> manufacturerList,
   }) {
     emit(state.copyWith(
       filterArgument: initialFilterValue,
       selectedTabIndex: selectedTabIndex,
+      manufacturerList: manufacturerList,
     ));
   }
 
   void updateFilterArgument(FilterArgument filterArgument) {
     emit(state.copyWith(filterArgument: filterArgument));
   }
-
-
-  // void toggleCategory(CategoryEnum categorie) {
-  //   final selected = state.filterArgument.categoryList;
-  //
-  //   if (selected.contains(categorie)) {
-  //     selected.remove(categorie);
-  //   } else {
-  //     selected.add(categorie);
-  //   }
-  //
-  //   emit(state.copyWith(filter: state.filterArgument.copyWith(categoryList: selected)));
-  // }
-  //
 
   void toggleManufacturer(Manufacturer manufacturer) {
     final selectedManufacturers = List<Manufacturer>.from(state.filterArgument.manufacturerList);

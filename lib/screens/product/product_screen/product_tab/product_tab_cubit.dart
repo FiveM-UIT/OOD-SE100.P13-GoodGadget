@@ -7,14 +7,22 @@ import 'package:gizmoglobe_client/data/database/database.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_state.dart';
 
 import '../../../../enums/processing/sort_enum.dart';
+import '../../../../objects/product_related/cpu.dart';
+import '../../../../objects/product_related/drive.dart';
 import '../../../../objects/product_related/filter_argument.dart';
+import '../../../../objects/product_related/gpu.dart';
+import '../../../../objects/product_related/mainboard.dart';
+import '../../../../objects/product_related/psu.dart';
+import '../../../../objects/product_related/ram.dart';
 import 'product_tab_state.dart';
 
 abstract class TabCubit extends Cubit<TabState> {
   TabCubit() : super(const TabState());
 
   void initialize(FilterArgument filter) {
-    emit(state.copyWith(filterArgument: filter.copyWith(manufacturerList: Database().manufacturerList), manufacturerList: Database().manufacturerList));
+    emit(state.copyWith(
+        filterArgument: filter.copyWith(manufacturerList: getManufacturerList()),
+    ));
     applyFilters();
   }
 
@@ -47,13 +55,19 @@ abstract class TabCubit extends Cubit<TabState> {
 
   void applyFilters() {
     print('Apply filter');
-    final double minStock = double.tryParse(state.filterArgument.minStock) ?? 0;
-    final double maxStock = double.tryParse(state.filterArgument.maxStock) ?? double.infinity;
-
     final filteredProducts = Database().productList.where((product) {
-      final matchesSearchText = product.productName.toLowerCase().contains(state.searchText.toLowerCase());
-      final matchesManufacturer = state.filterArgument.manufacturerList.contains(product.manufacturer);
-      final matchesStock = (product.stock >= minStock) && (product.stock <= maxStock);
+      if (!product.productName.toLowerCase().contains(state.searchText.toLowerCase())) {
+        return false;
+      }
+
+      if (!state.filterArgument.manufacturerList.contains(product.manufacturer)) {
+        return false;
+      }
+
+
+      if (!matchesMinMax(product.stock.toDouble(), state.filterArgument.minStock, state.filterArgument.maxStock)) {
+        return false;
+      }
 
       final bool matchesCategory;
       final index = getIndex();
@@ -79,7 +93,12 @@ abstract class TabCubit extends Cubit<TabState> {
         default:
           matchesCategory = state.filterArgument.categoryList.contains(product.category);
       }
-       return matchesSearchText && matchesManufacturer && matchesCategory && matchesStock;
+
+      if (!matchesCategory) {
+        return false;
+      }
+
+      return matchFilter(product, state.filterArgument);
      }).toList();
 
     switch (state.selectedSortOption) {
@@ -106,12 +125,72 @@ abstract class TabCubit extends Cubit<TabState> {
   }
 
   int getIndex();
+  List<Manufacturer> getManufacturerList();
+
+  bool matchesMinMax(double value, String? minStr, String? maxStr) {
+    final double min = double.tryParse(minStr ?? '') ?? 0;
+    final double max = double.tryParse(maxStr ?? '') ?? double.infinity;
+    return value >= min && value <= max;
+  }
+
+  bool matchFilter(Product product, FilterArgument filterArgument) {
+    switch (product.category) {
+      case CategoryEnum.ram:
+        product as RAM;
+        return filterArgument.ramBusList.contains(product.bus) &&
+            filterArgument.ramCapacityList.contains(product.capacity) &&
+            filterArgument.ramTypeList.contains(product.ramType);
+
+      case CategoryEnum.cpu:
+        product as CPU;
+        final matchesCpuCore = matchesMinMax(product.core?.toDouble() ?? 0, state.filterArgument.minCpuCore, state.filterArgument.maxCpuCore);
+        final matchesCpuThread = matchesMinMax(product.thread?.toDouble() ?? 0, state.filterArgument.minCpuThread, state.filterArgument.maxCpuThread);
+        final matchesCpuClockSpeed = matchesMinMax(product.clockSpeed?.toDouble() ?? 0, state.filterArgument.minCpuClockSpeed, state.filterArgument.maxCpuClockSpeed);
+        return filterArgument.cpuFamilyList.contains(product.family) &&
+            matchesCpuCore &&
+            matchesCpuThread &&
+            matchesCpuClockSpeed;
+
+      case CategoryEnum.gpu:
+        product as GPU;
+        final matchesGpuClockSpeed = matchesMinMax(product.clockSpeed ?? 0, state.filterArgument.minGpuClockSpeed, state.filterArgument.maxGpuClockSpeed);
+        return filterArgument.gpuBusList.contains(product.bus) &&
+            filterArgument.gpuCapacityList.contains(product.capacity) &&
+            filterArgument.gpuSeriesList.contains(product.series) &&
+            matchesGpuClockSpeed;
+
+      case CategoryEnum.mainboard:
+        product as Mainboard;
+        return filterArgument.mainboardFormFactorList.contains(product.formFactor) &&
+            filterArgument.mainboardSeriesList.contains(product.series) &&
+            filterArgument.mainboardCompatibilityList.contains(product.compatibility);
+
+      case CategoryEnum.drive:
+        product as Drive;
+        return filterArgument.driveTypeList.contains(product.type) &&
+            filterArgument.driveCapacityList.contains(product.capacity);
+
+      case CategoryEnum.psu:
+        product as PSU;
+        final matchesPsuWattage = matchesMinMax(product.wattage?.toDouble() ?? 0, state.filterArgument.minPsuWattage, state.filterArgument.maxPsuWattage);
+        return filterArgument.psuModularList.contains(product.modular) &&
+            filterArgument.psuEfficiencyList.contains(product.efficiency) &&
+            matchesPsuWattage;
+      default:
+        return false;
+    }
+  }
 }
 
 class AllTabCubit extends TabCubit {
   @override
   int getIndex() {
     return 0;
+  }
+
+  @override
+  List<Manufacturer> getManufacturerList() {
+    return Database().manufacturerList;
   }
 }
 
@@ -120,12 +199,30 @@ class RamTabCubit extends TabCubit {
   int getIndex() {
     return 1;
   }
+
+  @override
+  List<Manufacturer> getManufacturerList() {
+    return Database().productList
+        .where((product) => product.category == CategoryEnum.ram)
+        .map((product) => product.manufacturer)
+        .toSet()
+        .toList();
+  }
 }
 
 class CpuTabCubit extends TabCubit {
   @override
   int getIndex() {
     return 2;
+  }
+
+  @override
+  List<Manufacturer> getManufacturerList() {
+    return Database().productList
+        .where((product) => product.category == CategoryEnum.cpu)
+        .map((product) => product.manufacturer)
+        .toSet()
+        .toList();
   }
 }
 
@@ -134,12 +231,30 @@ class PsuTabCubit extends TabCubit {
   int getIndex() {
     return 3;
   }
+
+  @override
+  List<Manufacturer> getManufacturerList() {
+    return Database().productList
+        .where((product) => product.category == CategoryEnum.psu)
+        .map((product) => product.manufacturer)
+        .toSet()
+        .toList();
+  }
 }
 
 class GpuTabCubit extends TabCubit {
   @override
   int getIndex() {
     return 4;
+  }
+
+  @override
+  List<Manufacturer> getManufacturerList() {
+    return Database().productList
+        .where((product) => product.category == CategoryEnum.gpu)
+        .map((product) => product.manufacturer)
+        .toSet()
+        .toList();
   }
 }
 
@@ -148,11 +263,29 @@ class DriveTabCubit extends TabCubit {
   int getIndex() {
     return 5;
   }
+
+  @override
+  List<Manufacturer> getManufacturerList() {
+    return Database().productList
+        .where((product) => product.category == CategoryEnum.drive)
+        .map((product) => product.manufacturer)
+        .toSet()
+        .toList();
+  }
 }
 
 class MainboardTabCubit extends TabCubit {
   @override
   int getIndex() {
     return 6;
+  }
+
+  @override
+  List<Manufacturer> getManufacturerList() {
+    return Database().productList
+        .where((product) => product.category == CategoryEnum.mainboard)
+        .map((product) => product.manufacturer)
+        .toSet()
+        .toList();
   }
 }

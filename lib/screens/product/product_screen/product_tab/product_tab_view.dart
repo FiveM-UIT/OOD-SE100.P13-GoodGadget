@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 
+import '../../../../data/database/database.dart';
 import '../../../../enums/processing/sort_enum.dart';
 import '../../../../enums/product_related/category_enum.dart';
 import '../../../../enums/product_related/product_status_enum.dart';
@@ -17,51 +18,37 @@ class ProductTab extends StatefulWidget {
   const ProductTab({super.key});
 
   static Widget newInstance() => BlocProvider<TabCubit>(
-    create: (context) => AllTabCubit()..initialize(const FilterArgument(
-
-    )),
+    create: (context) => AllTabCubit()..initialize(const FilterArgument()),
     child: const ProductTab(),
   );
 
   static Widget newRam() => BlocProvider<TabCubit>(
-    create: (context) => RamTabCubit()..initialize(const FilterArgument(
-
-    )),
+    create: (context) => RamTabCubit()..initialize(const FilterArgument()),
     child: const ProductTab(),
   );
 
   static Widget newCpu() => BlocProvider<TabCubit>(
-    create: (context) => CpuTabCubit()..initialize(const FilterArgument(
-
-    )),
+    create: (context) => CpuTabCubit()..initialize(const FilterArgument()),
     child: const ProductTab(),
   );
 
   static Widget newPsu() => BlocProvider<TabCubit>(
-    create: (context) => PsuTabCubit()..initialize(const FilterArgument(
-
-    )),
+    create: (context) => PsuTabCubit()..initialize(const FilterArgument()),
     child: const ProductTab(),
   );
 
   static Widget newGpu() => BlocProvider<TabCubit>(
-    create: (context) => GpuTabCubit()..initialize(const FilterArgument(
-
-    )),
+    create: (context) => GpuTabCubit()..initialize(const FilterArgument()),
     child: const ProductTab(),
   );
 
   static Widget newDrive() => BlocProvider<TabCubit>(
-    create: (context) => DriveTabCubit()..initialize(const FilterArgument(
-
-    )),
+    create: (context) => DriveTabCubit()..initialize(const FilterArgument()),
     child: const ProductTab(),
   );
 
   static Widget newMainboard() => BlocProvider<TabCubit>(
-    create: (context) => MainboardTabCubit()..initialize(const FilterArgument(
-
-    )),
+    create: (context) => MainboardTabCubit()..initialize(const FilterArgument()),
     child: const ProductTab(),
   );
 
@@ -124,7 +111,8 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                             MaterialPageRoute(
                               builder: (context) => FilterScreen.newInstance(
                                 arguments: arguments,
-                                selectedTabIndex: state.selectedTabIndex
+                                selectedTabIndex: cubit.getIndex(),
+                                manufacturerList: cubit.getManufacturerList(),
                               ),
                             ),
                           );

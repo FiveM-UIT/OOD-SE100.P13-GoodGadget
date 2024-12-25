@@ -9,7 +9,6 @@ import '../../../../objects/product_related/filter_argument.dart';
 
 class TabState extends Equatable{
   final String searchText;
-  final int selectedTabIndex;
   final List<Product> productList;
   final List<Manufacturer> manufacturerList;
   final SortEnum selectedSortOption;
@@ -18,7 +17,6 @@ class TabState extends Equatable{
 
   const TabState({
     this.searchText = '',
-    this.selectedTabIndex = 0,
     this.productList = const [],
     this.manufacturerList = const [],
     this.selectedSortOption = SortEnum.releaseLatest,
@@ -29,7 +27,6 @@ class TabState extends Equatable{
   @override
   List<Object?> get props => [
     searchText,
-    selectedTabIndex,
     productList,
     manufacturerList,
     selectedSortOption,
@@ -41,7 +38,6 @@ class TabState extends Equatable{
     String? searchText,
     int? selectedTabIndex,
     List<Product>? productList,
-    List<Manufacturer>? manufacturerList,
     List<Manufacturer>? selectedManufacturerList,
     SortEnum? selectedSortOption,
     Product? selectedProduct,
@@ -49,9 +45,7 @@ class TabState extends Equatable{
   }) {
     return TabState(
       searchText: searchText ?? this.searchText,
-      selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
       productList: productList ?? this.productList,
-      manufacturerList: manufacturerList ?? this.manufacturerList,
       selectedSortOption: selectedSortOption ?? this.selectedSortOption,
       selectedProduct: selectedProduct,
       filterArgument: filterArgument ?? this.filterArgument,

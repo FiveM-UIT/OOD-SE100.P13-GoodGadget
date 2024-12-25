@@ -17,6 +17,7 @@ import '../../../../enums/product_related/mainboard_enums/mainboard_compatibilit
 import '../../../../enums/product_related/mainboard_enums/mainboard_series.dart';
 import '../../../../enums/product_related/psu_enums/psu_efficiency.dart';
 import '../../../../enums/product_related/ram_enums/ram_type.dart';
+import '../../../../objects/manufacturer.dart';
 import '../manufacturer_filter/manufacturer_filter.dart';
 import '../option_filter/option_filter.dart';
 import '../range_filter/range_filter.dart';
@@ -26,25 +27,30 @@ import 'filter_screen_state.dart';
 class FilterScreen extends StatefulWidget {
   final FilterArgument arguments;
   final int selectedTabIndex;
+  final List<Manufacturer> manufacturerList;
 
   const FilterScreen({
     super.key,
     required this.arguments,
     required this.selectedTabIndex,
+    required this.manufacturerList,
   });
 
   static newInstance({
     required arguments,
     required selectedTabIndex,
+    required manufacturerList,
   }) =>
       BlocProvider(
         create: (context) => FilterScreenCubit()..initialize(
           initialFilterValue: arguments,
           selectedTabIndex: selectedTabIndex,
+          manufacturerList: manufacturerList,
         ),
         child: FilterScreen(
           arguments: arguments,
           selectedTabIndex: selectedTabIndex,
+          manufacturerList: manufacturerList,
         ),
       );
 
@@ -90,6 +96,7 @@ class _FilterScreenState extends State<FilterScreen> {
     cubit.initialize(
       initialFilterValue: widget.arguments,
       selectedTabIndex: widget.selectedTabIndex,
+      manufacturerList: widget.manufacturerList,
     );
   }
 
@@ -125,6 +132,7 @@ class _FilterScreenState extends State<FilterScreen> {
                 ManufacturerFilter(
                   selectedManufacturers: state.filterArgument.manufacturerList,
                   onToggleSelection: cubit.toggleManufacturer,
+                  manufacturerList: state.manufacturerList,
                 ),
                 const SizedBox(height: 16.0),
                 RangeFilter(
@@ -182,9 +190,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Category',
           enumValues: CategoryEnum.values,
-          selectedValues: state.filterArgument.categoryList,
+          selectedValues: List<CategoryEnum>.from(state.filterArgument.categoryList),
           onToggleSelection: (category) {
-            final selected = state.filterArgument.categoryList;
+            final selected = List<CategoryEnum>.from(state.filterArgument.categoryList);
 
             if (selected.contains(category)) {
               selected.remove(category);
@@ -208,9 +216,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Bus',
           enumValues: RAMBus.values,
-          selectedValues: state.filterArgument.ramBusList,
+          selectedValues: List<RAMBus>.from(state.filterArgument.ramBusList),
           onToggleSelection: (bus) {
-            final selected = state.filterArgument.ramBusList;
+            final selected = List<RAMBus>.from(state.filterArgument.ramBusList);
 
             if (selected.contains(bus)) {
               selected.remove(bus);
@@ -228,9 +236,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Capacity',
           enumValues: RAMCapacity.values,
-          selectedValues: state.filterArgument.ramCapacityList,
+          selectedValues: List<RAMCapacity>.from(state.filterArgument.ramCapacityList),
           onToggleSelection: (capacity) {
-            final selected = state.filterArgument.ramCapacityList;
+            final selected = List<RAMCapacity>.from(state.filterArgument.ramCapacityList);
 
             if (selected.contains(capacity)) {
               selected.remove(capacity);
@@ -248,9 +256,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Type',
           enumValues: RAMType.values,
-          selectedValues: state.filterArgument.ramTypeList,
+          selectedValues: List<RAMType>.from(state.filterArgument.ramTypeList),
           onToggleSelection: (type) {
-            final selected = state.filterArgument.ramTypeList;
+            final selected = List<RAMType>.from(state.filterArgument.ramTypeList);
 
             if (selected.contains(type)) {
               selected.remove(type);
@@ -274,9 +282,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Family',
           enumValues: CPUFamily.values,
-          selectedValues: state.filterArgument.cpuFamilyList,
+          selectedValues: List<CPUFamily>.from(state.filterArgument.cpuFamilyList),
           onToggleSelection: (family) {
-            final selected = state.filterArgument.cpuFamilyList;
+            final selected = List<CPUFamily>.from(state.filterArgument.cpuFamilyList);
 
             if (selected.contains(family)) {
               selected.remove(family);
@@ -357,9 +365,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Modular',
           enumValues: PSUModular.values,
-          selectedValues: state.filterArgument.psuModularList,
+          selectedValues: List<PSUModular>.from(state.filterArgument.psuModularList),
           onToggleSelection: (modular) {
-            final selected = state.filterArgument.psuModularList;
+            final selected = List<PSUModular>.from(state.filterArgument.psuModularList);
 
             if (selected.contains(modular)) {
               selected.remove(modular);
@@ -377,9 +385,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Efficiency',
           enumValues: PSUEfficiency.values,
-          selectedValues: state.filterArgument.psuEfficiencyList,
+          selectedValues: List<PSUEfficiency>.from(state.filterArgument.psuEfficiencyList),
           onToggleSelection: (efficiency) {
-            final selected = state.filterArgument.psuEfficiencyList;
+            final selected = List<PSUEfficiency>.from(state.filterArgument.psuEfficiencyList);
 
             if (selected.contains(efficiency)) {
               selected.remove(efficiency);
@@ -422,9 +430,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Bus',
           enumValues: GPUBus.values,
-          selectedValues: state.filterArgument.gpuBusList,
+          selectedValues: List<GPUBus>.from(state.filterArgument.gpuBusList),
           onToggleSelection: (bus) {
-            final selected = state.filterArgument.gpuBusList;
+            final selected = List<GPUBus>.from(state.filterArgument.gpuBusList);
 
             if (selected.contains(bus)) {
               selected.remove(bus);
@@ -442,9 +450,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Capacity',
           enumValues: GPUCapacity.values,
-          selectedValues: state.filterArgument.gpuCapacityList,
+          selectedValues: List<GPUCapacity>.from(state.filterArgument.gpuCapacityList),
           onToggleSelection: (capacity) {
-            final selected = state.filterArgument.gpuCapacityList;
+            final selected = List<GPUCapacity>.from(state.filterArgument.gpuCapacityList);
 
             if (selected.contains(capacity)) {
               selected.remove(capacity);
@@ -462,9 +470,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Series',
           enumValues: GPUSeries.values,
-          selectedValues: state.filterArgument.gpuSeriesList,
+          selectedValues: List<GPUSeries>.from(state.filterArgument.gpuSeriesList),
           onToggleSelection: (series) {
-            final selected = state.filterArgument.gpuSeriesList;
+            final selected = List<GPUSeries>.from(state.filterArgument.gpuSeriesList);
 
             if (selected.contains(series)) {
               selected.remove(series);
@@ -507,9 +515,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Type',
           enumValues: DriveType.values,
-          selectedValues: state.filterArgument.driveTypeList,
+          selectedValues: List<DriveType>.from(state.filterArgument.driveTypeList),
           onToggleSelection: (type) {
-            final selected = state.filterArgument.driveTypeList;
+            final selected = List<DriveType>.from(state.filterArgument.driveTypeList);
 
             if (selected.contains(type)) {
               selected.remove(type);
@@ -527,9 +535,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Capacity',
           enumValues: DriveCapacity.values,
-          selectedValues: state.filterArgument.driveCapacityList,
+          selectedValues: List<DriveCapacity>.from(state.filterArgument.driveCapacityList),
           onToggleSelection: (capacity) {
-            final selected = state.filterArgument.driveCapacityList;
+            final selected = List<DriveCapacity>.from(state.filterArgument.driveCapacityList);
 
             if (selected.contains(capacity)) {
               selected.remove(capacity);
@@ -553,9 +561,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Form Factor',
           enumValues: MainboardFormFactor.values,
-          selectedValues: state.filterArgument.mainboardFormFactorList,
+          selectedValues: List<MainboardFormFactor>.from(state.filterArgument.mainboardFormFactorList),
           onToggleSelection: (formFactor) {
-            final selected = state.filterArgument.mainboardFormFactorList;
+            final selected = List<MainboardFormFactor>.from(state.filterArgument.mainboardFormFactorList);
 
             if (selected.contains(formFactor)) {
               selected.remove(formFactor);
@@ -573,9 +581,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Series',
           enumValues: MainboardSeries.values,
-          selectedValues: state.filterArgument.mainboardSeriesList,
+          selectedValues: List<MainboardSeries>.from(state.filterArgument.mainboardSeriesList),
           onToggleSelection: (series) {
-            final selected = state.filterArgument.mainboardSeriesList;
+            final selected = List<MainboardSeries>.from(state.filterArgument.mainboardSeriesList);
 
             if (selected.contains(series)) {
               selected.remove(series);
@@ -593,9 +601,9 @@ class _FilterScreenState extends State<FilterScreen> {
         OptionFilter(
           name: 'Compatibility',
           enumValues: MainboardCompatibility.values,
-          selectedValues: state.filterArgument.mainboardCompatibilityList,
+          selectedValues: List<MainboardCompatibility>.from(state.filterArgument.mainboardCompatibilityList),
           onToggleSelection: (compatibility) {
-            final selected = state.filterArgument.mainboardCompatibilityList;
+            final selected = List<MainboardCompatibility>.from(state.filterArgument.mainboardCompatibilityList);
 
             if (selected.contains(compatibility)) {
               selected.remove(compatibility);

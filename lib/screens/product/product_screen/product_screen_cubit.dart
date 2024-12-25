@@ -28,14 +28,14 @@ class ProductScreenCubit extends Cubit<ProductScreenState> {
   void updateFilter({
     List<CategoryEnum>? selectedCategoryList,
     List<Manufacturer>? selectedManufacturerList,
-    String? minPrice,
-    String? maxPrice,
+    String? minStock,
+    String? maxStock,
   }) {
     emit(state.copyWith(
       selectedCategoryList: selectedCategoryList,
       selectedManufacturerList: selectedManufacturerList,
-      minPrice: minPrice,
-      maxPrice: maxPrice,
+      minStock: minStock,
+      maxStock: maxStock,
     ));
   }
 
@@ -49,15 +49,20 @@ class ProductScreenCubit extends Cubit<ProductScreenState> {
     applyFilters();
   }
 
+  void setSelectedProduct(Product? product) {
+    emit(state.copyWith(selectedProduct: product));
+  }
+
   void applyFilters() {
-    final double min = double.tryParse(state.minPrice) ?? 0;
-    final double max = double.tryParse(state.maxPrice) ?? double.infinity;
+    final double min = double.tryParse(state.minStock) ?? 0;
+    final double max = double.tryParse(state.maxStock) ?? double.infinity;
 
     final filteredProducts = Database().productList.where((product) {
       final matchesSearchText = state.searchText == null || product.productName.toLowerCase().contains(state.searchText!.toLowerCase());
       final matchesManufacturer = state.selectedManufacturerList.contains(product.manufacturer);
-      final bool matchesCategory;
+      final matchesStock = (product.stock >= min) && (product.stock <= max);
 
+      final bool matchesCategory;
       switch (state.selectedTabIndex) {
         case 1:
           matchesCategory = product.category == CategoryEnum.ram;
@@ -80,7 +85,7 @@ class ProductScreenCubit extends Cubit<ProductScreenState> {
         default:
           matchesCategory = state.selectedCategoryList.contains(product.category);
       }
-      return matchesSearchText && matchesManufacturer && matchesCategory;
+      return matchesSearchText && matchesManufacturer && matchesCategory && matchesStock;
     }).toList();
 
     switch (state.selectedSortOption) {

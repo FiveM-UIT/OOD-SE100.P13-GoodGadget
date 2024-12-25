@@ -11,10 +11,11 @@ class ProductScreenState extends Equatable {
   final List<Manufacturer> manufacturerList;
   final List<Manufacturer> selectedManufacturerList;
   final List<CategoryEnum> selectedCategoryList;
-  final String minPrice;
-  final String maxPrice;
+  final String minStock;
+  final String maxStock;
   final SortEnum selectedSortOption;
   final int selectedTabIndex;
+  final Product? selectedProduct;
 
   const ProductScreenState({
     this.searchText,
@@ -22,10 +23,11 @@ class ProductScreenState extends Equatable {
     this.manufacturerList = const [],
     this.selectedManufacturerList = const [],
     this.selectedCategoryList = const [],
-    this.minPrice = '',
-    this.maxPrice = '',
+    this.minStock = '',
+    this.maxStock = '',
     this.selectedSortOption = SortEnum.releaseLatest,
     this.selectedTabIndex = 0,
+    this.selectedProduct,
   });
 
   @override
@@ -35,10 +37,11 @@ class ProductScreenState extends Equatable {
     manufacturerList,
     selectedManufacturerList,
     selectedCategoryList,
-    minPrice,
-    maxPrice,
+    minStock,
+    maxStock,
     selectedSortOption,
     selectedTabIndex,
+    selectedProduct,
   ];
 
   ProductScreenState copyWith({
@@ -47,10 +50,11 @@ class ProductScreenState extends Equatable {
     List<Manufacturer>? manufacturerList,
     List<Manufacturer>? selectedManufacturerList,
     List<CategoryEnum>? selectedCategoryList,
-    String? minPrice,
-    String? maxPrice,
+    String? minStock,
+    String? maxStock,
     SortEnum? selectedSortOption,
     int? selectedTabIndex,
+    Product? selectedProduct,
   }) {
     return ProductScreenState(
       searchText: searchText ?? this.searchText,
@@ -58,10 +62,11 @@ class ProductScreenState extends Equatable {
       manufacturerList: manufacturerList ?? this.manufacturerList,
       selectedManufacturerList: selectedManufacturerList ?? this.selectedManufacturerList,
       selectedCategoryList: selectedCategoryList ?? this.selectedCategoryList,
-      minPrice: minPrice ?? this.minPrice,
-      maxPrice: maxPrice ?? this.maxPrice,
+      minStock: minStock ?? this.minStock,
+      maxStock: maxStock ?? this.maxStock,
       selectedSortOption: selectedSortOption ?? this.selectedSortOption,
       selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
+      selectedProduct: selectedProduct ?? this.selectedProduct,
     );
   }
 }

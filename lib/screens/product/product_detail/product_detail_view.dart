@@ -13,7 +13,6 @@ import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
 import '../../../enums/processing/sort_enum.dart';
 import '../../../enums/product_related/category_enum.dart';
 import '../../../objects/product_related/product.dart';
-import '../../../widgets/filter/advanced_filter_search/advanced_filter_search_view.dart';
 import '../../../widgets/general/app_text_style.dart';
 
 class ProductDetailScreen extends StatefulWidget {

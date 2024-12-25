@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
-import '../../general/app_text_style.dart';
+import 'package:gizmoglobe_client/widgets/general/app_text_style.dart';
 
 class RangeFilter extends StatelessWidget {
   final String name;

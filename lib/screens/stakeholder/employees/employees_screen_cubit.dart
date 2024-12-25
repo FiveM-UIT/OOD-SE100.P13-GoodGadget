@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
+import 'package:gizmoglobe_client/enums/stakeholders/employee_role.dart';
 import '../../../objects/employee.dart';
 import 'employees_screen_state.dart';
 
@@ -84,6 +85,23 @@ class EmployeesScreenCubit extends Cubit<EmployeesScreenState> {
     } catch (e) {
       print('Error deleting employee: $e');
       // You might want to handle the error appropriately
+    }
+  }
+
+  Future<void> createEmployee(String name, String email, String phone, RoleEnum role) async {
+    try {
+      final employee = Employee(
+        employeeID: null,
+        employeeName: name,
+        email: email,
+        phoneNumber: phone,
+        role: role,
+      );
+      await _firebase.createEmployee(employee);
+      // Stream sẽ tự động cập nhật UI
+    } catch (e) {
+      print('Error creating employee: $e');
+      // Xử lý lỗi nếu cần
     }
   }
 }

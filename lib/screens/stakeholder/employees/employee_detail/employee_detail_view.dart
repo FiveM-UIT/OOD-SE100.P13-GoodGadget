@@ -60,7 +60,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          Container(
+                          SizedBox(
                             width: double.infinity,
                             child: Text(
                               state.employee.employeeName,

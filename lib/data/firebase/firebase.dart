@@ -9,6 +9,7 @@ import 'package:gizmoglobe_client/objects/product_related/ram.dart';
 
 import '../../objects/customer.dart';
 import '../../objects/employee.dart';
+import '../../objects/manufacturer.dart';
 
 Future<void> pushProductSamplesToFirebase() async {
   try {
@@ -374,6 +375,130 @@ class Firebase {
       employee.employeeID = docRef.id;
     } catch (e) {
       print('Lỗi khi tạo nhân viên mới: $e');
+      rethrow;
+    }
+  }
+
+  // Manufacturer-related functions
+  Future<List<Manufacturer>> getManufacturers() async {
+    try {
+      final QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('manufacturers')
+          .get();
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return Manufacturer(
+          manufacturerID: data['manufacturerID'] ?? '',
+          manufacturerName: data['manufacturerName'] ?? '',
+        );
+      }).toList();
+    } catch (e) {
+      print('Error getting manufacturers list: $e');
+      rethrow;
+    }
+  }
+
+  Stream<List<Manufacturer>> manufacturersStream() {
+    return FirebaseFirestore.instance
+        .collection('manufacturers')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Manufacturer(
+          manufacturerID: data['manufacturerID'] ?? '',
+          manufacturerName: data['manufacturerName'] ?? '',
+        );
+      }).toList();
+    });
+  }
+
+  Future<void> updateManufacturer(Manufacturer manufacturer) async {
+    try {
+      if (manufacturer.manufacturerID == null) {
+        throw Exception('Manufacturer ID cannot be null');
+      }
+      
+      // Find document by manufacturerID field
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('manufacturers')
+          .where('manufacturerID', isEqualTo: manufacturer.manufacturerID)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception('Manufacturer not found');
+      }
+
+      await FirebaseFirestore.instance
+          .collection('manufacturers')
+          .doc(querySnapshot.docs.first.id)
+          .update({
+        'manufacturerID': manufacturer.manufacturerID,
+        'manufacturerName': manufacturer.manufacturerName,
+      });
+    } catch (e) {
+      print('Error updating manufacturer: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteManufacturer(String manufacturerId) async {
+    try {
+      // Find document by manufacturerID field
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('manufacturers')
+          .where('manufacturerID', isEqualTo: manufacturerId)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception('Manufacturer not found');
+      }
+
+      await FirebaseFirestore.instance
+          .collection('manufacturers')
+          .doc(querySnapshot.docs.first.id)
+          .delete();
+
+      // TODO: Add logic to handle related products
+      // Example: Mark products as discontinued or delete them
+    } catch (e) {
+      print('Error deleting manufacturer: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> createManufacturer(Manufacturer manufacturer) async {
+    try {
+      // Let Firestore generate the document ID
+      await FirebaseFirestore.instance
+          .collection('manufacturers')
+          .add({
+        'manufacturerID': manufacturer.manufacturerID,
+        'manufacturerName': manufacturer.manufacturerName,
+      });
+    } catch (e) {
+      print('Error creating new manufacturer: $e');
+      rethrow;
+    }
+  }
+
+  Future<Manufacturer?> getManufacturerById(String manufacturerId) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('manufacturers')
+          .where('manufacturerID', isEqualTo: manufacturerId)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) return null;
+
+      final data = querySnapshot.docs.first.data();
+      return Manufacturer(
+        manufacturerID: data['manufacturerID'] ?? '',
+        manufacturerName: data['manufacturerName'] ?? '',
+      );
+    } catch (e) {
+      print('Error finding manufacturer by ID: $e');
       rethrow;
     }
   }

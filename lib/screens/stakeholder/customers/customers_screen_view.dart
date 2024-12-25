@@ -213,14 +213,18 @@ class _CustomersScreenState extends State<CustomersScreen> {
                               duration: const Duration(milliseconds: 200),
                               opacity: state.selectedIndex == null || state.selectedIndex == index ? 1.0 : 0.3,
                               child: Container(
+                                margin: const EdgeInsets.only(bottom: 8),
                                 decoration: BoxDecoration(
                                   color: state.selectedIndex == index 
                                       ? Theme.of(context).primaryColor.withOpacity(0.1) 
-                                      : Colors.transparent,
+                                      : Theme.of(context).cardColor,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
                                   child: Row(
                                     children: [
                                       CircleAvatar(
@@ -231,11 +235,13 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                         ),
                                       ),
                                       const SizedBox(width: 16),
-                                      Text(
-                                        customer.customerName,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 16,
+                                      Expanded(
+                                        child: Text(
+                                          customer.customerName,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 16,
+                                          ),
                                         ),
                                       ),
                                     ],

@@ -241,7 +241,10 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                                       Expanded(
                                         child: Text(
                                           employee.employeeName,
-                                          style: Theme.of(context).textTheme.bodyLarge,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 16,
+                                          ),
                                         ),
                                       ),
                                     ],

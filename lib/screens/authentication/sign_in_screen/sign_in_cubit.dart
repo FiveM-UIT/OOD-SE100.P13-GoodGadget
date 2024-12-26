@@ -60,7 +60,7 @@ class SignInCubit extends Cubit<SignInState> {
         password: state.password
       );
       
-      if (userCredential.user != null) {
+      if ( state.processState != ProcessState.failure && userCredential.user != null) {
         emit(state.copyWith(
           processState: ProcessState.success,
           message: NotifyMessage.msg10,
@@ -73,6 +73,7 @@ class SignInCubit extends Cubit<SignInState> {
         message: NotifyMessage.msg11,
         dialogName: DialogName.failure,
       ));
+      // return;
     }
   }
 }

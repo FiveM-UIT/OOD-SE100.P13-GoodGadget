@@ -118,7 +118,7 @@ class _SignInScreen extends State<SignInScreen> {
                           ),
                         );
                       }
-
+                      else
                       if (state.processState == ProcessState.success) {
                         showDialog(
                             context: context,

@@ -9,6 +9,7 @@ class EmployeesScreenCubit extends Cubit<EmployeesScreenState> {
   final _firebase = Firebase();
   late final Stream<List<Employee>> _employeesStream;
   StreamSubscription<List<Employee>>? _subscription;
+  List<Employee> _allEmployees = [];
 
   EmployeesScreenCubit() : super(const EmployeesScreenState()) {
     _employeesStream = _firebase.employeesStream();
@@ -18,10 +19,13 @@ class EmployeesScreenCubit extends Cubit<EmployeesScreenState> {
 
   void _listenToEmployees() {
     _subscription = _employeesStream.listen((employees) {
-      if (state.searchQuery.isEmpty) {
-        emit(state.copyWith(employees: employees));
-      } else {
+      _allEmployees = employees;
+      if (state.selectedRoleFilter != null) {
+        filterByRole(state.selectedRoleFilter);
+      } else if (state.searchQuery.isNotEmpty) {
         searchEmployees(state.searchQuery);
+      } else {
+        emit(state.copyWith(employees: employees));
       }
     });
   }
@@ -110,5 +114,20 @@ class EmployeesScreenCubit extends Cubit<EmployeesScreenState> {
       print('Error creating employee: $e');
       return e.toString(); // Return error message
     }
+  }
+
+  void filterByRole(RoleEnum? role) {
+    emit(state.copyWith(selectedRoleFilter: role));
+    
+    if (role == null) {
+      emit(state.copyWith(employees: _allEmployees));
+      return;
+    }
+
+    final filteredEmployees = _allEmployees.where((employee) {
+      return employee.role == role;
+    }).toList();
+
+    emit(state.copyWith(employees: filteredEmployees));
   }
 }

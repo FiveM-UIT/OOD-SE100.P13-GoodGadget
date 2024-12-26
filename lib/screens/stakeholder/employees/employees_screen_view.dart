@@ -358,6 +358,78 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     );
   }
 
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 300),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.filter_list,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Filter by Role',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  ...RoleEnum.values.map((role) => ListTile(
+                    title: Text(
+                      role.toString().split('.').last,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.work_outline,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    onTap: () {
+                      cubit.filterByRole(role);
+                      Navigator.pop(context);
+                    },
+                  )).toList(),
+                  ListTile(
+                    title: const Text(
+                      'Clear Filter',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.clear,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    onTap: () {
+                      cubit.filterByRole(null);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<EmployeesScreenCubit, EmployeesScreenState>(
@@ -383,6 +455,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           cubit.searchEmployees(value);
                         },
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    GradientIconButton(
+                      icon: Icons.filter_list,
+                      iconSize: 32,
+                      onPressed: _showFilterDialog,
                     ),
                     const SizedBox(width: 8),
                     GradientIconButton(

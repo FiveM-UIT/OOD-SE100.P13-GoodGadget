@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_cubit.dart';
 import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_state.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
+import 'package:intl/intl.dart';
 
 import '../../../objects/product_related/cpu.dart';
 import '../../../objects/product_related/drive.dart';
@@ -105,6 +106,12 @@ class ProductDetailScreen extends StatelessWidget {
                         value: product.manufacturer.manufacturerName,
                       ),
                       
+                      // Thêm thông tin về giá và discount
+                      _buildPriceSection(
+                        sellingPrice: product.sellingPrice,
+                        discount: product.discount,
+                      ),
+                      
                       Divider(height: 32),
                       
                       // Status Information Section
@@ -140,7 +147,7 @@ class ProductDetailScreen extends StatelessWidget {
                       _buildInfoRow(
                         icon: Icons.calendar_today,
                         title: 'Release Date',
-                        value: product.release.toString(),
+                        value: DateFormat('dd/MM/yyyy').format(product.release),
                       ),
                       
                       Divider(height: 32),
@@ -286,6 +293,73 @@ class ProductDetailScreen extends StatelessWidget {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPriceSection({
+    required double sellingPrice,
+    required double discount,
+  }) {
+    final discountedPrice = sellingPrice * (1 - discount);
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(Icons.attach_money, size: 20, color: Colors.grey[500]),
+          SizedBox(width: 8),
+          Text(
+            'Price: ',
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+            ),
+          ),
+          if (discount > 0) ...[
+            Text(
+              '\$${sellingPrice.toStringAsFixed(2)}',
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontWeight: FontWeight.w400,
+                decoration: TextDecoration.lineThrough,
+                fontSize: 14,
+              ),
+            ),
+            SizedBox(width: 8),
+            Text(
+              '\$${discountedPrice.toStringAsFixed(2)}',
+              style: TextStyle(
+                color: Colors.green[300],
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            SizedBox(width: 8),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                '-${(discount * 100).toStringAsFixed(0)}%',
+                style: TextStyle(
+                  color: Colors.red[300],
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ] else
+            Text(
+              '\$${sellingPrice.toStringAsFixed(2)}',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
         ],
       ),
     );

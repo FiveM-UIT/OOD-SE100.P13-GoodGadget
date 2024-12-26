@@ -1,22 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_cubit.dart';
 import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_state.dart';
-import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_cubit.dart';
-import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_state.dart';
-import 'package:gizmoglobe_client/widgets/general/app_logo.dart';
-import 'package:gizmoglobe_client/widgets/general/checkbox_button.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
-import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
-import '../../../enums/processing/sort_enum.dart';
-import '../../../enums/product_related/category_enum.dart';
+
 import '../../../objects/product_related/product.dart';
-import '../../../widgets/filter/advanced_filter_search/advanced_filter_search_view.dart';
 import '../../../widgets/general/app_text_style.dart';
 
-class ProductDetailScreen extends StatefulWidget {
+
+class ProductDetailScreen extends StatelessWidget {
   final Product product;
   const ProductDetailScreen({super.key, required this.product});
 
@@ -27,44 +19,48 @@ class ProductDetailScreen extends StatefulWidget {
       );
 
   @override
-  State<ProductDetailScreen> createState() => _ProductDetailState();
-}
-
-class _ProductDetailState extends State<ProductDetailScreen> {
-  ProductDetailCubit get cubit => context.read<ProductDetailCubit>();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          leading: GradientIconButton(
-            icon: Icons.arrow_back,
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            fillColor: Colors.transparent,
-          ),
-
-          title: BlocBuilder<ProductDetailCubit, ProductDetailState>(
-            builder: (context, state) {
-              return Text(state.product.productName);
-            },
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        leading: GradientIconButton(
+          icon: Icons.arrow_back,
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          fillColor: Colors.transparent,
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+        title: BlocBuilder<ProductDetailCubit, ProductDetailState>(
+          builder: (context, state) {
+            return Text(state.product.productName);
+          },
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
           child: Column(
-            children:[
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image using Image.network
+              SizedBox(
+                height: 200,
+                child: Image.network('https://media.istockphoto.com/id/1324356458/vector/picture-icon-photo-frame-symbol-landscape-sign-photograph-gallery-logo-web-interface-and.jpg?s=612x612&w=0&k=20&c=ZmXO4mSgNDPzDRX-F8OKCfmMqqHpqMV6jiNi00Ye7rE=')),
+              SizedBox(height: 16),
+              Text('${product.productName}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
+              Text('Category: ${product.category.toString().split('.').last}', style: TextStyle(fontSize: 16, )),
+              SizedBox(height: 10),
+              Text('Manufacturer: ${product.manufacturer.manufacturerName}'),
+              SizedBox(height: 10),
+              Text('Stock: ${product.stock}'),
+              // SizedBox(height: 10),
+              // Text('Price: ${product.price}'),
+              SizedBox(height: 10),
+              Text('Release Date: ${product.release}'),
+              SizedBox(height: 16),
+              Text('Status: ${product.status.toString()}'),
+              // Add more details as needed...
             ],
           ),
         ),

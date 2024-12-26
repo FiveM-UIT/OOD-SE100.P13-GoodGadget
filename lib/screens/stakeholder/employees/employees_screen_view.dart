@@ -92,17 +92,17 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         decoration: InputDecoration(
                           labelText: 'Name',
                           hintText: 'Enter employee name',
-                          prefixIcon: const Icon(
+                          prefixIcon: Icon(
                             Icons.person_outline,
-                            color: Colors.white,
+                            color: Theme.of(context).primaryColor,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: Colors.grey.shade600),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: Colors.grey.shade600),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -140,17 +140,17 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         decoration: InputDecoration(
                           labelText: 'Email',
                           hintText: 'Enter email address',
-                          prefixIcon: const Icon(
+                          prefixIcon: Icon(
                             Icons.email_outlined,
-                            color: Colors.white,
+                            color: Theme.of(context).primaryColor,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: Colors.grey.shade600),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: Colors.grey.shade600),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -183,17 +183,17 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         decoration: InputDecoration(
                           labelText: 'Phone Number',
                           hintText: 'Enter phone number',
-                          prefixIcon: const Icon(
+                          prefixIcon: Icon(
                             Icons.phone_outlined,
-                            color: Colors.white,
+                            color: Theme.of(context).primaryColor,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: Colors.grey.shade600),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: Colors.grey.shade600),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -227,17 +227,17 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                             value: selectedRole,
                             decoration: InputDecoration(
                               labelText: 'Role',
-                              prefixIcon: const Icon(
+                              prefixIcon: Icon(
                                 Icons.work_outline,
-                                color: Colors.white,
+                                color: Theme.of(context).primaryColor,
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Colors.white),
+                                borderSide: BorderSide(color: Colors.grey.shade600),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Colors.white),
+                                borderSide: BorderSide(color: Colors.grey.shade600),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),

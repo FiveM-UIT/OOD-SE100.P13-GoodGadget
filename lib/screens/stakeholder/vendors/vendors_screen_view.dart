@@ -49,15 +49,15 @@ class _VendorsScreenState extends State<VendorsScreen> {
                 Row(
                   children: [
                     Icon(
-                      Icons.business,
+                      Icons.business_center,
                       color: Theme.of(context).primaryColor,
                       size: 28,
                     ),
                     const SizedBox(width: 12),
-                    Flexible(
+                    const Flexible(
                       child: Text(
                         'Add New Manufacturer',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -72,7 +72,7 @@ class _VendorsScreenState extends State<VendorsScreen> {
                   decoration: InputDecoration(
                     labelText: 'Manufacturer Name',
                     prefixIcon: Icon(
-                      Icons.business_outlined,
+                      Icons.business_center,
                       color: Theme.of(context).primaryColor,
                     ),
                     labelStyle: const TextStyle(color: Colors.white),
@@ -396,7 +396,7 @@ class _VendorsScreenState extends State<VendorsScreen> {
                                       CircleAvatar(
                                         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                                         child: Icon(
-                                          Icons.business,
+                                          Icons.business_center,
                                           color: Theme.of(context).colorScheme.primary,
                                         ),
                                       ),

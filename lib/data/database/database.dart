@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +8,6 @@ import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
 import 'package:gizmoglobe_client/objects/customer.dart';
 import 'package:gizmoglobe_client/objects/employee.dart';
-
 import '../../enums/product_related/category_enum.dart';
 import '../../enums/product_related/cpu_enums/cpu_family.dart';
 import '../../enums/product_related/drive_enums/drive_capacity.dart';
@@ -25,6 +23,7 @@ import '../../enums/product_related/psu_enums/psu_modular.dart';
 import '../../enums/product_related/ram_enums/ram_bus.dart';
 import '../../enums/product_related/ram_enums/ram_capacity_enum.dart';
 import '../../enums/product_related/ram_enums/ram_type.dart';
+import '../../objects/address_related/address.dart';
 import '../../objects/address_related/province.dart';
 import '../../objects/product_related/product_factory.dart';
 
@@ -40,6 +39,7 @@ class Database {
   List<Customer> customerList = [];
   List<Employee> employeeList = [];
   List<Province> provinceList = [];
+  List<Address> addressList = [];
 
   factory Database() {
     return _database;
@@ -47,10 +47,73 @@ class Database {
 
   Database._internal();
 
+  Future<void> initialize() async {
+    provinceList = await fetchProvinces();
+
+    addressList = [
+      Address(
+        customerID: 'P5Y3qtr9Ja7ThtNCxVLI',
+        receiverName: 'Terry',
+        receiverPhone: '123456789',
+        isDefault: true,
+        province: provinceList[0],
+        district: provinceList[0].districts![0],
+        ward: provinceList[0].districts![0].wards![0],
+      ),
+
+      Address(
+        customerID: 'P5Y3qtr9Ja7ThtNCxVLI',
+        receiverName: 'Terry',
+        receiverPhone: '123456780',
+        isDefault: false,
+        province: provinceList[0],
+        district: provinceList[0].districts![2],
+        ward: provinceList[0].districts![2].wards![5],
+      ),
+
+      Address(
+        customerID: 'P5Y3qtr9Ja7ThtNCxVLI',
+        receiverName: 'Terry ngu',
+        receiverPhone: '123456780',
+        isDefault: false,
+        province: provinceList[0],
+        district: provinceList[0].districts![2],
+        ward: provinceList[0].districts![2].wards![2],
+      ),
+
+      Address(
+        customerID: 'b8F87lfh27b97wVDZMjy',
+        receiverName: 'Quan',
+        receiverPhone: '123456789',
+        isDefault: true,
+        province: provinceList[1],
+        district: provinceList[1].districts![0],
+        ward: provinceList[1].districts![0].wards![0],
+      ),
+
+      Address(
+        customerID: 'b8F87lfh27b97wVDZMjy',
+        receiverName: 'Quan',
+        receiverPhone: '123456790',
+        isDefault: false,
+        province: provinceList[1],
+        district: provinceList[1].districts![1],
+        ward: provinceList[1].districts![1].wards![1],
+      ),
+    ];
+
+    try {
+      await fetchDataFromFirestore();
+    } catch (e) {
+      print('Lỗi khi khởi tạo database: $e');
+      // Nếu không lấy được dữ liệu từ Firestore, sử dụng dữ liệu mẫu
+      // _initializeSampleData();
+    }
+  }
+
   Future<void> fetchDataFromFirestore() async {
     try {
       print('Bắt đầu lấy dữ liệu từ Firestore');
-
       final manufacturerSnapshot = await FirebaseFirestore.instance
           .collection('manufacturers')
           .get();
@@ -177,17 +240,6 @@ class Database {
         };
       default:
         return {};
-    }
-  }
-
-  Future<void> initialize() async {
-    provinceList = await fetchProvinces();
-    try {
-      await fetchDataFromFirestore();
-    } catch (e) {
-      print('Lỗi khi khởi tạo database: $e');
-      // Nếu không lấy được dữ liệu từ Firestore, sử dụng dữ liệu mẫu
-      // _initializeSampleData();
     }
   }
 

@@ -57,6 +57,24 @@ class Province {
     );
   }
 
+  static Province nullProvince = Province(
+    code: '',
+    name: '',
+    nameEn: '',
+    fullName: '',
+    fullNameEn: '',
+    codeName: '',
+    administrativeRegionId: 0,
+    administrativeRegionName: '',
+    administrativeRegionNameEn: '',
+    administrativeUnitId: 0,
+    administrativeUnitShortName: '',
+    administrativeUnitFullName: '',
+    administrativeUnitShortNameEn: '',
+    administrativeUnitFullNameEn: '',
+    districts: null,
+  );
+
   @override
   String toString() {
     return fullNameEn;

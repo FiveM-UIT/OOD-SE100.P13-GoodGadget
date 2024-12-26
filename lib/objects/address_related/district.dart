@@ -48,6 +48,21 @@ class District {
     );
   }
 
+  static District nullDistrict = District(
+    code: '',
+    name: '',
+    nameEn: '',
+    fullName: '',
+    fullNameEn: '',
+    codeName: '',
+    administrativeUnitId: 0,
+    administrativeUnitShortName: '',
+    administrativeUnitFullName: '',
+    administrativeUnitShortNameEn: '',
+    administrativeUnitFullNameEn: '',
+    wards: <Ward>[],
+  );
+
   @override
   String toString() {
     return fullNameEn;

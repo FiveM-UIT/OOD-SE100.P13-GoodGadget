@@ -1,4 +1,5 @@
 import 'package:gizmoglobe_client/enums/stakeholders/employee_role.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Employee {
   String? employeeID;
@@ -47,7 +48,10 @@ class Employee {
       employeeName: map['employeeName'] ?? '',
       email: map['email'] ?? '',
       phoneNumber: map['phoneNumber'] ?? '',
-      role: RoleEnum.values.firstWhere((e) => e.getName() == map['role']),
+      role: RoleEnum.values.firstWhere(
+        (e) => e.getName().toLowerCase() == (map['role'] as String? ?? 'employee').toLowerCase(),
+        orElse: () => RoleEnum.employee,
+      ),
     );
   }
 } 

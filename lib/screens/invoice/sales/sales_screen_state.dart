@@ -1,34 +1,33 @@
-class SalesScreenState {
-  final bool isLoading;
+import 'package:equatable/equatable.dart';
+import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice.dart';
+
+class SalesScreenState extends Equatable {
   final List<SalesInvoice> invoices;
+  final bool isLoading;
+  final String searchQuery;
   final int? selectedIndex;
 
   const SalesScreenState({
-    this.isLoading = false,
     this.invoices = const [],
+    this.isLoading = false,
+    this.searchQuery = '',
     this.selectedIndex,
   });
 
   SalesScreenState copyWith({
-    bool? isLoading,
     List<SalesInvoice>? invoices,
+    bool? isLoading,
+    String? searchQuery,
     int? selectedIndex,
   }) {
     return SalesScreenState(
-      isLoading: isLoading ?? this.isLoading,
       invoices: invoices ?? this.invoices,
+      isLoading: isLoading ?? this.isLoading,
+      searchQuery: searchQuery ?? this.searchQuery,
       selectedIndex: selectedIndex,
     );
   }
-}
 
-class SalesInvoice {
-  final String id;
-  final String date;
-  // Add other properties as needed
-
-  const SalesInvoice({
-    required this.id,
-    required this.date,
-  });
+  @override
+  List<Object?> get props => [invoices, isLoading, searchQuery, selectedIndex];
 }

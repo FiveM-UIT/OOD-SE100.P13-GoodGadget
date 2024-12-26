@@ -43,8 +43,7 @@ class SupportScreen extends StatelessWidget {
                 name: 'Tô Vĩnh Tiến',
                 studentId: '22521474',
                 role: 'Developer',
-                email: 'example@gmail.com',
-                phone: '0123456789',
+                email: '22521474@gm.uit.edu.vn',
               ),
             ),
             _buildContactItem(
@@ -56,8 +55,7 @@ class SupportScreen extends StatelessWidget {
                 name: 'Đỗ Hồng Quân',
                 studentId: '22521175',
                 role: 'Developer',
-                email: 'example@gmail.com',
-                phone: '0123456789',
+                email: '22521175@gm.uit.edu.vn',
               ),
             ),
             _buildContactItem(
@@ -69,8 +67,7 @@ class SupportScreen extends StatelessWidget {
                 name: 'Trần Nhật Tân',
                 studentId: '22521312',
                 role: 'Developer',
-                email: 'example@gmail.com',
-                phone: '0123456789',
+                email: '22521312@gm.uit.edu.vn',
               ),
             ),
             _buildContactItem(
@@ -82,8 +79,19 @@ class SupportScreen extends StatelessWidget {
                 name: 'Nguyễn Duy Vũ',
                 studentId: '22521693',
                 role: 'Developer',
-                email: 'example@gmail.com',
-                phone: '0123456789',
+                email: '22521693@gm.uit.edu.vn',
+              ),
+            ),
+            _buildContactItem(
+              icon: Icons.people_outlined,
+              title: 'Phan Nguyên Khoa',
+              subtitle: '2252XXXX',
+              onTap: () => _showContactDetails(
+                context,
+                name: 'Phan Nguyên Khoa',
+                studentId: '2252XXXX',
+                role: 'Developer',
+                email: '2252XXXX@gm.uit.edu.vn',
               ),
             ),
           ],
@@ -135,7 +143,6 @@ class SupportScreen extends StatelessWidget {
     required String studentId,
     required String role,
     required String email,
-    required String phone,
   }) {
     showModalBottomSheet(
       context: context,
@@ -159,7 +166,6 @@ class SupportScreen extends StatelessWidget {
             _buildDetailRow(Icons.badge_outlined, 'Student ID: $studentId'),
             _buildDetailRow(Icons.work_outline, 'Role: $role'),
             _buildDetailRow(Icons.email_outlined, 'Email: $email'),
-            _buildDetailRow(Icons.phone_outlined, 'Phone: $phone'),
             const SizedBox(height: 16),
           ],
         ),

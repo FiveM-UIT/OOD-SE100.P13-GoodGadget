@@ -23,15 +23,40 @@ class SalesInvoice {
     required this.paymentStatus,
     required this.salesStatus,
     required this.totalPrice,
-    this.details = const [],
+    required this.details,
   });
+
+  SalesInvoice copyWith({
+    String? salesInvoiceID,
+    String? customerID,
+    String? customerName,
+    String? address,
+    DateTime? date,
+    PaymentStatus? paymentStatus,
+    SalesStatus? salesStatus,
+    double? totalPrice,
+    List<SalesInvoiceDetail>? details,
+  }) {
+    return SalesInvoice(
+      salesInvoiceID: salesInvoiceID ?? this.salesInvoiceID,
+      customerID: customerID ?? this.customerID,
+      customerName: customerName ?? this.customerName,
+      address: address ?? this.address,
+      date: date ?? this.date,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
+      salesStatus: salesStatus ?? this.salesStatus,
+      totalPrice: totalPrice ?? this.totalPrice,
+      details: details ?? this.details,
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
+      'salesInvoiceID': salesInvoiceID,
       'customerID': customerID,
       'customerName': customerName,
       'address': address,
-      'date': Timestamp.fromDate(date),
+      'date': date,
       'paymentStatus': paymentStatus.toString(),
       'salesStatus': salesStatus.toString(),
       'totalPrice': totalPrice,
@@ -46,14 +71,15 @@ class SalesInvoice {
       address: map['address'] ?? '',
       date: (map['date'] as Timestamp).toDate(),
       paymentStatus: PaymentStatus.values.firstWhere(
-        (e) => e.toString() == (map['paymentStatus'] as String? ?? 'Unpaid'),
+        (e) => e.toString() == map['paymentStatus'],
         orElse: () => PaymentStatus.unpaid,
       ),
       salesStatus: SalesStatus.values.firstWhere(
-        (e) => e.toString() == (map['salesStatus'] as String? ?? 'Pending'),
+        (e) => e.toString() == map['salesStatus'],
         orElse: () => SalesStatus.pending,
       ),
       totalPrice: (map['totalPrice'] ?? 0).toDouble(),
+      details: [],
     );
   }
 } 

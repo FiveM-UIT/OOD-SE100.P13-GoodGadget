@@ -1181,22 +1181,67 @@ class Firebase {
 
   Future<void> updateSalesInvoiceDetail(SalesInvoiceDetail detail) async {
     try {
-      if (detail.salesInvoiceDetailID == null) {
-        throw Exception('Sales invoice detail ID cannot be null');
-      }
-
+      // Cập nhật chi tiết hóa đơn
       await FirebaseFirestore.instance
           .collection('sales_invoice_details')
           .doc(detail.salesInvoiceDetailID)
-          .update({
-            'salesInvoiceID': detail.salesInvoiceID,
-            'productID': detail.productID,
-            'sellingPrice': detail.sellingPrice,
-            'quantity': detail.quantity,
-            'subtotal': detail.subtotal,
-          });
+          .update(detail.toMap());
+
+      // Cập nhật stock của sản phẩm
+      final productDoc = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(detail.productID)
+          .get();
+
+      if (!productDoc.exists) {
+        throw Exception('Product not found');
+      }
+
+      final currentStock = productDoc.data()?['stock'] ?? 0;
+      final oldDetail = await FirebaseFirestore.instance
+          .collection('sales_invoice_details')
+          .doc(detail.salesInvoiceDetailID)
+          .get();
+
+      if (oldDetail.exists) {
+        final oldQuantity = oldDetail.data()?['quantity'] ?? 0;
+        // Đảm bảo các giá trị không null khi tính toán
+        final stockChange = (oldQuantity as int) - detail.quantity;
+        await updateProductStock(detail.productID, stockChange);
+      }
     } catch (e) {
       print('Error updating sales invoice detail: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteSalesInvoiceDetail(String detailId) async {
+    try {
+      // Lấy thông tin chi tiết trước khi xóa
+      final detailDoc = await FirebaseFirestore.instance
+          .collection('sales_invoice_details')
+          .doc(detailId)
+          .get();
+
+      if (!detailDoc.exists) {
+        throw Exception('Invoice detail not found');
+      }
+
+      final productId = detailDoc.data()?['productID'];
+      final quantity = detailDoc.data()?['quantity'] ?? 0;
+
+      // Xóa chi tiết hóa đơn
+      await FirebaseFirestore.instance
+          .collection('sales_invoice_details')
+          .doc(detailId)
+          .delete();
+
+      // Hoàn lại stock
+      if (productId != null) {
+        await updateProductStock(productId, quantity);
+      }
+    } catch (e) {
+      print('Error deleting sales invoice detail: $e');
       rethrow;
     }
   }
@@ -1212,7 +1257,9 @@ class Firebase {
         throw Exception('Product not found');
       }
 
-      final currentStock = doc.data()?['stock'] ?? 0;
+      // Đảm bảo currentStock không null
+      final currentStock = doc.data()?['stock'] as int? ?? 0;
+      
       await doc.reference.update({
         'stock': currentStock + stockChange
       });

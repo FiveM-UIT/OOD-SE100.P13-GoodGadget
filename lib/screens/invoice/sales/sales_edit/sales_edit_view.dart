@@ -12,7 +12,7 @@ import 'sales_edit_state.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
 
-class SalesEditScreen extends StatefulWidget {
+class SalesEditScreen extends StatelessWidget {
   final SalesInvoice invoice;
 
   const SalesEditScreen({
@@ -21,31 +21,46 @@ class SalesEditScreen extends StatefulWidget {
   });
 
   @override
-  State<SalesEditScreen> createState() => _SalesEditScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => SalesEditCubit(invoice),
+      child: _SalesEditScreenContent(invoice: invoice),
+    );
+  }
 }
 
-class _SalesEditScreenState extends State<SalesEditScreen> {
+class _SalesEditScreenContent extends StatefulWidget {
+  final SalesInvoice invoice;
+
+  const _SalesEditScreenContent({
+    required this.invoice,
+  });
+
+  @override
+  State<_SalesEditScreenContent> createState() => _SalesEditScreenContentState();
+}
+
+class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
   double _calculateTotalPrice() {
     return widget.invoice.details.fold(0, (sum, detail) => sum + detail.subtotal);
   }
 
   void _updateQuantity(SalesInvoiceDetail detail, int newQuantity) async {
     if (newQuantity <= 0) return;
-    
+
     try {
-      // Tính toán sự thay đổi trong stock
-      final stockChange = detail.quantity - newQuantity;
-      // Cập nhật stock trong database
-      await Firebase().updateProductStock(detail.productID, stockChange);
-      
-      // Nếu cập nhật stock thành công, cập nhật UI
-      setState(() {
-        detail.quantity = newQuantity;
-        detail.subtotal = detail.sellingPrice * newQuantity;
-        widget.invoice.totalPrice = _calculateTotalPrice();
-      });
+      final updatedDetail = SalesInvoiceDetail.withQuantity(
+        salesInvoiceDetailID: detail.salesInvoiceDetailID,
+        salesInvoiceID: detail.salesInvoiceID,
+        productID: detail.productID,
+        productName: detail.productName,
+        category: detail.category,
+        sellingPrice: detail.sellingPrice,
+        quantity: newQuantity,
+      );
+
+      await context.read<SalesEditCubit>().updateInvoiceDetail(updatedDetail);
     } catch (e) {
-      // Hiển thị thông báo lỗi
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error updating quantity: $e')),
@@ -142,19 +157,7 @@ class _SalesEditScreenState extends State<SalesEditScreen> {
 
   void _removeProduct(SalesInvoiceDetail detail) async {
     try {
-      // Xóa chi tiết hóa đơn khỏi Firestore
-      await FirebaseFirestore.instance
-          .collection('sales_invoice_details')
-          .doc(detail.salesInvoiceDetailID)
-          .delete();
-
-      // Hoàn lại stock khi xóa sản phẩm
-      await Firebase().updateProductStock(detail.productID, detail.quantity);
-      
-      setState(() {
-        widget.invoice.details.remove(detail);
-        widget.invoice.totalPrice = _calculateTotalPrice();
-      });
+      await context.read<SalesEditCubit>().removeInvoiceDetail(detail);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -166,272 +169,269 @@ class _SalesEditScreenState extends State<SalesEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SalesEditCubit(widget.invoice),
-      child: BlocBuilder<SalesEditCubit, SalesEditState>(
-        builder: (context, state) {
-          return Scaffold(
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: GradientIconButton(
-                icon: Icons.chevron_left,
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                fillColor: Theme.of(context).colorScheme.surface,
-              ),
-              title: const Text('Edit Invoice'),
-              actions: [
-                TextButton(
-                  onPressed: state.isLoading
-                      ? null
-                      : () async {
-                          final cubit = context.read<SalesEditCubit>();
-                          final updatedInvoice = await cubit.saveChanges();
-                          if (updatedInvoice != null && mounted) {
-                            Navigator.pop(context, updatedInvoice);
-                          }
-                        },
-                  child: state.isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text('Save'),
-                ),
-              ],
+    return BlocBuilder<SalesEditCubit, SalesEditState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: GradientIconButton(
+              icon: Icons.chevron_left,
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              fillColor: Theme.of(context).colorScheme.surface,
             ),
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Invoice Information
-                    _buildInfoRow('Invoice ID', '#${state.invoice.salesInvoiceID}'),
-                    _buildInfoRow('Customer', state.invoice.customerName ?? 'Unknown Customer'),
-                    _buildInfoRow('Date', DateFormat('dd/MM/yyyy').format(state.invoice.date)),
-                    
-                    // Address Row with Edit Button
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Address',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500,
-                            ),
+            title: const Text('Edit Invoice'),
+            actions: [
+              TextButton(
+                onPressed: state.isLoading
+                    ? null
+                    : () async {
+                        final cubit = context.read<SalesEditCubit>();
+                        final updatedInvoice = await cubit.saveChanges();
+                        if (updatedInvoice != null && mounted) {
+                          Navigator.pop(context, updatedInvoice);
+                        }
+                      },
+                child: state.isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text('Save'),
+              ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Invoice Information
+                  _buildInfoRow('Invoice ID', '#${state.invoice.salesInvoiceID}'),
+                  _buildInfoRow('Customer', state.invoice.customerName ?? 'Unknown Customer'),
+                  _buildInfoRow('Date', DateFormat('dd/MM/yyyy').format(state.invoice.date)),
+                  
+                  // Address Row with Edit Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Address',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w500,
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  state.invoice.address,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.right,
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                state.invoice.address,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                TextButton(
-                                  onPressed: _showAddressBottomSheet,
-                                  child: Text(
-                                    'Change Address',
-                                    style: TextStyle(
+                                textAlign: TextAlign.right,
+                              ),
+                              TextButton(
+                                onPressed: _showAddressBottomSheet,
+                                child: Text(
+                                  'Change Address',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Payment Status',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildStatusDropdown<PaymentStatus>(
+                    value: state.selectedPaymentStatus,
+                    items: PaymentStatus.values,
+                    onChanged: (status) {
+                      if (status != null) {
+                        context.read<SalesEditCubit>().updatePaymentStatus(status);
+                      }
+                    },
+                  ),
+
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Sales Status',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildStatusDropdown<SalesStatus>(
+                    value: state.selectedSalesStatus,
+                    items: SalesStatus.values,
+                    onChanged: (status) {
+                      if (status != null) {
+                        context.read<SalesEditCubit>().updateSalesStatus(status);
+                      }
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Products',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: state.invoice.details.length,
+                    itemBuilder: (context, index) {
+                      final detail = state.invoice.details[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Stack(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Product Image/Icon
+                                  Container(
+                                    width: 60,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.primaryContainer,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      _getCategoryIcon(detail.category),
+                                      size: 30,
                                       color: Theme.of(context).colorScheme.primary,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Payment Status',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildStatusDropdown<PaymentStatus>(
-                      value: state.selectedPaymentStatus,
-                      items: PaymentStatus.values,
-                      onChanged: (status) {
-                        if (status != null) {
-                          context.read<SalesEditCubit>().updatePaymentStatus(status);
-                        }
-                      },
-                    ),
-
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Sales Status',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildStatusDropdown<SalesStatus>(
-                      value: state.selectedSalesStatus,
-                      items: SalesStatus.values,
-                      onChanged: (status) {
-                        if (status != null) {
-                          context.read<SalesEditCubit>().updateSalesStatus(status);
-                        }
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Products',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: state.invoice.details.length,
-                      itemBuilder: (context, index) {
-                        final detail = state.invoice.details[index];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Stack(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Product Image/Icon
-                                    Container(
-                                      width: 60,
-                                      height: 60,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).colorScheme.primaryContainer,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Icon(
-                                        _getCategoryIcon(detail.category),
-                                        size: 30,
-                                        color: Theme.of(context).colorScheme.primary,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    // Product Details
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            detail.productName ?? 'Product #${detail.productID}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            'Unit Price: \$${detail.sellingPrice.toStringAsFixed(2)}',
-                                            style: TextStyle(
-                                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            'Subtotal: \$${detail.subtotal.toStringAsFixed(2)}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    // Quantity Controls and Delete Button
-                                    Column(
+                                  const SizedBox(width: 12),
+                                  // Product Details
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.add_circle_outline),
-                                          onPressed: () => _updateQuantity(detail, detail.quantity + 1),
-                                        ),
                                         Text(
-                                          '${detail.quantity}',
+                                          detail.productName ?? 'Product #${detail.productID}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Unit Price: \$${detail.sellingPrice.toStringAsFixed(2)}',
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Subtotal: \$${detail.subtotal.toStringAsFixed(2)}',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
                                           ),
                                         ),
-                                        IconButton(
-                                          icon: const Icon(Icons.remove_circle_outline),
-                                          onPressed: detail.quantity > 1 
-                                            ? () => _updateQuantity(detail, detail.quantity - 1)
-                                            : null,
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete_outline),
-                                          color: Colors.red,
-                                          onPressed: () => _removeProduct(detail),
-                                        ),
                                       ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  // Quantity Controls and Delete Button
+                                  Column(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.add_circle_outline),
+                                        onPressed: () => _updateQuantity(detail, detail.quantity + 1),
+                                      ),
+                                      Text(
+                                        '${detail.quantity}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.remove_circle_outline),
+                                        onPressed: detail.quantity > 1 
+                                          ? () => _updateQuantity(detail, detail.quantity - 1)
+                                          : null,
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete_outline),
+                                        color: Colors.red,
+                                        onPressed: () => _removeProduct(detail),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        'Total: \$${state.invoice.totalPrice.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
-                      ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
-                ),
+                    child: Text(
+                      'Total: \$${state.invoice.totalPrice.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 

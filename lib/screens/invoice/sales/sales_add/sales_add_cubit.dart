@@ -54,13 +54,12 @@ class SalesAddCubit extends Cubit<SalesAddState> {
   }
 
   void addInvoiceDetail(Product product, int quantity) {
-    final detail = SalesInvoiceDetail(
+    final detail = SalesInvoiceDetail.withQuantity(
       productID: product.productID!,
       productName: product.productName,
       category: product.category.getName(),
       sellingPrice: product.sellingPrice,
       quantity: quantity,
-      subtotal: product.sellingPrice * quantity,
       salesInvoiceID: '',
     );
 
@@ -74,7 +73,7 @@ class SalesAddCubit extends Cubit<SalesAddState> {
     final details = List<SalesInvoiceDetail>.from(state.invoiceDetails);
     final detail = details[index];
     
-    details[index] = SalesInvoiceDetail(
+    details[index] = SalesInvoiceDetail.withQuantity(
       salesInvoiceDetailID: detail.salesInvoiceDetailID,
       salesInvoiceID: detail.salesInvoiceID,
       productID: detail.productID,
@@ -82,7 +81,6 @@ class SalesAddCubit extends Cubit<SalesAddState> {
       category: detail.category,
       sellingPrice: detail.sellingPrice,
       quantity: quantity,
-      subtotal: detail.sellingPrice * quantity,
     );
 
     emit(state.copyWith(invoiceDetails: details));

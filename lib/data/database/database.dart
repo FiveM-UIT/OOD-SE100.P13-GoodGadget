@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:gizmoglobe_client/enums/product_related/mainboard_enums/mainboard_compatibility.dart';
 import 'package:gizmoglobe_client/enums/stakeholders/employee_role.dart';
+import 'package:gizmoglobe_client/functions/address_related/province.dart';
 import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
 import 'package:gizmoglobe_client/objects/customer.dart';
@@ -35,6 +39,7 @@ class Database {
   List<Product> productList = [];
   List<Customer> customerList = [];
   List<Employee> employeeList = [];
+  List<Province> provinceList = [];
 
   factory Database() {
     return _database;
@@ -176,6 +181,7 @@ class Database {
   }
 
   Future<void> initialize() async {
+    provinceList = await fetchProvinces();
     try {
       await fetchDataFromFirestore();
     } catch (e) {
@@ -1082,6 +1088,27 @@ class Database {
       final DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       username = userDoc['username'];
       email = userDoc['email'];
+    }
+  }
+
+  Future<List<Province>> fetchProvinces() async {
+    const filePath = 'lib/data/database/full_json_generated_data_vn_units.json';
+
+    try {
+      final String response = await rootBundle.loadString(filePath);
+      if (response.isEmpty) {
+        throw Exception('JSON file is empty');
+      }
+
+      final List? jsonList = jsonDecode(response) as List<dynamic>?;
+      if (jsonList == null) {
+        throw Exception('Error parsing JSON data');
+      }
+
+      List<Province> provinceList = jsonList.map((province) => Province.fromJson(province)).toList();
+      return provinceList;
+    } catch (e) {
+      throw Exception('Error loading provinces from file: $e');
     }
   }
 }

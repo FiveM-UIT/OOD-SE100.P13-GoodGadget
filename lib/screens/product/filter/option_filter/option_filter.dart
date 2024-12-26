@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../general/checkbox_button.dart';
 import 'package:gizmoglobe_client/widgets/general/app_text_style.dart';
+import 'package:gizmoglobe_client/widgets/general/checkbox_button.dart';
 
-class OptionFilterView<T> extends StatelessWidget {
+class OptionFilter<T> extends StatelessWidget {
   final String name;
   final List<T> enumValues;
   final List<T> selectedValues;
   final void Function(T value) onToggleSelection;
 
-  const OptionFilterView({
+  const OptionFilter({
     super.key,
     required this.name,
     required this.enumValues,

@@ -42,38 +42,11 @@ class SignInCubit extends Cubit<SignInState> {
     try {
       emit(state.copyWith(processState: ProcessState.loading));
 
-      // Kiểm tra sự tồn tại của email trong database
-      bool userExists = await _firebase.checkUserExistsInDatabase(state.email);
-      
-      if (!userExists) {
-        emit(state.copyWith(
-          processState: ProcessState.failure,
-          message: NotifyMessage.msg12,
-          dialogName: DialogName.failure,
-        ));
-        return;
-      }
-
-      // Nếu user tồn tại, tiến hành đăng nhập
-      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: state.email,
-        password: state.password
-      );
-      
-      if ( state.processState != ProcessState.failure && userCredential.user != null) {
-        emit(state.copyWith(
-          processState: ProcessState.success,
-          message: NotifyMessage.msg10,
-          dialogName: DialogName.failure,
-        ));
+      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(email: state.email, password: state.password);
+      if (userCredential.user != null) {
+        emit(state.copyWith(processState: ProcessState.success, message: NotifyMessage.msg1, dialogName: DialogName.success));
       }
     } catch (error) {
-      emit(state.copyWith(
-        processState: ProcessState.failure,
-        message: NotifyMessage.msg11,
-        dialogName: DialogName.failure,
-      ));
-      // return;
+      emit(state.copyWith(processState: ProcessState.failure, message: NotifyMessage.msg2, dialogName: DialogName.failure));
     }
   }
-}

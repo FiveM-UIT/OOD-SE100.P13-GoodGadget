@@ -80,15 +80,17 @@ class VendorsScreenCubit extends Cubit<VendorsScreenState> {
     }
   }
 
-  Future<void> createManufacturer(String name) async {
+  Future<String?> createManufacturer(String name) async {
     try {
       final manufacturer = Manufacturer(
-        manufacturerID: null,
-        manufacturerName: name,
+        manufacturerID: name.trim(),
+        manufacturerName: name.trim(),
       );
       await _firebase.createManufacturer(manufacturer);
+      return null;
     } catch (e) {
       print('Error creating manufacturer: $e');
+      return e.toString();
     }
   }
 }

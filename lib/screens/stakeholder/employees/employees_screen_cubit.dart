@@ -9,6 +9,7 @@ class EmployeesScreenCubit extends Cubit<EmployeesScreenState> {
   final _firebase = Firebase();
   late final Stream<List<Employee>> _employeesStream;
   StreamSubscription<List<Employee>>? _subscription;
+  List<Employee> _allEmployees = [];
 
   EmployeesScreenCubit() : super(const EmployeesScreenState()) {
     _employeesStream = _firebase.employeesStream();
@@ -18,10 +19,13 @@ class EmployeesScreenCubit extends Cubit<EmployeesScreenState> {
 
   void _listenToEmployees() {
     _subscription = _employeesStream.listen((employees) {
-      if (state.searchQuery.isEmpty) {
-        emit(state.copyWith(employees: employees));
-      } else {
+      _allEmployees = employees;
+      if (state.selectedRoleFilter != null) {
+        filterByRole(state.selectedRoleFilter);
+      } else if (state.searchQuery.isNotEmpty) {
         searchEmployees(state.searchQuery);
+      } else {
+        emit(state.copyWith(employees: employees));
       }
     });
   }
@@ -41,7 +45,7 @@ class EmployeesScreenCubit extends Cubit<EmployeesScreenState> {
         isLoading: false,
       ));
     } catch (e) {
-      print('Lỗi khi tải danh sách nhân viên: $e');
+      print('Error when loading the employee list: $e');
       emit(state.copyWith(isLoading: false));
     }
   }
@@ -88,20 +92,42 @@ class EmployeesScreenCubit extends Cubit<EmployeesScreenState> {
     }
   }
 
-  Future<void> createEmployee(String name, String email, String phone, RoleEnum role) async {
+  Future<String?> createEmployee(
+    String name, 
+    String email, 
+    String phone, 
+    RoleEnum role,
+  ) async {
     try {
       final employee = Employee(
         employeeID: null,
-        employeeName: name,
-        email: email,
-        phoneNumber: phone,
+        employeeName: name.trim(),
+        email: email.trim(),
+        phoneNumber: phone.trim(),
         role: role,
       );
-      await _firebase.createEmployee(employee);
-      // Stream sẽ tự động cập nhật UI
+      
+      await _firebase.addEmployee(employee);
+      return null; // Return null if successful
+      
     } catch (e) {
       print('Error creating employee: $e');
-      // Xử lý lỗi nếu cần
+      return e.toString(); // Return error message
     }
+  }
+
+  void filterByRole(RoleEnum? role) {
+    emit(state.copyWith(selectedRoleFilter: role));
+    
+    if (role == null) {
+      emit(state.copyWith(employees: _allEmployees));
+      return;
+    }
+
+    final filteredEmployees = _allEmployees.where((employee) {
+      return employee.role == role;
+    }).toList();
+
+    emit(state.copyWith(employees: filteredEmployees));
   }
 }

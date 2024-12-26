@@ -49,15 +49,15 @@ class _VendorsScreenState extends State<VendorsScreen> {
                 Row(
                   children: [
                     Icon(
-                      Icons.business,
+                      Icons.business_center,
                       color: Theme.of(context).primaryColor,
                       size: 28,
                     ),
                     const SizedBox(width: 12),
-                    Flexible(
+                    const Flexible(
                       child: Text(
                         'Add New Manufacturer',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -72,7 +72,7 @@ class _VendorsScreenState extends State<VendorsScreen> {
                   decoration: InputDecoration(
                     labelText: 'Manufacturer Name',
                     prefixIcon: Icon(
-                      Icons.business_outlined,
+                      Icons.business_center,
                       color: Theme.of(context).primaryColor,
                     ),
                     labelStyle: const TextStyle(color: Colors.white),
@@ -125,9 +125,37 @@ class _VendorsScreenState extends State<VendorsScreen> {
                     Flexible(
                       child: ElevatedButton(
                         onPressed: () async {
-                          if (nameController.text.isNotEmpty) {
-                            await cubit.createManufacturer(nameController.text);
-                            Navigator.pop(context);
+                          if (nameController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please enter manufacturer name'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
+                          final error = await cubit.createManufacturer(nameController.text);
+
+                          if (error != null) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(error),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          } else {
+                            if (mounted) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Manufacturer added successfully'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -190,6 +218,7 @@ class _VendorsScreenState extends State<VendorsScreen> {
                         onChanged: (value) {
                           cubit.searchManufacturers(value);
                         },
+                        prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -368,7 +397,7 @@ class _VendorsScreenState extends State<VendorsScreen> {
                                       CircleAvatar(
                                         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                                         child: Icon(
-                                          Icons.business,
+                                          Icons.business_center,
                                           color: Theme.of(context).colorScheme.primary,
                                         ),
                                       ),

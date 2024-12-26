@@ -30,6 +30,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     final nameController = TextEditingController();
     final emailController = TextEditingController();
     final phoneController = TextEditingController();
+    final passwordController = TextEditingController();
     RoleEnum selectedRole = RoleEnum.employee;
     final formKey = GlobalKey<FormState>();
 
@@ -69,7 +70,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                             size: 28,
                           ),
                           const SizedBox(width: 12),
-                          Text(
+                          const Text(
                             'Add New Employee',
                             style: TextStyle(
                               fontSize: 24,
@@ -93,15 +94,15 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           hintText: 'Enter employee name',
                           prefixIcon: Icon(
                             Icons.person_outline,
-                            color: Colors.white,
+                            color: Theme.of(context).primaryColor,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: Colors.grey.shade600),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: Colors.grey.shade600),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -111,12 +112,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           ),
                           filled: true,
                           fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                          labelStyle: TextStyle(
+                          labelStyle: const TextStyle(
                             color: Colors.white,
                           ),
-                          floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                          floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                             (states) => TextStyle(
-                              color: states.contains(MaterialState.focused)
+                              color: states.contains(WidgetState.focused)
                                   ? Theme.of(context).colorScheme.primary
                                   : Colors.white,
                             ),
@@ -134,9 +135,6 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter email address';
                           }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                            return 'Please enter a valid email address';
-                          }
                           return null;
                         },
                         decoration: InputDecoration(
@@ -144,15 +142,15 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           hintText: 'Enter email address',
                           prefixIcon: Icon(
                             Icons.email_outlined,
-                            color: Colors.white,
+                            color: Theme.of(context).primaryColor,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: Colors.grey.shade600),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: Colors.grey.shade600),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -162,12 +160,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           ),
                           filled: true,
                           fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                          labelStyle: TextStyle(
+                          labelStyle: const TextStyle(
                             color: Colors.white,
                           ),
-                          floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                          floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                             (states) => TextStyle(
-                              color: states.contains(MaterialState.focused)
+                              color: states.contains(WidgetState.focused)
                                   ? Theme.of(context).colorScheme.primary
                                   : Colors.white,
                             ),
@@ -187,15 +185,15 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           hintText: 'Enter phone number',
                           prefixIcon: Icon(
                             Icons.phone_outlined,
-                            color: Colors.white,
+                            color: Theme.of(context).primaryColor,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: Colors.grey.shade600),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: Colors.grey.shade600),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -205,12 +203,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           ),
                           filled: true,
                           fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                          labelStyle: TextStyle(
+                          labelStyle: const TextStyle(
                             color: Colors.white,
                           ),
-                          floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                          floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                             (states) => TextStyle(
-                              color: states.contains(MaterialState.focused)
+                              color: states.contains(WidgetState.focused)
                                   ? Theme.of(context).colorScheme.primary
                                   : Colors.white,
                             ),
@@ -231,15 +229,15 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                               labelText: 'Role',
                               prefixIcon: Icon(
                                 Icons.work_outline,
-                                color: Colors.white,
+                                color: Theme.of(context).primaryColor,
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Colors.white),
+                                borderSide: BorderSide(color: Colors.grey.shade600),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Colors.white),
+                                borderSide: BorderSide(color: Colors.grey.shade600),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -249,12 +247,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                               ),
                               filled: true,
                               fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                              labelStyle: TextStyle(
+                              labelStyle: const TextStyle(
                                 color: Colors.white,
                               ),
-                              floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                              floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                                 (states) => TextStyle(
-                                  color: states.contains(MaterialState.focused)
+                                  color: states.contains(WidgetState.focused)
                                       ? Theme.of(context).colorScheme.primary
                                       : Colors.white,
                                 ),
@@ -265,7 +263,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                                 value: role,
                                 child: Text(
                                   role.toString().split('.').last,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white,
                                   ),
                                 ),
@@ -277,8 +275,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                               }
                             },
                             dropdownColor: Theme.of(context).colorScheme.surface,
-                            icon: Icon(Icons.arrow_drop_down, color: Colors.white),
-                            style: TextStyle(color: Colors.white),
+                            icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           );
                         },
                       ),
@@ -299,14 +297,32 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           ElevatedButton(
                             onPressed: () async {
                               if (formKey.currentState?.validate() ?? false) {
-                                await cubit.createEmployee(
+                                final error = await cubit.createEmployee(
                                   nameController.text,
                                   emailController.text,
                                   phoneController.text,
                                   selectedRole,
                                 );
-                                if (mounted) {
-                                  Navigator.pop(context);
+
+                                if (error != null) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(error),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  if (mounted) {
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Employee added successfully.'),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  }
                                 }
                               }
                             },
@@ -342,6 +358,78 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     );
   }
 
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 300),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.filter_list,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Filter by Role',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  ...RoleEnum.values.map((role) => ListTile(
+                    title: Text(
+                      role.toString().split('.').last,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.work_outline,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    onTap: () {
+                      cubit.filterByRole(role);
+                      Navigator.pop(context);
+                    },
+                  )).toList(),
+                  ListTile(
+                    title: const Text(
+                      'Clear Filter',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.clear,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    onTap: () {
+                      cubit.filterByRole(null);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<EmployeesScreenCubit, EmployeesScreenState>(
@@ -366,7 +454,14 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         onChanged: (value) {
                           cubit.searchEmployees(value);
                         },
+                        prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    GradientIconButton(
+                      icon: Icons.filter_list,
+                      iconSize: 32,
+                      onPressed: _showFilterDialog,
                     ),
                     const SizedBox(width: 8),
                     GradientIconButton(

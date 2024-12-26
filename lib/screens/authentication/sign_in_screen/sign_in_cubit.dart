@@ -26,7 +26,7 @@ class SignInCubit extends Cubit<SignInState> {
     emit(state.copyWith(
       email: email,
       processState: ProcessState.idle, // Reset state
-      message: NotifyMessage.empty,   // Reset message
+      message: NotifyMessage.empty, // Reset message
     ));
   }
 
@@ -34,7 +34,7 @@ class SignInCubit extends Cubit<SignInState> {
     emit(state.copyWith(
       password: password,
       processState: ProcessState.idle, // Reset state
-      message: NotifyMessage.empty,    // Reset message
+      message: NotifyMessage.empty, // Reset message
     ));
   }
 
@@ -42,11 +42,18 @@ class SignInCubit extends Cubit<SignInState> {
     try {
       emit(state.copyWith(processState: ProcessState.loading));
 
-      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(email: state.email, password: state.password);
+      final UserCredential userCredential = await _auth
+          .signInWithEmailAndPassword(
+          email: state.email, password: state.password);
       if (userCredential.user != null) {
-        emit(state.copyWith(processState: ProcessState.success, message: NotifyMessage.msg1, dialogName: DialogName.success));
+        emit(state.copyWith(processState: ProcessState.success,
+            message: NotifyMessage.msg1,
+            dialogName: DialogName.success));
       }
     } catch (error) {
-      emit(state.copyWith(processState: ProcessState.failure, message: NotifyMessage.msg2, dialogName: DialogName.failure));
+      emit(state.copyWith(processState: ProcessState.failure,
+          message: NotifyMessage.msg2,
+          dialogName: DialogName.failure));
     }
   }
+}

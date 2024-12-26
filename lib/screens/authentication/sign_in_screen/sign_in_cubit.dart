@@ -41,11 +41,28 @@ class SignInCubit extends Cubit<SignInState> {
       emit(state.copyWith(processState: ProcessState.loading));
 
       final UserCredential userCredential = await _auth.signInWithEmailAndPassword(email: state.email, password: state.password);
+
       if (userCredential.user != null) {
-        emit(state.copyWith(processState: ProcessState.success, message: NotifyMessage.msg1, dialogName: DialogName.success));
+        if (!userCredential.user!.emailVerified) {
+          emit(state.copyWith(
+              processState: ProcessState.failure,
+              message: NotifyMessage.msg10,
+              dialogName: DialogName.failure
+          ));
+        } else {
+          emit(state.copyWith(
+              processState: ProcessState.success,
+              message: NotifyMessage.msg1,
+              dialogName: DialogName.success
+          ));
+        }
       }
     } catch (error) {
-      emit(state.copyWith(processState: ProcessState.failure, message: NotifyMessage.msg2, dialogName: DialogName.failure));
+      emit(state.copyWith(
+          processState: ProcessState.failure,
+          message: NotifyMessage.msg2,
+          dialogName: DialogName.failure
+      ));
     }
   }
 

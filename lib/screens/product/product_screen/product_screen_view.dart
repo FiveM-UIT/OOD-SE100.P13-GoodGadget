@@ -48,79 +48,90 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
     cubit.updateSelectedTabIndex(index);
   }
 
+  Future<bool> _onWillPop() async {
+    if (searchFocusNode.hasFocus) {
+      searchFocusNode.unfocus();
+      return Future.value(false);
+    }
+    return Future.value(true);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          title: FieldWithIcon(
-            height: 40,
-            controller: searchController,
-            focusNode: searchFocusNode,
-            hintText: 'Find your item',
-            fillColor: Theme.of(context).colorScheme.surface,
-            prefixIcon: Icon(
-              FontAwesomeIcons.magnifyingGlass,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            onChanged: (value) {
-              cubit.updateSearchText(value);
-            },
-          ),
-          actions: [
-            ElevatedButton.icon(
-              onPressed: () {
-                // Add your onPressed code here!
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            elevation: 0,
+            title: FieldWithIcon(
+              height: 40,
+              controller: searchController,
+              focusNode: searchFocusNode,
+              hintText: 'Find your item',
+              fillColor: Theme.of(context).colorScheme.surface,
+              prefixIcon: Icon(
+                FontAwesomeIcons.magnifyingGlass,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              onChanged: (value) {
+                cubit.updateSearchText(value);
               },
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text('Add', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.onPrimary,
-                padding: const EdgeInsets.fromLTRB(8, 4, 12, 4),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(32),
+            ),
+            actions: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  // Add your onPressed code here!
+                },
+                icon: const Icon(Icons.add, color: Colors.white),
+                label: const Text('Add', style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.onPrimary,
+                  padding: const EdgeInsets.fromLTRB(8, 4, 12, 4),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-          ],
-          bottom: TabBar(
-            controller: tabController,
-            labelColor: Theme.of(context).colorScheme.primary,
-            unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-            labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-            indicatorColor: Theme.of(context).colorScheme.primary,
-            tabAlignment: TabAlignment.start,
-            isScrollable: true,
-            indicator: const BoxDecoration(),
-            tabs: [
-              const Tab(text: 'All'),
-              ...CategoryEnum.values.map((category) => Tab(
-                text: category.toString().split('.').last,
-              )),
+              const SizedBox(width: 8),
             ],
+            bottom: TabBar(
+              controller: tabController,
+              labelColor: Theme.of(context).colorScheme.primary,
+              unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+              labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+              indicatorColor: Theme.of(context).colorScheme.primary,
+              tabAlignment: TabAlignment.start,
+              isScrollable: true,
+              indicator: const BoxDecoration(),
+              tabs: [
+                const Tab(text: 'All'),
+                ...CategoryEnum.values.map((category) => Tab(
+                  text: category.toString().split('.').last,
+                )),
+              ],
+            ),
           ),
-        ),
-        body: SafeArea(
-          child: BlocBuilder<ProductScreenCubit, ProductScreenState>(
-            builder: (context, state) {
-              return TabBarView(
-                controller: tabController,
-                children: [
-                  ProductTab.newInstance(),
-                  ProductTab.newRam(),
-                  ProductTab.newCpu(),
-                  ProductTab.newPsu(),
-                  ProductTab.newGpu(),
-                  ProductTab.newDrive(),
-                  ProductTab.newMainboard(),
-                ],
-              );
-            },
+          body: SafeArea(
+            child: BlocBuilder<ProductScreenCubit, ProductScreenState>(
+              builder: (context, state) {
+                return TabBarView(
+                  controller: tabController,
+                  children: [
+                    ProductTab.newInstance(),
+                    ProductTab.newRam(),
+                    ProductTab.newCpu(),
+                    ProductTab.newPsu(),
+                    ProductTab.newGpu(),
+                    ProductTab.newDrive(),
+                    ProductTab.newMainboard(),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),

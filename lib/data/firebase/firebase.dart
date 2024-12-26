@@ -7,6 +7,7 @@ import 'package:gizmoglobe_client/objects/product_related/mainboard.dart';
 import 'package:gizmoglobe_client/objects/product_related/psu.dart';
 import 'package:gizmoglobe_client/objects/product_related/ram.dart';
 
+import '../../enums/stakeholders/employee_role.dart';
 import '../../objects/customer.dart';
 import '../../objects/employee.dart';
 import '../../objects/manufacturer.dart';
@@ -331,10 +332,35 @@ class Firebase {
         throw Exception('Employee ID cannot be null');
       }
 
+      // Lấy thông tin employee cũ trước khi cập nhật
+      DocumentSnapshot oldEmployeeDoc = await FirebaseFirestore.instance
+          .collection('employees')
+          .doc(employee.employeeID)
+          .get();
+
+      String oldEmail = '';
+      if (oldEmployeeDoc.exists) {
+        oldEmail = (oldEmployeeDoc.data() as Map<String, dynamic>)['email'];
+      }
+
+      // Cập nhật thông tin employee
       await FirebaseFirestore.instance
           .collection('employees')
           .doc(employee.employeeID)
           .update(employee.toMap());
+      
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: oldEmail)
+          .get();
+
+      if (userSnapshot.docs.isNotEmpty) {
+        await updateUserInformation(userSnapshot.docs.first.id, {
+          'username': employee.employeeName,
+          'email': employee.email,
+          'role': employee.role == RoleEnum.owner ? 'admin' : employee.role.getName(),
+        });
+      }
     } catch (e) {
       print('Lỗi khi cập nhật nhân viên: $e');
       rethrow;
@@ -343,22 +369,33 @@ class Firebase {
 
   Future<void> deleteEmployee(String employeeId) async {
     try {
-      await FirebaseFirestore.instance
+      // Lấy thông tin nhân viên trước khi xóa
+      DocumentSnapshot employeeDoc = await FirebaseFirestore.instance
           .collection('employees')
           .doc(employeeId)
-          .delete();
-
-      // Delete associated user account if exists
-      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('email', isEqualTo: employeeId)
           .get();
 
-      for (var doc in userSnapshot.docs) {
+      if (employeeDoc.exists) {
+        String employeeEmail = (employeeDoc.data() as Map<String, dynamic>)['email'];
+
+        // Xóa nhân viên
         await FirebaseFirestore.instance
-            .collection('users')
-            .doc(doc.id)
+            .collection('employees')
+            .doc(employeeId)
             .delete();
+
+        // Xóa tài khoản user tương ứng
+        QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('email', isEqualTo: employeeEmail)
+            .get();
+
+        for (var doc in userSnapshot.docs) {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(doc.id)
+              .delete();
+        }
       }
     } catch (e) {
       print('Lỗi khi xóa nhân viên: $e');
@@ -366,15 +403,36 @@ class Firebase {
     }
   }
 
-  Future<void> createEmployee(Employee employee) async {
+  Future<void> addEmployee(Employee employee) async {
     try {
+      // Kiểm tra xem email đã tồn tại chưa
+      QuerySnapshot existingEmployees = await FirebaseFirestore.instance
+          .collection('employees')
+          .where('email', isEqualTo: employee.email)
+          .get();
+
+      if (existingEmployees.docs.isNotEmpty) {
+        throw Exception('Email has already been registered');
+      }
+
+      // Thêm nhân viên mới vào collection employees
       DocumentReference docRef = await FirebaseFirestore.instance
           .collection('employees')
           .add(employee.toMap());
 
+      // Cập nhật ID cho nhân viên
       employee.employeeID = docRef.id;
+
+      // Thêm tài khoản user tương ứng
+      await FirebaseFirestore.instance.collection('users').doc(docRef.id).set({
+        'email': employee.email,
+        'username': employee.employeeName,
+        'userID': docRef.id,
+        'role': employee.role == RoleEnum.owner ? 'admin' : employee.role.getName(),
+      });
+
     } catch (e) {
-      print('Lỗi khi tạo nhân viên mới: $e');
+      print('Error adding employee: $e');
       rethrow;
     }
   }
@@ -503,36 +561,28 @@ class Firebase {
     }
   }
 
-  Future<void> addEmployee(Employee employee) async {
+  Future<void> updateUserInformation(String userId, Map<String, dynamic> userData) async {
     try {
-      // Kiểm tra xem email đã tồn tại chưa
-      QuerySnapshot existingEmployees = await FirebaseFirestore.instance
-          .collection('employees')
-          .where('email', isEqualTo: employee.email)
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .update(userData);
+    } catch (e) {
+      print('Lỗi khi cập nhật thông tin user: $e');
+      rethrow;
+    }
+  }
+
+  Future<bool> checkUserExistsInDatabase(String email) async {
+    try {
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: email)
           .get();
 
-      if (existingEmployees.docs.isNotEmpty) {
-        throw Exception('Email đã được sử dụng bởi nhân viên khác');
-      }
-
-      // Thêm nhân viên mới vào collection employees
-      DocumentReference docRef = await FirebaseFirestore.instance
-          .collection('employees')
-          .add(employee.toMap());
-
-      // Cập nhật ID cho nhân viên
-      employee.employeeID = docRef.id;
-
-      // Thêm tài khoản user tương ứng
-      await FirebaseFirestore.instance.collection('users').add({
-        'email': employee.email,
-        'username': employee.employeeName,
-        'phoneNumber': employee.phoneNumber,
-        'role': 'employee', // Trạng thái chờ xác minh
-      });
-
+      return userSnapshot.docs.isNotEmpty;
     } catch (e) {
-      print('Error adding employee: $e');
+      print('Error checking user exists in database: $e');
       rethrow;
     }
   }

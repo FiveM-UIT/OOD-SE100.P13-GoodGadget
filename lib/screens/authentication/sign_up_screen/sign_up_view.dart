@@ -35,9 +35,9 @@ class _SignUpScreen extends State<SignUpScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController.addListener(() {
-      cubit.updateUsername(_nameController.text);
-    });
+    // _nameController.addListener(() {
+    //   cubit.updateUsername(_nameController.text);
+    // });
     _emailController.addListener(() {
       cubit.updateEmail(_emailController.text);
     });
@@ -87,19 +87,19 @@ class _SignUpScreen extends State<SignUpScreen> {
               ),
 
               const SizedBox(height: 30),
-              FieldWithIcon(
-                controller: _nameController,
-                hintText: 'Full name',
-                fillColor: Theme.of(context).colorScheme.surface,
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-                textColor: Theme.of(context).colorScheme.primary,
-                hintTextColor: Theme.of(context).colorScheme.onPrimary,
-                onChanged: (value) {
-                  cubit.updateUsername(value);
-                },
-              ),
-              const SizedBox(height: 16.0),
+              // FieldWithIcon(
+              //   controller: _nameController,
+              //   hintText: 'Full name',
+              //   fillColor: Theme.of(context).colorScheme.surface,
+              //   fontSize: 16,
+              //   fontWeight: FontWeight.normal,
+              //   textColor: Theme.of(context).colorScheme.primary,
+              //   hintTextColor: Theme.of(context).colorScheme.onPrimary,
+              //   onChanged: (value) {
+              //     cubit.updateUsername(value);
+              //   },
+              // ),
+              // const SizedBox(height: 16.0),
 
               FieldWithIcon(
                 controller: _emailController,

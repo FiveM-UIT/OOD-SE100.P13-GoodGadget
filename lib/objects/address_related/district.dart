@@ -1,4 +1,4 @@
-import 'package:gizmoglobe_client/functions/address_related/ward.dart';
+import 'package:gizmoglobe_client/objects/address_related/ward.dart';
 
 class District {
   final String code;

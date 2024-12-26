@@ -10,10 +10,6 @@ class WarrantyScreenCubit extends Cubit<WarrantyScreenState> {
     emit(state.copyWith(isLoading: true));
     // TODO: Implement API call to load invoices
     await Future.delayed(const Duration(seconds: 1)); // Simulate API call
-    emit(state.copyWith(
-      isLoading: false,
-
-    ));
   }
 
   void searchInvoices(String query) {

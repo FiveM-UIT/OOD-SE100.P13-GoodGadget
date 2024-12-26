@@ -39,27 +39,23 @@ class _StakeholderScreenState extends State<StakeholderScreen> {
             },
             child: Scaffold(
               appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-
-                title: const Padding(
-                  padding: EdgeInsets.only(top: 16.0),
-                  child: GradientText(text: 'Stakeholder'),
-                ),
-                bottom: TabBar(
-
-                  onTap: (index) {
-                    context.read<StakeholderScreenCubit>().changeTab(index);
-                  },
-                  labelColor: Theme.of(context).primaryColor,
-                  unselectedLabelColor: Colors.white,
-                  indicatorColor: Theme.of(context).primaryColor,
-                  dividerColor: Colors.transparent,
-                  tabs: const [
-                    Tab(text: 'Customers'),
-                    Tab(text: 'Employees'),
-                    Tab(text: 'Vendors'),
-                  ],
+                toolbarHeight: 0,
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(48),
+                  child: TabBar(
+                    onTap: (index) {
+                      context.read<StakeholderScreenCubit>().changeTab(index);
+                    },
+                    labelColor: Theme.of(context).primaryColor,
+                    unselectedLabelColor: Colors.white,
+                    indicatorColor: Theme.of(context).primaryColor,
+                    dividerColor: Colors.transparent,
+                    tabs: const [
+                      Tab(text: 'Customers'),
+                      Tab(text: 'Employees'),
+                      Tab(text: 'Vendors'),
+                    ],
+                  ),
                 ),
               ),
               body: SafeArea(

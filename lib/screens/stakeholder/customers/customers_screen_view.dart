@@ -296,6 +296,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                         onChanged: (value) {
                           cubit.searchCustomers(value);
                         },
+                        prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
                       ),
                     ),
                     const SizedBox(width: 8),

@@ -454,6 +454,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         onChanged: (value) {
                           cubit.searchEmployees(value);
                         },
+                        prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
                       ),
                     ),
                     const SizedBox(width: 8),

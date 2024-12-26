@@ -26,6 +26,7 @@ import '../../enums/product_related/ram_enums/ram_type.dart';
 import '../../objects/address_related/address.dart';
 import '../../objects/address_related/province.dart';
 import '../../objects/product_related/product_factory.dart';
+import '../firebase/firebase.dart';
 
 class Database {
   static final Database _database = Database._internal();
@@ -35,11 +36,11 @@ class Database {
   RoleEnum? role;
 
   List<Manufacturer> manufacturerList = [];
-  List<Product> productList = [];
   List<Customer> customerList = [];
   List<Employee> employeeList = [];
   List<Province> provinceList = [];
   List<Address> addressList = [];
+  List<Product> productList = [];
 
   factory Database() {
     return _database;
@@ -1137,5 +1138,9 @@ class Database {
     } catch (e) {
       throw Exception('Error loading provinces from file: $e');
     }
+  }
+
+  void updateProductList (List<Product> productList) {
+    this.productList = productList;
   }
 }

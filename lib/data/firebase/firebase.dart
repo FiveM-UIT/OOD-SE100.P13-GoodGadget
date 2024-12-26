@@ -547,9 +547,6 @@ class Firebase {
           .collection('manufacturers')
           .doc(querySnapshot.docs.first.id)
           .delete();
-
-      // TODO: Add logic to handle related products
-      // Example: Mark products as discontinued or delete them
     } catch (e) {
       print('Error deleting manufacturer: $e');
       rethrow;
@@ -894,5 +891,186 @@ class Firebase {
       }
       return products;
     });
+  }
+
+  Future<void> changeProductStatus(String productId, ProductStatusEnum status) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('products')
+          .doc(productId)
+          .update({'status': status.getName()});
+
+      List<Product> products = await getProducts();
+      Database().updateProductList(products);
+    } catch (e) {
+      print('Error changing product status: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateProduct(Product product) async {
+    try {
+      Map<String, dynamic> productData = {
+        'productName': product.productName,
+        'importPrice': product.importPrice,
+        'sellingPrice': product.sellingPrice,
+        'discount': product.discount,
+        'release': product.release,
+        'sales': product.sales,
+        'stock': product.stock,
+        'status': product.status.getName(),
+        'manufacturerID': product.manufacturer.manufacturerID,
+        'category': product.category.getName(),
+      };
+
+      switch (product.runtimeType) {
+        case RAM:
+          final ram = product as RAM;
+          productData.addAll({
+            'bus': ram.bus.getName(),
+            'capacity': ram.capacity.getName(),
+            'ramType': ram.ramType.getName(),
+          });
+          break;
+
+        case CPU:
+          final cpu = product as CPU;
+          productData.addAll({
+            'family': cpu.family.getName(),
+            'core': cpu.core,
+            'thread': cpu.thread,
+            'clockSpeed': cpu.clockSpeed,
+          });
+          break;
+
+        case GPU:
+          final gpu = product as GPU;
+          productData.addAll({
+            'series': gpu.series.getName(),
+            'capacity': gpu.capacity.getName(),
+            'busWidth': gpu.bus.getName(),
+            'clockSpeed': gpu.clockSpeed,
+          });
+          break;
+
+        case Mainboard:
+          final mainboard = product as Mainboard;
+          productData.addAll({
+            'formFactor': mainboard.formFactor.getName(),
+            'series': mainboard.series.getName(),
+            'compatibility': mainboard.compatibility.getName(),
+          });
+          break;
+
+        case Drive:
+          final drive = product as Drive;
+          productData.addAll({
+            'type': drive.type.getName(),
+            'capacity': drive.capacity.getName(),
+          });
+          break;
+
+        case PSU:
+          final psu = product as PSU;
+          productData.addAll({
+            'wattage': psu.wattage,
+            'efficiency': psu.efficiency.getName(),
+            'modular': psu.modular.getName(),
+          });
+          break;
+      }
+
+      await FirebaseFirestore.instance
+          .collection('products')
+          .doc(product.productID)
+          .update(productData);
+
+      List<Product> products = await getProducts();
+      Database().updateProductList(products);
+    } catch (e) {
+      print('Error updating product: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> addProduct(Product product) async {
+    try {
+      Map<String, dynamic> productData = {
+        'productName': product.productName,
+        'importPrice': product.importPrice,
+        'sellingPrice': product.sellingPrice,
+        'discount': product.discount,
+        'release': product.release,
+        'sales': product.sales,
+        'stock': product.stock,
+        'status': product.status.getName(),
+        'manufacturerID': product.manufacturer.manufacturerID,
+        'category': product.category.getName(),
+      };
+
+      switch (product.runtimeType) {
+        case RAM:
+          final ram = product as RAM;
+          productData.addAll({
+            'bus': ram.bus.getName(),
+            'capacity': ram.capacity.getName(),
+            'ramType': ram.ramType.getName(),
+          });
+          break;
+
+        case CPU:
+          final cpu = product as CPU;
+          productData.addAll({
+            'family': cpu.family.getName(),
+            'core': cpu.core,
+            'thread': cpu.thread,
+            'clockSpeed': cpu.clockSpeed,
+          });
+          break;
+
+        case GPU:
+          final gpu = product as GPU;
+          productData.addAll({
+            'series': gpu.series.getName(),
+            'capacity': gpu.capacity.getName(),
+            'busWidth': gpu.bus.getName(),
+            'clockSpeed': gpu.clockSpeed,
+          });
+          break;
+
+        case Mainboard:
+          final mainboard = product as Mainboard;
+          productData.addAll({
+            'formFactor': mainboard.formFactor.getName(),
+            'series': mainboard.series.getName(),
+            'compatibility': mainboard.compatibility.getName(),
+          });
+          break;
+
+        case Drive:
+          final drive = product as Drive;
+          productData.addAll({
+            'type': drive.type.getName(),
+            'capacity': drive.capacity.getName(),
+          });
+          break;
+
+        case PSU:
+          final psu = product as PSU;
+          productData.addAll({
+            'wattage': psu.wattage,
+            'efficiency': psu.efficiency.getName(),
+            'modular': psu.modular.getName(),
+          });
+          break;
+      }
+
+      await FirebaseFirestore.instance.collection('products').add(productData);
+      List<Product> products = await getProducts();
+      Database().updateProductList(products);
+    } catch (e) {
+      print('Error adding product: $e');
+      rethrow;
+    }
   }
 }

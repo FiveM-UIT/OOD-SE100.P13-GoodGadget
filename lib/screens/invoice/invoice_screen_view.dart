@@ -32,12 +32,9 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             },
             child: Scaffold(
               appBar: AppBar(
+                toolbarHeight: 0,
                 backgroundColor: Colors.transparent,
                 elevation: 0,
-                title: const Padding(
-                  padding: EdgeInsets.only(top: 16.0),
-                  child: GradientText(text: 'Invoice'),
-                ),
                 bottom: TabBar(
                   onTap: (index) {
                     context.read<InvoiceScreenCubit>().changeTab(index);

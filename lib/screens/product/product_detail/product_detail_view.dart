@@ -164,7 +164,7 @@ class ProductDetailScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 16),
                       
-                      ..._buildProductSpecificDetails(context, product),
+                      ..._buildProductSpecificDetails(context, product, state.technicalSpecs),
                     ],
                   ),
                 ),
@@ -248,27 +248,14 @@ class ProductDetailScreen extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildProductSpecificDetails(BuildContext context, Product product) {
-    List<Widget> details = [];
-    
-    if (product is CPU) {
-      details.addAll([
-        _buildSpecificationRow('Family', product.family.toString()),
-        _buildSpecificationRow('Core', product.core.toString()),
-        _buildSpecificationRow('Thread', product.thread.toString()),
-        _buildSpecificationRow('Clock Speed', '${product.clockSpeed} GHz'),
-      ]);
-    } else if (product is GPU) {
-      details.addAll([
-        _buildSpecificationRow('Series', product.series.toString()),
-        _buildSpecificationRow('Capacity', product.capacity.toString()),
-        _buildSpecificationRow('Bus', product.bus.toString()),
-        _buildSpecificationRow('Clock Speed', '${product.clockSpeed} GHz'),
-      ]);
-    }
-    // Add other product types similarly...
-    
-    return details;
+  List<Widget> _buildProductSpecificDetails(
+    BuildContext context, 
+    Product product,
+    Map<String, String> specs
+  ) {
+    return specs.entries.map((entry) => 
+      _buildSpecificationRow(entry.key, entry.value)
+    ).toList();
   }
 
   Widget _buildSpecificationRow(String label, String value) {

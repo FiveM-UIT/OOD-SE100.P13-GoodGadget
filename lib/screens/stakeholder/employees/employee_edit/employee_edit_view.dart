@@ -17,7 +17,6 @@ class EmployeeEditScreen extends StatefulWidget {
 class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
   final _formKey = GlobalKey<FormState>();
   late String employeeName;
-  late String email;
   late String phoneNumber;
   late RoleEnum role;
 
@@ -25,7 +24,6 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
   void initState() {
     super.initState();
     employeeName = widget.employee.employeeName;
-    email = widget.employee.email;
     phoneNumber = widget.employee.phoneNumber;
     role = widget.employee.role as RoleEnum;
   }
@@ -74,36 +72,7 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
                     return null;
                   },
                 ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                margin: const EdgeInsets.only(bottom: 20),
-                child: TextFormField(
-                  initialValue: email,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    labelStyle: const TextStyle(color: Colors.white),
-                    floatingLabelStyle: MaterialStateTextStyle.resolveWith(
-                          (states) => TextStyle(
-                        color: states.contains(MaterialState.focused)
-                            ? Theme.of(context).primaryColor
-                            : Colors.white,
-                      ),
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) => email = value,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter an email';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                ),
-              ),
+              ),              
               const SizedBox(height: 16),
               Container(
                   margin: const EdgeInsets.only(bottom: 20),
@@ -145,7 +114,7 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
                   ),
                   border: OutlineInputBorder(),
                 ),
-                items: RoleEnum.values.map((RoleEnum roleEnum) {
+                items: RoleEnum.values.where((role) => role != RoleEnum.owner).map((RoleEnum roleEnum) {
                   return DropdownMenuItem<RoleEnum>(
                     value: roleEnum,
                     child: Text(
@@ -178,7 +147,6 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
                     if (_formKey.currentState!.validate()) {
                       final updatedEmployee = widget.employee.copyWith(
                         employeeName: employeeName,
-                        email: email,
                         phoneNumber: phoneNumber,
                         role: role,
                       );

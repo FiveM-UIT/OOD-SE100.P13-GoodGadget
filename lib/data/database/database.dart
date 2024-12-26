@@ -194,7 +194,6 @@ class Database {
 
     } catch (e) {
       print('Error fetching data: $e');
-      // _initializeSampleData();
     }
   }
 
@@ -1087,43 +1086,13 @@ class Database {
       ),
     ];
 
-    // Generate employee samples
     employeeList = [
-      // Employee(
-      //   employeeName: 'Tran Nhat Tan',
-      //   phoneNumber: '0901234567',
-      //   email: 'tan.tran@example.com',
-      //   role: RoleEnum.manager,
-      // ),
-      // Employee(
-      //   employeeName: 'Phan Nguyen Khoa',
-      //   phoneNumber: '0912345678',
-      //   email: 'khoa.phan@example.com',
-      //   role: RoleEnum.employee,
-      // ),
-      // Employee(
-      //   employeeName: 'Do Hong Quan',
-      //   phoneNumber: '0923456789',
-      //   email: 'quan.do@example.com',
-      //   role: RoleEnum.owner,
-      // ),
-      // Employee(
-      //   employeeName: 'To Vinh Tien',
-      //   phoneNumber: '0934567890',
-      //   email: 'tien.to@example.com',
-      //   role: RoleEnum.owner,
-      // ),
-      // Employee(
-      //   employeeName: 'Nguyen Duy Vu',
-      //   phoneNumber: '0945678901',
-      //   email: 'vu.nguyen@example.com',
-      //   role: RoleEnum.manager,
-      // ),
       Employee(
+        employeeID: 'EMPSAMPLE',
         employeeName: 'To Vinh Tien',
         phoneNumber: '0901234567',
         email: '22521474@gm.uit.edu.vn',
-        role: RoleEnum.manager,
+        role: RoleEnum.owner,
       ),
     ];
   }

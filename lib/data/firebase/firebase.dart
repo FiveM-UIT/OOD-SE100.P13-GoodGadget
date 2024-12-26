@@ -1,4 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:gizmoglobe_client/enums/product_related/cpu_enums/cpu_family.dart';
+import 'package:gizmoglobe_client/enums/product_related/drive_enums/drive_capacity.dart';
+import 'package:gizmoglobe_client/enums/product_related/drive_enums/drive_type.dart';
+import 'package:gizmoglobe_client/enums/product_related/gpu_enums/gpu_bus.dart';
+import 'package:gizmoglobe_client/enums/product_related/gpu_enums/gpu_capacity.dart';
+import 'package:gizmoglobe_client/enums/product_related/gpu_enums/gpu_series.dart';
+import 'package:gizmoglobe_client/enums/product_related/mainboard_enums/mainboard_compatibility.dart';
+import 'package:gizmoglobe_client/enums/product_related/mainboard_enums/mainboard_form_factor.dart';
+import 'package:gizmoglobe_client/enums/product_related/mainboard_enums/mainboard_series.dart';
+import 'package:gizmoglobe_client/enums/product_related/psu_enums/psu_efficiency.dart';
+import 'package:gizmoglobe_client/enums/product_related/psu_enums/psu_modular.dart';
+import 'package:gizmoglobe_client/enums/product_related/ram_enums/ram_bus.dart';
+import 'package:gizmoglobe_client/enums/product_related/ram_enums/ram_capacity_enum.dart';
+import 'package:gizmoglobe_client/enums/product_related/ram_enums/ram_type.dart';
 import '../../data/database/database.dart';
 import 'package:gizmoglobe_client/objects/product_related/cpu.dart';
 import 'package:gizmoglobe_client/objects/product_related/drive.dart';
@@ -7,10 +21,14 @@ import 'package:gizmoglobe_client/objects/product_related/mainboard.dart';
 import 'package:gizmoglobe_client/objects/product_related/psu.dart';
 import 'package:gizmoglobe_client/objects/product_related/ram.dart';
 
+import '../../enums/product_related/category_enum.dart';
+import '../../enums/product_related/product_status_enum.dart';
 import '../../enums/stakeholders/employee_role.dart';
 import '../../objects/customer.dart';
 import '../../objects/employee.dart';
 import '../../objects/manufacturer.dart';
+import '../../objects/product_related/product.dart';
+import '../../objects/product_related/product_factory.dart';
 
 Future<void> pushProductSamplesToFirebase() async {
   try {
@@ -105,6 +123,32 @@ Future<void> pushProductSamplesToFirebase() async {
   }
 }
 
+Future<void> pushAddressSamplesToFirebase() async {
+  try {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    Database().generateSampleData();
+
+    for (var address in Database().addressList) {
+      DocumentReference docRef = await firestore.collection('addresses').add({
+        'customerID': address.customerID,
+        'receiverName': address.receiverName,
+        'receiverPhone': address.receiverPhone,
+        'provinceCode': address.province?.code,
+        'districtCode': address.district?.code,
+        'wardCode': address.ward?.code,
+        'street': address.street ?? '',
+        'isDefault': address.isDefault,
+      });
+
+      // Cập nhật lại document với addressID
+      await docRef.update({'addressID': docRef.id});
+    }
+  } catch (e) {
+    print('Error pushing address samples to Firebase: $e');
+    rethrow;
+  }
+}
+
 class Firebase {
   static final Firebase _firebase = Firebase._internal();
 
@@ -117,72 +161,21 @@ class Firebase {
   Future<void> pushCustomerSampleData() async {
     try {
       final FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-      // Generate sample data
       Database().generateSampleData();
 
-      // Push customers
       for (var customer in Database().customerList) {
         DocumentReference docRef = await firestore.collection('customers').add(
           customer.toMap(),
         );
+        
         customer.customerID = docRef.id;
+        // Cập nhật lại document với ID
+        await docRef.update({
+          'customerID': docRef.id,
+          ...customer.toMap()
+        });
       }
-
-      // Push employees
-      for (var employee in Database().employeeList) {
-        DocumentReference docRef = await firestore.collection('employees').add(
-          employee.toMap(),
-        );
-        employee.employeeID = docRef.id;
-      }
-
-      // Sync users with customers
-      QuerySnapshot userSnapshot = await firestore
-          .collection('users')
-          .where('role', isEqualTo: 'customer')
-          .get();
-
-      for (var doc in userSnapshot.docs) {
-        // Check if user exists in customers
-        QuerySnapshot existingCustomer = await firestore
-            .collection('customers')
-            .where('email', isEqualTo: doc['email'])
-            .get();
-
-        // Add if not exists
-        if (existingCustomer.docs.isEmpty) {
-          await firestore.collection('customers').add({
-            'customerName': doc['username'] ?? '',
-            'phoneNumber': doc['phoneNumber'] ?? '',
-            'email': doc['email'] ?? '',
-          });
-        }
-      }
-
-      // Sync users with employees
-      // QuerySnapshot employeeUserSnapshot = await firestore
-      //     .collection('users')
-      //     .where('role', isEqualTo: 'employee')
-      //     .get();
-      //
-      // for (var doc in employeeUserSnapshot.docs) {
-      //   // Check if user exists in employees
-      //   QuerySnapshot existingEmployee = await firestore
-      //       .collection('employees')
-      //       .where('email', isEqualTo: doc['email'])
-      //       .get();
-      //
-      //   // Add if not exists
-      //   if (existingEmployee.docs.isEmpty) {
-      //     await firestore.collection('employees').add({
-      //       'employeeName': doc['username'] ?? '',
-      //       'phoneNumber': doc['phoneNumber'] ?? '',
-      //       'email': doc['email'] ?? '',
-      //     });
-      //   }
-
-      print('Successfully pushed and synced customer and employee data');
+      print('Successfully pushed customer data');
     } catch (e) {
       print('Error pushing sample data: $e');
       rethrow;
@@ -221,14 +214,29 @@ class Firebase {
         throw Exception('Customer ID cannot be null');
       }
 
+      // Cập nhật thông tin khách hàng
       await FirebaseFirestore.instance
           .collection('customers')
           .doc(customer.customerID)
           .update({
         'customerName': customer.customerName,
-        'email': customer.email,
         'phoneNumber': customer.phoneNumber,
       });
+
+      // Cập nhật thông tin user tương ứng
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('userID', isEqualTo: customer.customerID)
+          .get();
+
+      for (var doc in userSnapshot.docs) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(doc.id)
+            .update({
+          'username': customer.customerName,
+        });
+      }
     } catch (e) {
       print('Lỗi khi cập nhật khách hàng: $e');
       rethrow;
@@ -246,7 +254,7 @@ class Firebase {
       // Xóa tài khoản user tương ứng nếu có
       QuerySnapshot userSnapshot = await FirebaseFirestore.instance
           .collection('users')
-          .where('email', isEqualTo: customerId)
+          .where('userID', isEqualTo: customerId)
           .get();
 
       for (var doc in userSnapshot.docs) {
@@ -267,11 +275,27 @@ class Firebase {
 
   Future<void> createCustomer(Customer customer) async {
     try {
-      DocumentReference docRef = await FirebaseFirestore.instance
+      // Tạo customer trong collection customers
+      DocumentReference customerRef = await FirebaseFirestore.instance
           .collection('customers')
           .add(customer.toMap());
+      
+      String customerId = customerRef.id;
+      customer.customerID = customerId;
+      
+      // Cập nhật customerID trong document customer
+      await customerRef.update({'customerID': customerId});
 
-      customer.customerID = docRef.id;
+      // Tạo user với cùng ID như customer
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(customerId)  // Sử dụng customerId làm document ID
+          .set({
+        'email': customer.email,
+        'username': customer.customerName,
+        'role': 'customer',
+        'userID': customerId
+      });
     } catch (e) {
       print('Lỗi khi tạo khách hàng mới: $e');
       rethrow;
@@ -336,16 +360,25 @@ class Firebase {
           .doc(employee.employeeID)
           .get();
 
-      String oldEmail = '';
-      if (oldEmployeeDoc.exists) {
-        oldEmail = (oldEmployeeDoc.data() as Map<String, dynamic>)['email'];
+      if (!oldEmployeeDoc.exists) {
+        throw Exception('Employee not found');
       }
+
+      Map<String, dynamic> oldEmployeeData = oldEmployeeDoc.data() as Map<String, dynamic>;
+      String oldEmail = oldEmployeeData['email'];
+
+      // Tạo map chứa thông tin cần cập nhật, không bao gồm email
+      Map<String, dynamic> updateData = {
+        'employeeName': employee.employeeName,
+        'phoneNumber': employee.phoneNumber,
+        'role': employee.role.toString(),
+      };
 
       // Cập nhật thông tin employee
       await FirebaseFirestore.instance
           .collection('employees')
           .doc(employee.employeeID)
-          .update(employee.toMap());
+          .update(updateData);
       
       QuerySnapshot userSnapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -355,7 +388,6 @@ class Firebase {
       if (userSnapshot.docs.isNotEmpty) {
         await updateUserInformation(userSnapshot.docs.first.id, {
           'username': employee.employeeName,
-          'email': employee.email,
           'role': employee.role == RoleEnum.owner ? 'admin' : employee.role.getName(),
         });
       }
@@ -583,5 +615,284 @@ class Firebase {
       print('Error checking user exists in database: $e');
       rethrow;
     }
+  }
+
+  // Product-related functions
+  Future<List<Product>> getProducts() async {
+    try {
+      final QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('products')
+          .get();
+
+      List<Product> products = [];
+      for (var doc in snapshot.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        
+        // Lấy manufacturer từ manufacturerID
+        String manufacturerId = data['manufacturerID'];
+        Manufacturer? manufacturer = await getManufacturerById(manufacturerId);
+        if (manufacturer == null) continue;
+
+        // Chuyển đổi category string thành enum
+        CategoryEnum category = CategoryEnum.values.firstWhere(
+          (e) => e.getName() == data['category'],
+          orElse: () => CategoryEnum.ram,
+        );
+
+        // Tạo product với các thuộc tính cơ bản
+        Map<String, dynamic> productProps = {
+          'productID': doc.id,
+          'productName': data['productName'],
+          'manufacturer': manufacturer,
+          'importPrice': (data['importPrice'] as num).toDouble(),
+          'sellingPrice': (data['sellingPrice'] as num).toDouble(),
+          'discount': (data['discount'] as num).toDouble(),
+          'release': (data['release'] as Timestamp).toDate(),
+          'sales': data['sales'] as int,
+          'stock': data['stock'] as int,
+          'status': ProductStatusEnum.values.firstWhere(
+            (e) => e.getName() == data['status'],
+            orElse: () => ProductStatusEnum.active,
+          ),
+        };
+
+        // Thêm các thuộc tính đặc thù theo category
+        switch (category) {
+          case CategoryEnum.ram:
+            productProps.addAll({
+              'bus': RAMBus.values.firstWhere(
+                (e) => e.getName() == data['bus'],
+                orElse: () => RAMBus.mhz3200,
+              ),
+              'capacity': RAMCapacity.values.firstWhere(
+                (e) => e.getName() == data['capacity'],
+                orElse: () => RAMCapacity.gb8,
+              ),
+              'ramType': RAMType.values.firstWhere(
+                (e) => e.getName() == data['ramType'],
+                orElse: () => RAMType.ddr4,
+              ),
+            });
+            break;
+          case CategoryEnum.cpu:
+            productProps.addAll({
+              'family': CPUFamily.values.firstWhere(
+                (e) => e.getName() == data['family'],
+                orElse: () => CPUFamily.corei3Ultra3,
+              ),
+              'core': data['core'] as int,
+              'thread': data['thread'] as int,
+              'clockSpeed': (data['clockSpeed'] as num).toDouble(),
+            });
+            break;
+          case CategoryEnum.gpu:
+            productProps.addAll({
+              'series': GPUSeries.values.firstWhere(
+                (e) => e.getName() == data['series'],
+                orElse: () => GPUSeries.rtx,
+              ),
+              'capacity': GPUCapacity.values.firstWhere(
+                (e) => e.getName() == data['capacity'],
+                orElse: () => GPUCapacity.gb8,
+              ),
+              'busWidth': GPUBus.values.firstWhere(
+                (e) => e.getName() == data['busWidth'],
+                orElse: () => GPUBus.bit128,
+              ),
+              'clockSpeed': (data['clockSpeed'] as num).toDouble(),
+            });
+            break;
+          case CategoryEnum.mainboard:
+            productProps.addAll({
+              'formFactor': MainboardFormFactor.values.firstWhere(
+                (e) => e.getName() == data['formFactor'],
+                orElse: () => MainboardFormFactor.atx,
+              ),
+              'series': MainboardSeries.values.firstWhere(
+                (e) => e.getName() == data['series'],
+                orElse: () => MainboardSeries.h,
+              ),
+              'compatibility': MainboardCompatibility.values.firstWhere(
+                (e) => e.getName() == data['compatibility'],
+                orElse: () => MainboardCompatibility.intel,
+              ),
+            });
+            break;
+          case CategoryEnum.drive:
+            productProps.addAll({
+              'type': DriveType.values.firstWhere(
+                (e) => e.getName() == data['type'],
+                orElse: () => DriveType.sataSSD,
+              ),
+              'capacity': DriveCapacity.values.firstWhere(
+                (e) => e.getName() == data['capacity'],
+                orElse: () => DriveCapacity.gb256,
+              ),
+            });
+            break;
+          case CategoryEnum.psu:
+            productProps.addAll({
+              'wattage': data['wattage'] as int,
+              'efficiency': PSUEfficiency.values.firstWhere(
+                (e) => e.getName() == data['efficiency'],
+                orElse: () => PSUEfficiency.gold,
+              ),
+              'modular': PSUModular.values.firstWhere(
+                (e) => e.getName() == data['modular'],
+                orElse: () => PSUModular.fullModular,
+              ),
+            });
+            break;
+        }
+
+        // Tạo product instance thông qua factory
+        Product product = ProductFactory.createProduct(category, productProps);
+        products.add(product);
+      }
+
+      return products;
+    } catch (e) {
+      print('Error getting products: $e');
+      rethrow;
+    }
+  }
+
+  Stream<List<Product>> productsStream() {
+    return FirebaseFirestore.instance
+        .collection('products')
+        .snapshots()
+        .asyncMap((snapshot) async {
+      List<Product> products = [];
+      for (var doc in snapshot.docs) {
+        try {
+          Map<String, dynamic> data = doc.data();
+          
+          String manufacturerId = data['manufacturerID'];
+          Manufacturer? manufacturer = await getManufacturerById(manufacturerId);
+          if (manufacturer == null) continue;
+
+          CategoryEnum category = CategoryEnum.values.firstWhere(
+            (e) => e.getName() == data['category'],
+            orElse: () => CategoryEnum.ram,
+          );
+
+          Map<String, dynamic> productProps = {
+            'productID': doc.id,
+            'productName': data['productName'],
+            'manufacturer': manufacturer,
+            'importPrice': (data['importPrice'] as num).toDouble(),
+            'sellingPrice': (data['sellingPrice'] as num).toDouble(),
+            'discount': (data['discount'] as num).toDouble(),
+            'release': (data['release'] as Timestamp).toDate(),
+            'sales': data['sales'] as int,
+            'stock': data['stock'] as int,
+            'status': ProductStatusEnum.values.firstWhere(
+              (e) => e.getName() == data['status'],
+              orElse: () => ProductStatusEnum.active,
+            ),
+          };
+
+          switch (category) {
+            case CategoryEnum.ram:
+              productProps.addAll({
+                'bus': RAMBus.values.firstWhere(
+                  (e) => e.getName() == data['bus'],
+                  orElse: () => RAMBus.mhz3200,
+                ),
+                'capacity': RAMCapacity.values.firstWhere(
+                  (e) => e.getName() == data['capacity'],
+                  orElse: () => RAMCapacity.gb8,
+                ),
+                'ramType': RAMType.values.firstWhere(
+                  (e) => e.getName() == data['ramType'],
+                  orElse: () => RAMType.ddr4,
+                ),
+              });
+              break;
+
+            case CategoryEnum.cpu:
+              productProps.addAll({
+                'family': CPUFamily.values.firstWhere(
+                  (e) => e.getName() == data['family'],
+                  orElse: () => CPUFamily.corei3Ultra3,
+                ),
+                'core': data['core'],
+                'thread': data['thread'],
+                'clockSpeed': (data['clockSpeed'] as num).toDouble(),
+              });
+              break;
+
+            case CategoryEnum.gpu:
+              productProps.addAll({
+                'series': GPUSeries.values.firstWhere(
+                  (e) => e.getName() == data['series'],
+                  orElse: () => GPUSeries.rtx,
+                ),
+                'capacity': GPUCapacity.values.firstWhere(
+                  (e) => e.getName() == data['capacity'],
+                  orElse: () => GPUCapacity.gb4,
+                ),
+                'busWidth': GPUBus.values.firstWhere(
+                  (e) => e.getName() == data['busWidth'],
+                  orElse: () => GPUBus.bit128,
+                ),
+                'clockSpeed': (data['clockSpeed'] as num).toDouble(),
+              });
+              break;
+
+            case CategoryEnum.mainboard:
+              productProps.addAll({
+                'formFactor': MainboardFormFactor.values.firstWhere(
+                  (e) => e.getName() == data['formFactor'],
+                  orElse: () => MainboardFormFactor.atx,
+                ),
+                'series': MainboardSeries.values.firstWhere(
+                  (e) => e.getName() == data['series'],
+                  orElse: () => MainboardSeries.h,
+                ),
+                'compatibility': MainboardCompatibility.values.firstWhere(
+                  (e) => e.getName() == data['compatibility'],
+                  orElse: () => MainboardCompatibility.intel,
+                ),
+              });
+              break;
+
+            case CategoryEnum.drive:
+              productProps.addAll({
+                'type': DriveType.values.firstWhere(
+                  (e) => e.getName() == data['type'],
+                  orElse: () => DriveType.sataSSD,
+                ),
+                'capacity': DriveCapacity.values.firstWhere(
+                  (e) => e.getName() == data['capacity'],
+                  orElse: () => DriveCapacity.gb256,
+                ),
+              });
+              break;
+
+            case CategoryEnum.psu:
+              productProps.addAll({
+                'wattage': data['wattage'] as int,
+                'efficiency': PSUEfficiency.values.firstWhere(
+                  (e) => e.getName() == data['efficiency'],
+                  orElse: () => PSUEfficiency.bronze,
+                ),
+                'modular': PSUModular.values.firstWhere(
+                  (e) => e.getName() == data['modular'],
+                  orElse: () => PSUModular.nonModular,
+                ),
+              });
+              break;
+          }
+
+          Product product = ProductFactory.createProduct(category, productProps);
+          products.add(product);
+        } catch (e) {
+          print('Error processing product ${doc.id}: $e');
+          continue;
+        }
+      }
+      return products;
+    });
   }
 }

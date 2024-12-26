@@ -84,6 +84,7 @@ class ProductDetailScreen extends StatelessWidget {
                         'Basic Information',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: Colors.blue[300],
                         ),
                       ),
                       SizedBox(height: 16),
@@ -112,13 +113,14 @@ class ProductDetailScreen extends StatelessWidget {
                         discount: product.discount,
                       ),
                       
-                      Divider(height: 32),
+                      SizedBox(height: 24),
                       
                       // Status Information Section
                       Text(
                         'Status Information',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: Colors.blue[300],
                         ),
                       ),
                       SizedBox(height: 16),
@@ -150,13 +152,14 @@ class ProductDetailScreen extends StatelessWidget {
                         value: DateFormat('dd/MM/yyyy').format(product.release),
                       ),
                       
-                      Divider(height: 32),
+                      SizedBox(height: 24),
                       
                       // Technical Specifications Section
                       Text(
                         'Technical Specifications',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: Colors.blue[300],
                         ),
                       ),
                       SizedBox(height: 16),

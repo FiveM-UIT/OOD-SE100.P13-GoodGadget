@@ -5,6 +5,8 @@ import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 
 import '../../../objects/product_related/product.dart';
+import '../../../widgets/general/app_text_style.dart';
+
 
 class ProductDetailScreen extends StatelessWidget {
   final Product product;

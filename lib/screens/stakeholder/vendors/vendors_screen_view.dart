@@ -218,6 +218,7 @@ class _VendorsScreenState extends State<VendorsScreen> {
                         onChanged: (value) {
                           cubit.searchManufacturers(value);
                         },
+                        prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
                       ),
                     ),
                     const SizedBox(width: 8),

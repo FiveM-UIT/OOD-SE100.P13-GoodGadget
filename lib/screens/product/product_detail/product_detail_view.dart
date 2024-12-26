@@ -17,8 +17,7 @@ class ProductDetailScreen extends StatelessWidget {
   final Product product;
   const ProductDetailScreen({super.key, required this.product});
 
-  static Widget newInstance(Product product) =>
-      BlocProvider(
+  static Widget newInstance(Product product) => BlocProvider(
         create: (context) => ProductDetailCubit(product),
         child: ProductDetailScreen(product: product),
       );
@@ -29,78 +28,266 @@ class ProductDetailScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         leading: GradientIconButton(
-          icon: Icons.arrow_back,
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          icon: Icons.chevron_left,
+          onPressed: () => Navigator.pop(context),
           fillColor: Colors.transparent,
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.share),
+            onPressed: () {
+              // Implement share functionality
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.favorite_border),
+            onPressed: () {
+              // Implement wishlist functionality
+            },
+          ),
+        ],
         title: BlocBuilder<ProductDetailCubit, ProductDetailState>(
-          builder: (context, state) {
-            return Text(state.product.productName);
-          },
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Image using Image.network  (Replace with actual image URL)
-              SizedBox(
-                height: 200,
-                child: Image.network('https://ramleather.vn/wp-content/uploads/2022/07/woocommerce-placeholder-200x200-1.jpg'), // Placeholder image
-              ),
-              SizedBox(height: 16),
-              Text('${product.productName}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              SizedBox(height: 16),
-              Text('Category: ${product.category.toString().split('.').last}', style: TextStyle(fontSize: 16)),
-              SizedBox(height: 10),
-              Text('Manufacturer: ${product.manufacturer.manufacturerName}'),
-              SizedBox(height: 10),
-              Text('Stock: ${product.stock}'),
-              SizedBox(height: 10),
-              Text('Release Date: ${product.release}'),
-              SizedBox(height: 16),
-              Text('Status: ${product.status.toString()}'),
-              SizedBox(height: 16),
-              ..._buildProductSpecificDetails(context, product),
-            ],
+          builder: (context, state) => Text(
+            state.product.productName,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
         ),
+      ),
+      body: BlocBuilder<ProductDetailCubit, ProductDetailState>(
+        builder: (context, state) {
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Product Image Section - smaller size
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.25,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                  ),
+                  child: Image.network(
+                    'https://ramleather.vn/wp-content/uploads/2022/07/woocommerce-placeholder-200x200-1.jpg',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                
+                // Product Info Section
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Basic Information Section
+                      Text(
+                        'Basic Information',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      
+                      _buildInfoRow(
+                        icon: Icons.inventory_2,
+                        title: 'Product',
+                        value: product.productName,
+                      ),
+                      
+                      _buildInfoRow(
+                        icon: Icons.category,
+                        title: 'Category',
+                        value: product.category.toString().split('.').last,
+                      ),
+                      
+                      _buildInfoRow(
+                        icon: Icons.business,
+                        title: 'Manufacturer',
+                        value: product.manufacturer.manufacturerName,
+                      ),
+                      
+                      Divider(height: 32),
+                      
+                      // Status Information Section
+                      Text(
+                        'Status Information',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      
+                      Row(
+                        children: [
+                          _buildStatusChip(product.status),
+                          SizedBox(width: 16),
+                          Icon(
+                            product.stock > 0 ? Icons.check_circle : Icons.error,
+                            color: product.stock > 0 ? Colors.green : Colors.red,
+                            size: 16,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            'Stock: ${product.stock}',
+                            style: TextStyle(
+                              color: product.stock > 0 ? Colors.green : Colors.red,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                      SizedBox(height: 8),
+                      _buildInfoRow(
+                        icon: Icons.calendar_today,
+                        title: 'Release Date',
+                        value: product.release.toString(),
+                      ),
+                      
+                      Divider(height: 32),
+                      
+                      // Technical Specifications Section
+                      Text(
+                        'Technical Specifications',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      
+                      ..._buildProductSpecificDetails(context, product),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildStatusChip(dynamic status) {
+    // Xác định màu sắc dựa trên status
+    Color chipColor;
+    Color textColor;
+    
+    switch(status.toString().toLowerCase()) {
+      case 'active':
+        chipColor = Colors.green.withOpacity(0.1);
+        textColor = Colors.green;
+        break;
+      case 'inactive':
+        chipColor = Colors.red.withOpacity(0.1);
+        textColor = Colors.red;
+        break;
+      case 'pending':
+        chipColor = Colors.orange.withOpacity(0.1);
+        textColor = Colors.orange;
+        break;
+      default:
+        chipColor = Colors.grey.withOpacity(0.1);
+        textColor = Colors.grey;
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: chipColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        status.toString(),
+        style: TextStyle(
+          color: textColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String title,
+    required String value,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Colors.grey[500]),
+          SizedBox(width: 8),
+          Text(
+            '$title: ',
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   List<Widget> _buildProductSpecificDetails(BuildContext context, Product product) {
     List<Widget> details = [];
+    
     if (product is CPU) {
-      details.add(Text('Family: ${product.family}'));
-      details.add(Text('Core: ${product.core}'));
-      details.add(Text('Thread: ${product.thread}'));
-      details.add(Text('Clock Speed: ${product.clockSpeed} GHz'));
+      details.addAll([
+        _buildSpecificationRow('Family', product.family.toString()),
+        _buildSpecificationRow('Core', product.core.toString()),
+        _buildSpecificationRow('Thread', product.thread.toString()),
+        _buildSpecificationRow('Clock Speed', '${product.clockSpeed} GHz'),
+      ]);
     } else if (product is GPU) {
-      details.add(Text('Series: ${product.series}'));
-      details.add(Text('Capacity: ${product.capacity}'));
-      details.add(Text('Bus: ${product.bus}'));
-      details.add(Text('Clock Speed: ${product.clockSpeed} GHz'));
-    } else if (product is RAM) {
-      details.add(Text('Bus: ${product.bus}'));
-      details.add(Text('Capacity: ${product.capacity}'));
-      details.add(Text('Type: ${product.ramType}'));
-    } else if (product is Drive) {
-      details.add(Text('Type: ${product.type}'));
-      details.add(Text('Capacity: ${product.capacity}'));
-    } else if (product is Mainboard) {
-      details.add(Text('Form Factor: ${product.formFactor}'));
-      details.add(Text('Series: ${product.series}'));
-      details.add(Text('Compatibility: ${product.compatibility}'));
-    } else if (product is PSU) {
-      details.add(Text('Wattage: ${product.wattage} W'));
-      details.add(Text('Efficiency: ${product.efficiency}'));
-      details.add(Text('Modular: ${product.modular}'));
+      details.addAll([
+        _buildSpecificationRow('Series', product.series.toString()),
+        _buildSpecificationRow('Capacity', product.capacity.toString()),
+        _buildSpecificationRow('Bus', product.bus.toString()),
+        _buildSpecificationRow('Clock Speed', '${product.clockSpeed} GHz'),
+      ]);
     }
+    // Add other product types similarly...
+    
     return details;
+  }
+
+  Widget _buildSpecificationRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontSize: 14,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

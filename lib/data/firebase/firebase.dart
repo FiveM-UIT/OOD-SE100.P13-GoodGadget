@@ -204,8 +204,6 @@ class Firebase {
     }
   }
 
-
-
   Stream<List<Customer>> customersStream() {
     return FirebaseFirestore.instance
         .collection('customers')

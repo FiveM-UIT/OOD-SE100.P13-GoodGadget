@@ -6,6 +6,7 @@ import 'package:gizmoglobe_client/enums/invoice_related/payment_status.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/sales_status.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
+import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
 import 'package:intl/intl.dart';
 import '../../../../objects/product_related/product.dart';
 import 'sales_add_cubit.dart';
@@ -158,7 +159,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
               onPressed: () => Navigator.pop(context),
               fillColor: Theme.of(context).colorScheme.surface,
             ),
-            title: const Text('New Invoice'),
+            title: GradientText(text: 'New Invoice'),
             actions: [
               TextButton(
                 onPressed: state.isLoading ? null : () => _saveInvoice(state),

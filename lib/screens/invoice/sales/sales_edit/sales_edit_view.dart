@@ -60,11 +60,34 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
         quantity: newQuantity,
       );
 
+      setState(() {
+        final index = widget.invoice.details.indexWhere(
+          (d) => d.salesInvoiceDetailID == detail.salesInvoiceDetailID
+        );
+        if (index != -1) {
+          widget.invoice.details[index] = updatedDetail;
+          widget.invoice.totalPrice = _calculateTotalPrice();
+        }
+      });
+
       await context.read<SalesEditCubit>().updateInvoiceDetail(updatedDetail);
     } catch (e) {
+      setState(() {
+        final index = widget.invoice.details.indexWhere(
+          (d) => d.salesInvoiceDetailID == detail.salesInvoiceDetailID
+        );
+        if (index != -1) {
+          widget.invoice.details[index] = detail;
+          widget.invoice.totalPrice = _calculateTotalPrice();
+        }
+      });
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating quantity: $e')),
+          SnackBar(
+            content: Text('Error updating quantity: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -158,11 +181,28 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
 
   void _removeProduct(SalesInvoiceDetail detail) async {
     try {
+      final index = widget.invoice.details.indexOf(detail);
+      
+      setState(() {
+        widget.invoice.details.removeWhere(
+          (d) => d.salesInvoiceDetailID == detail.salesInvoiceDetailID
+        );
+        widget.invoice.totalPrice = _calculateTotalPrice();
+      });
+
       await context.read<SalesEditCubit>().removeInvoiceDetail(detail);
     } catch (e) {
+      setState(() {
+        widget.invoice.details.add(detail);
+        widget.invoice.totalPrice = _calculateTotalPrice();
+      });
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error removing product: $e')),
+          SnackBar(
+            content: Text('Error removing product: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }

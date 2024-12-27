@@ -1515,4 +1515,34 @@ class Firebase {
       rethrow;
     }
   }
+
+  Future<void> updateProductStockAndSales(String productID, int stockChange, int salesChange) async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(productID)
+          .get();
+
+      if (!doc.exists) {
+        throw Exception('Product not found');
+      }
+
+      // Đảm bảo các giá trị không null
+      final currentStock = doc.data()?['stock'] as int? ?? 0;
+      final currentSales = doc.data()?['sales'] as int? ?? 0;
+      
+      // Cập nhật cả stock và sales
+      await doc.reference.update({
+        'stock': currentStock + stockChange,
+        'sales': currentSales + salesChange
+      });
+
+      // Cập nhật danh sách sản phẩm trong Database
+      List<Product> products = await getProducts();
+      Database().updateProductList(products);
+    } catch (e) {
+      print('Error updating product stock and sales: $e');
+      rethrow;
+    }
+  }
 }

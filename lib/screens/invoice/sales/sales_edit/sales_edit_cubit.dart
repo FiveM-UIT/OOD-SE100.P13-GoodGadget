@@ -51,15 +51,33 @@ class SalesEditCubit extends Cubit<SalesEditState> {
 
   Future<void> updateInvoiceDetail(SalesInvoiceDetail updatedDetail) async {
     try {
+      // Lấy chi tiết cũ để tính toán sự thay đổi
+      final oldDetail = state.invoice.details.firstWhere(
+        (d) => d.salesInvoiceDetailID == updatedDetail.salesInvoiceDetailID
+      );
+      
+      // Tính toán sự thay đổi số lượng
+      final quantityChange = updatedDetail.quantity - oldDetail.quantity;
+      
+      // Cập nhật chi tiết hóa đơn
       await _firebase.updateSalesInvoiceDetail(updatedDetail);
 
+      // Cập nhật stock và sales của sản phẩm
+      await _firebase.updateProductStockAndSales(
+        updatedDetail.productID,
+        -quantityChange, // Giảm stock
+        quantityChange,  // Tăng sales
+      );
+
+      // Cập nhật state với chi tiết mới
       final details = List<SalesInvoiceDetail>.from(state.invoice.details);
-      final index = details.indexWhere((d) => d.salesInvoiceDetailID == updatedDetail.salesInvoiceDetailID);
+      final index = details.indexWhere(
+        (d) => d.salesInvoiceDetailID == updatedDetail.salesInvoiceDetailID
+      );
       
       if (index != -1) {
         details[index] = updatedDetail;
         
-        // Tính tổng tiền mới từ danh sách chi tiết với xử lý null safety
         final newTotalPrice = details.fold<double>(
           0.0, 
           (sum, detail) => sum + (detail.subtotal),
@@ -80,12 +98,20 @@ class SalesEditCubit extends Cubit<SalesEditState> {
 
   Future<void> removeInvoiceDetail(SalesInvoiceDetail detail) async {
     try {
+      // Xóa chi tiết hóa đơn
       await _firebase.deleteSalesInvoiceDetail(detail.salesInvoiceDetailID!);
 
+      // Hoàn lại stock và giảm sales của sản phẩm
+      await _firebase.updateProductStockAndSales(
+        detail.productID,
+        detail.quantity,  // Tăng stock
+        -detail.quantity, // Giảm sales
+      );
+
+      // Cập nhật state
       final details = List<SalesInvoiceDetail>.from(state.invoice.details)
         ..removeWhere((d) => d.salesInvoiceDetailID == detail.salesInvoiceDetailID);
 
-      // Tính tổng tiền mới với xử lý null safety
       final newTotalPrice = details.fold<double>(
         0.0,
         (sum, detail) => sum + (detail.subtotal),

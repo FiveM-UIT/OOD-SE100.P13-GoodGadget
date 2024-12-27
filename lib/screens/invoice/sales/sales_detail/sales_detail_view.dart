@@ -53,6 +53,63 @@ class _SalesDetailScreenState extends State<SalesDetailScreen> {
     }
   }
 
+  Color _getStatusColor(dynamic status) {
+    final statusStr = status.toString().toLowerCase();
+    if (statusStr.contains('paid') || statusStr.contains('completed')) {
+      return Colors.green;
+    } else if (statusStr.contains('pending')) {
+      return Colors.orange;
+    } else if (statusStr.contains('cancelled') || statusStr.contains('failed')) {
+      return Colors.red;
+    }
+    return Colors.grey;
+  }
+
+  Widget _buildTotalPriceRow(String label, String value) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          ShaderMask(
+            shaderCallback: (bounds) => LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.secondary,
+              ],
+            ).createShader(bounds),
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -69,7 +126,7 @@ class _SalesDetailScreenState extends State<SalesDetailScreen> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                fillColor: Theme.of(context).colorScheme.surface,
+                fillColor: Colors.transparent,
               ),
             ),
             body: Column(
@@ -118,10 +175,27 @@ class _SalesDetailScreenState extends State<SalesDetailScreen> {
                           const SizedBox(height: 24),
                           _buildInfoRow('Customer', state.invoice.customerName ?? 'Unknown Customer'),
                           _buildInfoRow('Date', DateFormat('dd/MM/yyyy').format(state.invoice.date)),
-                          _buildInfoRow('Address', state.invoice.address.replaceAll('\n', ' ')),
-                          _buildInfoRow('Payment Status', state.invoice.paymentStatus.toString()),
-                          _buildInfoRow('Sales Status', state.invoice.salesStatus.toString()),
-                          _buildInfoRow('Total Price', '\$${state.invoice.totalPrice.toStringAsFixed(2)}'),
+                          _buildInfoRow(
+                            'Address', 
+                            state.invoice.address, 
+                            wrap: true,
+                            maxWidth: MediaQuery.of(context).size.width * 0.6,
+                          ),
+                          _buildInfoRow(
+                            'Payment Status', 
+                            state.invoice.paymentStatus.toString(),
+                            valueColor: _getStatusColor(state.invoice.paymentStatus),
+                          ),
+                          _buildInfoRow(
+                            'Sales Status', 
+                            state.invoice.salesStatus.toString(),
+                            valueColor: _getStatusColor(state.invoice.salesStatus),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildTotalPriceRow(
+                            'Total Price',
+                            '\$${state.invoice.totalPrice.toStringAsFixed(2)}',
+                          ),
                           
                           const SizedBox(height: 32),
                           const Text(
@@ -291,27 +365,33 @@ class _SalesDetailScreenState extends State<SalesDetailScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {Color? valueColor}) {
+  Widget _buildInfoRow(String label, String value, {Color? valueColor, bool wrap = false, double? maxWidth}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
+        crossAxisAlignment: wrap ? CrossAxisAlignment.start : CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.grey,
+            style: TextStyle(
+              color: Colors.grey[400],
+              fontSize: 15,
               fontWeight: FontWeight.w500,
             ),
           ),
-          Expanded(
+          const SizedBox(width: 12),
+          SizedBox(
+            width: maxWidth,
             child: Text(
               value,
               style: TextStyle(
                 color: valueColor ?? Colors.white,
-                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
               ),
-              textAlign: TextAlign.right,
+              textAlign: wrap ? TextAlign.left : TextAlign.right,
+              softWrap: wrap,
             ),
           ),
         ],

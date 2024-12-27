@@ -32,7 +32,7 @@ class _HomeScreen extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeScreenCubit, HomeScreenState>(
       builder: (context, state) {
-        final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
+        final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$');
         
         return Scaffold(
           appBar: AppBar(

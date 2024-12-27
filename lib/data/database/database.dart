@@ -41,10 +41,10 @@ class Database {
   RoleEnum? role;
 
   List<Manufacturer> manufacturerList = [];
+  List<Address> addressList = [];
   List<Customer> customerList = [];
   List<Employee> employeeList = [];
   List<Province> provinceList = [];
-  List<Address> addressList = [];
   List<SalesInvoice> salesInvoiceList = [];
   List<Product> productList = [];
 
@@ -57,62 +57,73 @@ class Database {
   Future<void> initialize() async {
     provinceList = await fetchProvinces();
 
-    addressList = [
-      Address(
-        customerID: '4e2PT6vyB9tszKqEcx6I',
-        receiverName: 'DuyVu',
-        receiverPhone: '123456789',
-        isDefault: true,
-        province: provinceList[0],
-        district: provinceList[0].districts![0],
-        ward: provinceList[0].districts![0].wards![0],
-        street: '123 Nguyen Trai',
-      ),
-
-      Address(
-        customerID: 'DyyMyOTtZ7J2SQzsr6IZ',
-        receiverName: 'Terry',
-        receiverPhone: '123456780',
-        isDefault: false,
-        province: provinceList[0],
-        district: provinceList[0].districts![2],
-        ward: provinceList[0].districts![2].wards![5],
-        street: '456 Le Loi',
-      ),
-
-      Address(
-        customerID: 'dKV74hSAXozpmhPgXerv',
-        receiverName: 'QuanDo',
-        receiverPhone: '123456780',
-        isDefault: false,
-        province: provinceList[0],
-        district: provinceList[0].districts![2],
-        ward: provinceList[0].districts![2].wards![2],
-        street: '789 Tran Hung Dao',
-      ),
-
-      Address(
-        customerID: 'noxiFkqUTN4bum27HPCq',
-        receiverName: 'NhatTan',
-        receiverPhone: '123456789',
-        isDefault: true,
-        province: provinceList[1],
-        district: provinceList[1].districts![0],
-        ward: provinceList[1].districts![0].wards![0],
-        street: '123 Nguyen Trai',
-      ),
-
-      Address(
-        customerID: 'tqyMZqXphgCTdKudaWyV',
-        receiverName: 'NguyenKhoa',
-        receiverPhone: '123456790',
-        isDefault: false,
-        province: provinceList[1],
-        district: provinceList[1].districts![1],
-        ward: provinceList[1].districts![1].wards![1],
-        street: '456 Le Loi',
-      ),
-    ];
+    // addressList = [
+    //   Address(
+    //     customerID: '4e2PT6vyB9tszKqEcx6I',
+    //     receiverName: 'DuyVu',
+    //     receiverPhone: '123456789',
+    //     isDefault: true,
+    //     province: provinceList[0],
+    //     district: provinceList[0].districts![0],
+    //     ward: provinceList[0].districts![0].wards![0],
+    //     street: '123 Nguyen Trai',
+    //   ),
+    //
+    //   Address(
+    //     customerID: 'DyyMyOTtZ7J2SQzsr6IZ',
+    //     receiverName: 'Terry',
+    //     receiverPhone: '123456780',
+    //     isDefault: false,
+    //     province: provinceList[0],
+    //     district: provinceList[0].districts![2],
+    //     ward: provinceList[0].districts![2].wards![5],
+    //     street: '456 Le Loi',
+    //   ),
+    //
+    //   Address(
+    //     customerID: 'DyyMyOTtZ7J2SQzsr6IZ',
+    //     receiverName: 'Terry',
+    //     receiverPhone: '123456780',
+    //     isDefault: true,
+    //     province: provinceList[0],
+    //     district: provinceList[0].districts![2],
+    //     ward: provinceList[0].districts![2].wards![5],
+    //     street: '456 Le Loi',
+    //   ),
+    //
+    //   Address(
+    //     customerID: 'dKV74hSAXozpmhPgXerv',
+    //     receiverName: 'QuanDo',
+    //     receiverPhone: '123456780',
+    //     isDefault: true,
+    //     province: provinceList[0],
+    //     district: provinceList[0].districts![2],
+    //     ward: provinceList[0].districts![2].wards![2],
+    //     street: '789 Tran Hung Dao',
+    //   ),
+    //
+    //   Address(
+    //     customerID: 'noxiFkqUTN4bum27HPCq',
+    //     receiverName: 'NhatTan',
+    //     receiverPhone: '123456789',
+    //     isDefault: true,
+    //     province: provinceList[1],
+    //     district: provinceList[1].districts![0],
+    //     ward: provinceList[1].districts![0].wards![0],
+    //     street: '123 Nguyen Trai',
+    //   ),
+    //
+    //   Address(
+    //     customerID: 'tqyMZqXphgCTdKudaWyV',
+    //     receiverName: 'NguyenKhoa',
+    //     receiverPhone: '123456790',
+    //     isDefault: true,
+    //     province: provinceList[1],
+    //     district: provinceList[1].districts![1],
+    //     ward: provinceList[1].districts![1].wards![1],
+    //     street: '456 Le Loi',
+    //   ),
+    // ];
 
     try {
       await fetchDataFromFirestore();
@@ -201,8 +212,10 @@ class Database {
           return Future.error('Error processing product ${doc.id}: $e');
         }
       }));
-
       print('Số lượng products trong list: ${productList.length}');
+
+      await fetchAddress();
+      customerList = await Firebase().getCustomers();
 
     } catch (e) {
       print('Error fetching data: $e');
@@ -1225,6 +1238,19 @@ class Database {
       return provinceList;
     } catch (e) {
       throw Exception('Error loading provinces from file: $e');
+    }
+  }
+
+  Future<void> fetchAddress() async {
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final addressSnapshot = await FirebaseFirestore.instance
+          .collection('addresses')
+          .get();
+
+      addressList = addressSnapshot.docs.map((doc) {
+        return Address.fromMap(doc.data());
+      }).toList();
     }
   }
 

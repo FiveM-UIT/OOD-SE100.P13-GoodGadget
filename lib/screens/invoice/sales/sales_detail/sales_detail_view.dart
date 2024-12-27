@@ -304,11 +304,14 @@ class _SalesDetailScreenState extends State<SalesDetailScreen> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              color: valueColor ?? Colors.white,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                color: valueColor ?? Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.right,
             ),
           ),
         ],

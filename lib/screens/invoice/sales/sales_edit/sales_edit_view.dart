@@ -4,6 +4,7 @@ import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/payment_status.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/sales_status.dart';
+import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
 import 'package:intl/intl.dart';
 import '../../../../enums/product_related/category_enum.dart';
 import '../../../../objects/invoice_related/sales_invoice_detail.dart';
@@ -181,29 +182,34 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              fillColor: Theme.of(context).colorScheme.surface,
+              fillColor: Colors.transparent,
             ),
-            title: const Text('Edit Invoice'),
+            title: GradientText(text: 'Edit Invoice'),
             actions: [
-              TextButton(
-                onPressed: state.isLoading
-                    ? null
-                    : () async {
-                        final cubit = context.read<SalesEditCubit>();
-                        final updatedInvoice = await cubit.saveChanges();
-                        if (updatedInvoice != null && mounted) {
-                          Navigator.pop(context, updatedInvoice);
-                        }
-                      },
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
                 child: state.isLoading
                     ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
+                        width: 36,
+                        height: 36,
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                          ),
                         ),
                       )
-                    : const Text('Save'),
+                    : GradientIconButton(
+                        icon: Icons.check,
+                        onPressed: () async {
+                          final cubit = context.read<SalesEditCubit>();
+                          final updatedInvoice = await cubit.saveChanges();
+                          if (updatedInvoice != null && mounted) {
+                            Navigator.pop(context, updatedInvoice);
+                          }
+                        },
+                        fillColor: Colors.transparent,
+                      ),
               ),
             ],
           ),
@@ -213,54 +219,138 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Invoice Information
-                  _buildInfoRow('Invoice ID', '#${state.invoice.salesInvoiceID}'),
-                  _buildInfoRow('Customer', state.invoice.customerName ?? 'Unknown Customer'),
-                  _buildInfoRow('Date', DateFormat('dd/MM/yyyy').format(state.invoice.date)),
-                  
-                  // Address Row with Edit Button
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Theme.of(context).dividerColor.withOpacity(0.1),
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Address',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                state.invoice.address,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primaryContainer,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                '#${state.invoice.salesInvoiceID}',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.bold,
                                 ),
-                                textAlign: TextAlign.right,
                               ),
-                              TextButton(
-                                onPressed: _showAddressBottomSheet,
-                                child: Text(
-                                  'Change Address',
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.surfaceVariant,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: Theme.of(context).dividerColor.withOpacity(0.1),
                                 ),
                               ),
-                            ],
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today_outlined,
+                                    size: 16,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    DateFormat('dd/MM/yyyy').format(state.invoice.date),
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.person_outline,
+                              size: 20,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Customer',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          state.invoice.customerName ?? 'Unknown Customer',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.location_on_outlined,
+                              size: 20,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Delivery Address',
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    state.invoice.address,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  TextButton.icon(
+                                    onPressed: _showAddressBottomSheet,
+                                    icon: const Icon(Icons.edit, size: 16),
+                                    label: const Text('Change Address'),
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: const Size(0, 32),
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 24),
                   const Text(
                     'Payment Status',
@@ -317,55 +407,86 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                     itemBuilder: (context, index) {
                       final detail = state.invoice.details[index];
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
+                        margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Theme.of(context).dividerColor.withOpacity(0.1),
+                          ),
                         ),
-                        child: Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Product Image/Icon
-                                  Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.primaryContainer,
-                                      borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Product Icon
+                              Container(
+                                width: 56,
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.7),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  _getCategoryIcon(detail.category),
+                                  size: 28,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              // Product Details
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      detail.productName ?? 'Product #${detail.productID}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16,
+                                      ),
                                     ),
-                                    child: Icon(
-                                      _getCategoryIcon(detail.category),
-                                      size: 30,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  // Product Details
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                    const SizedBox(height: 8),
+                                    Row(
                                       children: [
-                                        Text(
-                                          detail.productName ?? 'Product #${detail.productID}',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).colorScheme.primaryContainer,
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            '\$${detail.sellingPrice.toStringAsFixed(2)}',
+                                            style: TextStyle(
+                                              color: Theme.of(context).colorScheme.primary,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
+                                        const SizedBox(width: 8),
                                         Text(
-                                          'Unit Price: \$${detail.sellingPrice.toStringAsFixed(2)}',
+                                          '×',
                                           style: TextStyle(
-                                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                                            fontSize: 14,
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
+                                        const SizedBox(width: 8),
                                         Text(
-                                          'Subtotal: \$${detail.subtotal.toStringAsFixed(2)}',
+                                          '${detail.quantity}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        Text(
+                                          '\$${detail.subtotal.toStringAsFixed(2)}',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
@@ -373,38 +494,40 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                                         ),
                                       ],
                                     ),
+                                  ],
+                                ),
+                              ),
+                              // Controls
+                              const SizedBox(width: 12),
+                              Column(
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.add_circle_outline,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                    onPressed: () => _updateQuantity(detail, detail.quantity + 1),
                                   ),
-                                  // Quantity Controls and Delete Button
-                                  Column(
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.add_circle_outline),
-                                        onPressed: () => _updateQuantity(detail, detail.quantity + 1),
-                                      ),
-                                      Text(
-                                        '${detail.quantity}',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.remove_circle_outline),
-                                        onPressed: detail.quantity > 1 
-                                          ? () => _updateQuantity(detail, detail.quantity - 1)
-                                          : null,
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete_outline),
-                                        color: Colors.red,
-                                        onPressed: () => _removeProduct(detail),
-                                      ),
-                                    ],
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.remove_circle_outline,
+                                      color: detail.quantity > 1 
+                                          ? Theme.of(context).colorScheme.primary
+                                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                                    ),
+                                    onPressed: detail.quantity > 1 
+                                      ? () => _updateQuantity(detail, detail.quantity - 1)
+                                      : null,
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline),
+                                    color: Colors.red,
+                                    onPressed: () => _removeProduct(detail),
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -412,20 +535,44 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                   const SizedBox(height: 16),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      'Total: \$${state.invoice.totalPrice.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                       ),
-                      textAlign: TextAlign.center,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Total Amount',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '\$${state.invoice.totalPrice.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

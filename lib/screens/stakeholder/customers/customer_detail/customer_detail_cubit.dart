@@ -1,6 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gizmoglobe_client/data/database/database.dart';
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
 import 'package:gizmoglobe_client/objects/customer.dart';
+import '../../../../objects/address_related/address.dart';
+import '../../../../objects/address_related/district.dart';
+import '../../../../objects/address_related/province.dart';
+import '../../../../objects/address_related/ward.dart';
 import 'customer_detail_state.dart';
 
 class CustomerDetailCubit extends Cubit<CustomerDetailState> {
@@ -30,6 +35,46 @@ class CustomerDetailCubit extends Cubit<CustomerDetailState> {
     try {
       await _firebase.deleteCustomer(state.customer.customerID!);
       emit(state.copyWith(isLoading: false));
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      ));
+    }
+  }
+
+  void updateNewAddress({
+    String? receiverName,
+    String? receiverPhone,
+    Province? province,
+    District? district,
+    Ward? ward,
+    String? street,
+    bool? isDefault,
+  }) {
+    emit(state.copyWith(
+      newAddress: Address(
+        customerID: state.customer.customerID!,
+        receiverName: receiverName ?? state.newAddress?.receiverName ?? '',
+        receiverPhone: receiverPhone ?? state.newAddress?.receiverPhone ?? '',
+        province: province ?? state.newAddress?.province,
+        district: district ?? state.newAddress?.district,
+        ward: ward ?? state.newAddress?.ward,
+        street: street ?? state.newAddress?.street,
+        isDefault: isDefault ?? state.newAddress?.isDefault ?? false,
+      ),
+    ));
+  }
+
+  Future<void> addAddress() async {
+    emit(state.copyWith(isLoading: true));
+    try {
+      await _firebase.createAddress(state.newAddress!);
+
+      emit(state.copyWith(
+        isLoading: false,
+        newAddress: null,
+      ));
     } catch (e) {
       emit(state.copyWith(
         isLoading: false,

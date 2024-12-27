@@ -12,7 +12,6 @@ class Address {
   District? district;
   Ward? ward;
   String? street;
-  bool isDefault;
 
   Address({
     this.addressID,
@@ -23,7 +22,6 @@ class Address {
     this.district,
     this.ward,
     this.street,
-    required this.isDefault,
   });
 
   @override
@@ -39,7 +37,6 @@ class Address {
     customerID: '',
     receiverName: '',
     receiverPhone: '',
-    isDefault: false,
   );
 
   Map<String, dynamic> toMap() {
@@ -52,7 +49,6 @@ class Address {
       'DistrictCode': district?.code,
       'WardCode': ward?.code,
       'Street': street,
-      'IsDefault': isDefault,
     };
   }
 
@@ -70,7 +66,6 @@ class Address {
       district: district,
       ward: ward,
       street: map['street'],
-      isDefault: map['isDefault'],
     );
   }
 }

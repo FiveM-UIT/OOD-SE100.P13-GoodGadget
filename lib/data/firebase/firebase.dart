@@ -145,7 +145,6 @@ Future<void> pushAddressSamplesToFirebase() async {
         'districtCode': address.district?.code,
         'wardCode': address.ward?.code,
         'street': address.street ?? '',
-        'isDefault': address.isDefault,
       });
 
       // Cập nhật lại document với addressID
@@ -451,7 +450,6 @@ class Firebase {
         'districtCode': address.district?.code,
         'wardCode': address.ward?.code,
         'street': address.street ?? '',
-        'isDefault': address.isDefault,
       });
 
       await Database().fetchAddress();

@@ -41,14 +41,12 @@ class Customer {
   }
 
   static Customer fromMap(String id, Map<String, dynamic> map) {
-    final addressList = Database().addressList.where((a) => a.customerID == id).toList()..sort((a, b) => b.isDefault ? 1 : -1);
-
     Customer customer = Customer(
       customerID: id,
       customerName: map['customerName'] ?? '',
       email: map['email'] ?? '',
       phoneNumber: map['phoneNumber'] ?? '',
-      addresses: addressList,
+      addresses: Database().addressList.where((a) => a.customerID == id).toList(),
     );
 
     print(customer.addresses.toString());

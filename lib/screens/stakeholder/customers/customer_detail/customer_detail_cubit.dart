@@ -61,7 +61,6 @@ class CustomerDetailCubit extends Cubit<CustomerDetailState> {
         district: district ?? state.newAddress?.district,
         ward: ward ?? state.newAddress?.ward,
         street: street ?? state.newAddress?.street,
-        isDefault: isDefault ?? state.newAddress?.isDefault ?? false,
       ),
     ));
   }

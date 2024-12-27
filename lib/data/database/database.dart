@@ -30,6 +30,7 @@ import '../../objects/address_related/province.dart';
 import '../../objects/invoice_related/sales_invoice.dart';
 import '../../objects/invoice_related/sales_invoice_detail.dart';
 import '../../objects/product_related/product_factory.dart';
+import '../firebase/firebase.dart';
 
 class Database {
   static final Database _database = Database._internal();

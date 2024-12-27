@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/customer.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
+import '../../../../widgets/general/address_picker.dart';
+import '../../../../widgets/general/field_with_icon.dart';
+import '../../../../widgets/general/gradient_checkbox.dart';
 import 'customer_detail_cubit.dart';
 import 'customer_detail_state.dart';
 import '../customer_edit/customer_edit_view.dart';
 
 class CustomerDetailScreen extends StatefulWidget {
   final Customer customer;
+
+  static Widget newInstance({required customer}) =>
+      BlocProvider(
+        create: (context) => CustomerDetailCubit(customer),
+        child: CustomerDetailScreen(customer: customer),
+      );
 
   const CustomerDetailScreen({
     super.key,
@@ -19,6 +29,173 @@ class CustomerDetailScreen extends StatefulWidget {
 }
 
 class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
+  CustomerDetailCubit get cubit => context.read<CustomerDetailCubit>();
+  final TextEditingController receiverNameController = TextEditingController();
+  final TextEditingController receiverPhoneController = TextEditingController();
+  final TextEditingController streetController = TextEditingController();
+  bool isDefault = false;
+
+  void _showAddAddressDialog(BuildContext context) {
+    receiverNameController.clear();
+    receiverPhoneController.clear();
+    streetController.clear();
+    isDefault = false;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FieldWithIcon(
+                    controller: receiverNameController,
+                    hintText: 'Receiver Name',
+                    onChanged: (value) {
+                      cubit.updateNewAddress(
+                        receiverName: value,
+                      );
+                    },
+                    fillColor: Theme.of(context).colorScheme.surface,
+                  ),
+                  const SizedBox(height: 8),
+            
+                  FieldWithIcon(
+                    controller: receiverPhoneController,
+                    hintText: 'Receiver Phone',
+                    onChanged: (value) {
+                      cubit.updateNewAddress(
+                        receiverPhone: value,
+                      );
+                    },
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    keyboardType: TextInputType.phone,
+                    fillColor: Theme.of(context).colorScheme.surface,
+                  ),
+                  const SizedBox(height: 8),
+            
+                  AddressPicker(
+                    onAddressChanged: (province, district, ward) {
+                      cubit.updateNewAddress(
+                        province: province,
+                        district: district,
+                        ward: ward,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+            
+                  FieldWithIcon(
+                    controller: streetController,
+                    hintText: 'Street name, building, house no.',
+                    onChanged: (value) {
+                      cubit.updateNewAddress(
+                        street: value,
+                      );
+                    },
+                    fillColor: Theme.of(context).colorScheme.surface,
+                  ),
+                  const SizedBox(height: 16),
+            
+                  Row(
+                    children: [
+                      GradientCheckbox(
+                        value: isDefault,
+                        onChanged: (value) {
+                          isDefault = value ?? false;
+                          cubit.updateNewAddress(
+                            isDefault: isDefault,
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 12),
+                      const Text('Set as default address'),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: Colors.grey.shade400,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (receiverNameController.text.isEmpty ||
+                              receiverPhoneController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please fill in required fields'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+                          await cubit.addAddress();
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Add address',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    receiverNameController.dispose();
+    receiverPhoneController.dispose();
+    streetController.dispose();
+    isDefault = false;
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -84,6 +261,82 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                           const SizedBox(height: 24),
                           _buildInfoRow('Email', state.customer.email),
                           _buildInfoRow('Phone', state.customer.phoneNumber),
+                          const SizedBox(height: 32),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Expanded(
+                                child: Text(
+                                  'Addresses',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.add),
+                                color: Colors.blue,
+                                onPressed: () {
+                                  _showAddAddressDialog(context);
+                                },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          ...state.customer.addresses!.map((address) {
+                            return GestureDetector(
+                              onTap: () {
+                                // Address press logic here
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.3),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      address.toString(),
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    if (address.isDefault)
+                                      Container(
+                                        margin: const EdgeInsets.only(top: 8),
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: const Text(
+                                          'Default address',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),
@@ -117,7 +370,6 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
 
                             if (updatedCustomer != null) {
                               // Update the customer in Firebase
-                              final cubit = context.read<CustomerDetailCubit>();
                               cubit.updateCustomer(updatedCustomer);
                             }
                           },
@@ -139,7 +391,6 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            final cubit = context.read<CustomerDetailCubit>();
                             showDialog(
                               context: context,
                               builder: (dialogContext) => AlertDialog(
@@ -218,4 +469,5 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
       ),
     );
   }
-} 
+}
+

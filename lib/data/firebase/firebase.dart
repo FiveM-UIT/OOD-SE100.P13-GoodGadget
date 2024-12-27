@@ -24,6 +24,7 @@ import 'package:gizmoglobe_client/objects/product_related/ram.dart';
 import '../../enums/product_related/category_enum.dart';
 import '../../enums/product_related/product_status_enum.dart';
 import '../../enums/stakeholders/employee_role.dart';
+import '../../objects/address_related/address.dart';
 import '../../objects/customer.dart';
 import '../../objects/employee.dart';
 import '../../objects/invoice_related/sales_invoice_detail.dart';
@@ -304,7 +305,7 @@ class Firebase {
         throw Exception('Customer ID cannot be null');
       }
 
-      // Cập nhật thông tin khách hàng
+      // Update customer information
       await FirebaseFirestore.instance
           .collection('customers')
           .doc(customer.customerID)
@@ -313,7 +314,7 @@ class Firebase {
         'phoneNumber': customer.phoneNumber,
       });
 
-      // Cập nhật thông tin user tương ứng
+      // Update corresponding user information
       QuerySnapshot userSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .where('userID', isEqualTo: customer.customerID)
@@ -327,8 +328,23 @@ class Firebase {
           'username': customer.customerName,
         });
       }
+
+      // Fetch and update matched addresses
+      QuerySnapshot addressSnapshot = await FirebaseFirestore.instance
+          .collection('addresses')
+          .where('customerID', isEqualTo: customer.customerID)
+          .get();
+
+      for (var doc in addressSnapshot.docs) {
+        await FirebaseFirestore.instance
+            .collection('addresses')
+            .doc(doc.id)
+            .update({
+          'receiverName': customer.customerName,
+        });
+      }
     } catch (e) {
-      print('Lỗi khi cập nhật khách hàng: $e');
+      print('Error updating customer: $e');
       rethrow;
     }
   }
@@ -407,6 +423,41 @@ class Firebase {
       );
     } catch (e) {
       print('Lỗi khi tìm khách hàng theo email: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> createAddress(Address address) async {
+    try {
+      // Add address to collection addresses
+      DocumentReference addressRef = await FirebaseFirestore.instance
+          .collection('addresses')
+          .add(address.toMap());
+
+      String addressId = addressRef.id;
+      address.addressID = addressId;
+
+      // Update addressID in the document address
+      await addressRef.update({'addressID': addressId});
+      await FirebaseFirestore.instance
+          .collection('addresses')
+          .doc(addressId)
+          .set({
+        'addressID': addressId,
+        'customerID': address.customerID,
+        'receiverName': address.receiverName,
+        'receiverPhone': address.receiverPhone,
+        'provinceCode': address.province?.code,
+        'districtCode': address.district?.code,
+        'wardCode': address.ward?.code,
+        'street': address.street ?? '',
+        'isDefault': address.isDefault,
+      });
+
+      await Database().fetchAddress();
+      Database().customerList = await getCustomers();
+    } catch (e) {
+      print('Error creating new address: $e');
       rethrow;
     }
   }
@@ -1461,6 +1512,36 @@ class Firebase {
       Database().updateProductList(products);
     } catch (e) {
       print('Error adding product: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateProductStockAndSales(String productID, int stockChange, int salesChange) async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(productID)
+          .get();
+
+      if (!doc.exists) {
+        throw Exception('Product not found');
+      }
+
+      // Đảm bảo các giá trị không null
+      final currentStock = doc.data()?['stock'] as int? ?? 0;
+      final currentSales = doc.data()?['sales'] as int? ?? 0;
+      
+      // Cập nhật cả stock và sales
+      await doc.reference.update({
+        'stock': currentStock + stockChange,
+        'sales': currentSales + salesChange
+      });
+
+      // Cập nhật danh sách sản phẩm trong Database
+      List<Product> products = await getProducts();
+      Database().updateProductList(products);
+    } catch (e) {
+      print('Error updating product stock and sales: $e');
       rethrow;
     }
   }

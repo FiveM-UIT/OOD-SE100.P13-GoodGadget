@@ -28,7 +28,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
   
   CustomersScreenCubit get cubit => context.read<CustomersScreenCubit>();
 
-  void _showAddCustomerModal() {
+  void _showAddCustomerModal(BuildContext context) {
     // Reset controllers
     nameController.clear();
     emailController.clear();
@@ -303,7 +303,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     GradientIconButton(
                       icon: Icons.person_add,
                       iconSize: 32,
-                      onPressed: _showAddCustomerModal,
+                      onPressed: () {
+                        _showAddCustomerModal(context);
+                      },
                     )
                   ],
                 ),
@@ -332,9 +334,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => CustomerDetailScreen(
-                                    customer: customer,
-                                  ),
+                                  builder: (context) => CustomerDetailScreen.newInstance(customer: customer),
                                 ),
                               );
                             },
@@ -370,9 +370,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) => CustomerDetailScreen(
-                                                    customer: customer,
-                                                  ),
+                                                  builder: (context) => CustomerDetailScreen.newInstance(customer: customer),
                                                 ),
                                               );
                                             },

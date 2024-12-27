@@ -258,7 +258,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                                 ),
                               ),
                             ),
-                            items: RoleEnum.values.map((role) {
+                            items: RoleEnum.values.where((role) => role != RoleEnum.owner).map((role) {
                               return DropdownMenuItem(
                                 value: role,
                                 child: Text(

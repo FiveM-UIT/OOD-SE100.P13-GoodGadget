@@ -17,11 +17,9 @@ class CustomerEditScreen extends StatefulWidget {
 class _CustomerEditScreenState extends State<CustomerEditScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameFocusNode = FocusNode();
-  final _emailFocusNode = FocusNode();
   final _phoneFocusNode = FocusNode();
 
   late String customerName;
-  late String email;
   late String phoneNumber;
   bool _isFormDirty = false;
 
@@ -29,20 +27,14 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
   void initState() {
     super.initState();
     customerName = widget.customer.customerName;
-    email = widget.customer.email;
     phoneNumber = widget.customer.phoneNumber;
   }
 
   @override
   void dispose() {
     _nameFocusNode.dispose();
-    _emailFocusNode.dispose();
     _phoneFocusNode.dispose();
     super.dispose();
-  }
-
-  bool isValidEmail(String email) {
-    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 
   bool isValidPhone(String phone) {
@@ -137,44 +129,7 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
                                 return null;
                               },
                             ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 40),
-                            child: TextFormField(
-                              focusNode: _emailFocusNode,
-                              initialValue: email,
-                              decoration: InputDecoration(
-                                labelText: 'Email Address',
-                                labelStyle: const TextStyle(color: Colors.white),
-                                floatingLabelStyle: MaterialStateTextStyle.resolveWith(
-                                  (states) => TextStyle(
-                                    color: states.contains(MaterialState.focused) 
-                                      ? Theme.of(context).primaryColor 
-                                      : Colors.white,
-                                  ),
-                                ),
-                                prefixIcon: const Icon(Icons.email, color: Colors.white,),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              keyboardType: TextInputType.emailAddress,
-                              textInputAction: TextInputAction.next,
-                              onChanged: (value) => setState(() {
-                                email = value;
-                                _isFormDirty = true;
-                              }),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Email is required';
-                                }
-                                if (!isValidEmail(value)) {
-                                  return 'Please enter a valid email';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
+                          ),                          
                           TextFormField(
                             focusNode: _phoneFocusNode,
                             initialValue: phoneNumber,
@@ -224,7 +179,6 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
                         if (_formKey.currentState!.validate()) {
                           final updatedCustomer = widget.customer.copyWith(
                             customerName: customerName.trim(),
-                            email: email.trim(),
                             phoneNumber: phoneNumber.trim(),
                           );
                           Navigator.pop(context, updatedCustomer);

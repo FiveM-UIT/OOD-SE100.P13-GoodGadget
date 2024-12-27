@@ -32,7 +32,6 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
     searchController = TextEditingController();
     searchFocusNode = FocusNode();
     tabController = TabController(length: CategoryEnum.values.length + 1, vsync: this);
-    cubit.initialize();
   }
 
   @override

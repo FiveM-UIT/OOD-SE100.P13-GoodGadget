@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/enums/product_related/category_enum.dart';
+import 'package:gizmoglobe_client/enums/product_related/product_status_enum.dart';
 import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
 import 'package:gizmoglobe_client/data/database/database.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_state.dart';
 
+import '../../../../data/firebase/firebase.dart';
+import '../../../../enums/processing/process_state_enum.dart';
 import '../../../../enums/processing/sort_enum.dart';
 import '../../../../objects/product_related/cpu.dart';
 import '../../../../objects/product_related/drive.dart';
@@ -21,7 +24,13 @@ abstract class TabCubit extends Cubit<TabState> {
 
   void initialize(FilterArgument filter) {
     emit(state.copyWith(
-        filterArgument: filter.copyWith(manufacturerList: getManufacturerList()),
+      productList: Database().productList,
+    ));
+    emit(state.copyWith(
+      manufacturerList: getManufacturerList(),
+      filterArgument: filter.copyWith(
+        manufacturerList: getManufacturerList(),
+      ),
     ));
     applyFilters();
   }
@@ -32,6 +41,10 @@ abstract class TabCubit extends Cubit<TabState> {
     emit(state.copyWith(
       filterArgument: filter,
     ));
+  }
+
+  void toLoading() {
+    emit(state.copyWith(processState: ProcessState.loading));
   }
 
   void updateSearchText(String? searchText) {
@@ -55,12 +68,12 @@ abstract class TabCubit extends Cubit<TabState> {
 
   void applyFilters() {
     print('Apply filter');
-    final filteredProducts = Database().productList.where((product) {
+    final filteredProducts = state.productList.where((product) {
       if (!product.productName.toLowerCase().contains(state.searchText.toLowerCase())) {
         return false;
       }
 
-      if (!state.filterArgument.manufacturerList.contains(product.manufacturer)) {
+      if (!state.filterArgument.manufacturerList.any((manufacturer) => manufacturer.manufacturerID == product.manufacturer.manufacturerID)) {
         return false;
       }
 
@@ -72,6 +85,9 @@ abstract class TabCubit extends Cubit<TabState> {
       final bool matchesCategory;
       final index = getIndex();
       switch (index) {
+        case 0:
+          matchesCategory = state.filterArgument.categoryList.contains(product.category);
+          break;
         case 1:
           matchesCategory = product.category == CategoryEnum.ram;
           break;
@@ -91,7 +107,7 @@ abstract class TabCubit extends Cubit<TabState> {
           matchesCategory = product.category == CategoryEnum.mainboard;
           break;
         default:
-          matchesCategory = state.filterArgument.categoryList.contains(product.category);
+          matchesCategory = false;
       }
 
       if (!matchesCategory) {
@@ -122,6 +138,29 @@ abstract class TabCubit extends Cubit<TabState> {
     }
 
     emit(state.copyWith(productList: filteredProducts));
+  }
+
+  Future<void> changeStatus(Product product) async {
+    try {
+      ProductStatusEnum status;
+      if (product.status == ProductStatusEnum.discontinued) {
+        if (product.stock == 0) {
+          status = ProductStatusEnum.outOfStock;
+        } else {
+          status = ProductStatusEnum.active;
+        }
+      } else {
+        status = ProductStatusEnum.discontinued;
+      }
+      
+      await Firebase().changeProductStatus(product.productID!, status);
+
+      emit(state.copyWith(productList: Database().productList, processState: ProcessState.success));
+      applyFilters();
+    } catch (e) {
+      print(e);
+      emit(state.copyWith(processState: ProcessState.failure));
+    }
   }
 
   int getIndex();
@@ -202,7 +241,7 @@ class RamTabCubit extends TabCubit {
 
   @override
   List<Manufacturer> getManufacturerList() {
-    return Database().productList
+    return state.productList
         .where((product) => product.category == CategoryEnum.ram)
         .map((product) => product.manufacturer)
         .toSet()
@@ -218,7 +257,7 @@ class CpuTabCubit extends TabCubit {
 
   @override
   List<Manufacturer> getManufacturerList() {
-    return Database().productList
+    return state.productList
         .where((product) => product.category == CategoryEnum.cpu)
         .map((product) => product.manufacturer)
         .toSet()
@@ -234,7 +273,7 @@ class PsuTabCubit extends TabCubit {
 
   @override
   List<Manufacturer> getManufacturerList() {
-    return Database().productList
+    return state.productList
         .where((product) => product.category == CategoryEnum.psu)
         .map((product) => product.manufacturer)
         .toSet()
@@ -250,7 +289,7 @@ class GpuTabCubit extends TabCubit {
 
   @override
   List<Manufacturer> getManufacturerList() {
-    return Database().productList
+    return state.productList
         .where((product) => product.category == CategoryEnum.gpu)
         .map((product) => product.manufacturer)
         .toSet()
@@ -266,7 +305,7 @@ class DriveTabCubit extends TabCubit {
 
   @override
   List<Manufacturer> getManufacturerList() {
-    return Database().productList
+    return state.productList
         .where((product) => product.category == CategoryEnum.drive)
         .map((product) => product.manufacturer)
         .toSet()
@@ -282,7 +321,7 @@ class MainboardTabCubit extends TabCubit {
 
   @override
   List<Manufacturer> getManufacturerList() {
-    return Database().productList
+    return state.productList
         .where((product) => product.category == CategoryEnum.mainboard)
         .map((product) => product.manufacturer)
         .toSet()

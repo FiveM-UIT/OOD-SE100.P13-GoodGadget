@@ -36,15 +36,15 @@ class InformationScreen extends StatelessWidget {
             const SizedBox(height: 24),
             _buildInfoSection(
               title: 'About Us',
-              content: 'GizmoGlobe is your trusted partner in computer hardware solutions...',
+              content: 'GoodGadget is your trusted partner in computer hardware shop solutions.',
             ),
             _buildInfoSection(
               title: 'Our Mission',
-              content: 'To provide high-quality computer components with exceptional service...',
+              content: 'To provide excellent service and quality products to your customers.',
             ),
             _buildInfoSection(
               title: 'Contact Information',
-              content: 'Address: 123 Tech Street\nEmail: info@gizmoglobe.com\nPhone: +1 234 567 890',
+              content: 'Address: UIT',
             ),
             _buildInfoSection(
               title: 'Business Hours',

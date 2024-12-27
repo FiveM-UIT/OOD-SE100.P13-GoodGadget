@@ -34,6 +34,10 @@ class _UserScreen extends State<UserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showUpdateSamplesModal(context),
+        child: const Icon(Icons.cloud_upload),
+      ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
@@ -270,6 +274,137 @@ class _UserScreen extends State<UserScreen> {
                   ),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showUpdateSamplesModal(BuildContext context) {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Update Sample Data",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.people, color: Colors.blue),
+              ),
+              title: const Text("Update Customer Samples"),
+              subtitle: const Text("Push sample customer data to Firestore"),
+              onTap: () async {
+                Navigator.pop(context);
+                try {
+                  await Firebase().pushCustomerSampleData();
+                  scaffoldMessenger.showSnackBar(
+                    const SnackBar(content: Text("Customer samples updated successfully")),
+                  );
+                } catch (e) {
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(content: Text("Error: ${e.toString()}")),
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.inventory, color: Colors.green),
+              ),
+              title: const Text("Update Product Samples"),
+              subtitle: const Text("Push sample product data to Firestore"),
+              onTap: () async {
+                Navigator.pop(context);
+                try {
+                  await pushProductSamplesToFirebase();
+                  scaffoldMessenger.showSnackBar(
+                    const SnackBar(content: Text("Product samples updated successfully")),
+                  );
+                } catch (e) {
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(content: Text("Error: ${e.toString()}")),
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.location_on, color: Colors.orange),
+              ),
+              title: const Text("Update Address Samples"),
+              subtitle: const Text("Push sample address data to Firestore"),
+              onTap: () async {
+                Navigator.pop(context);
+                try {
+                  await pushAddressSamplesToFirebase();
+                  scaffoldMessenger.showSnackBar(
+                    const SnackBar(content: Text("Address samples updated successfully")),
+                  );
+                } catch (e) {
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(content: Text("Error: ${e.toString()}")),
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.purple.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.receipt_long, color: Colors.purple),
+              ),
+              title: const Text("Update Sales Invoice Samples"),
+              subtitle: const Text("Push sample sales invoice data to Firestore"),
+              onTap: () async {
+                Navigator.pop(context);
+                try {
+                  await pushSalesInvoiceSampleData();
+                  scaffoldMessenger.showSnackBar(
+                    const SnackBar(content: Text("Sales invoice samples updated successfully")),
+                  );
+                } catch (e) {
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(content: Text("Error: ${e.toString()}")),
+                  );
+                }
+              },
             ),
           ],
         ),

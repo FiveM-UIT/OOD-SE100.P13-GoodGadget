@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/payment_status.dart';
 import '../../../data/database/database.dart';
+import '../../../data/firebase/firebase.dart';
 import 'home_screen_state.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreenCubit extends Cubit<HomeScreenState> {
   final Database db = Database();
@@ -15,25 +17,31 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
       // Đợi database khởi tạo xong
       await db.initialize();
       
-      // Sau đó mới tính toán các giá trị
-      final totalProducts = db.productList.length;
-      final totalCustomers = db.customerList.length;
+      // Lấy danh sách sales invoices từ Firestore
+      final salesInvoices = await Firebase().getSalesInvoices();
       
-      // Tính tổng doanh thu
+      // Tính tổng doanh thu từ các hóa đơn đã thanh toán
       double totalRevenue = 0.0;
-      for (var invoice in db.salesInvoiceList) {
+      int totalPaidOrders = 0;
+      for (var invoice in salesInvoices) {
         if (invoice.paymentStatus == PaymentStatus.paid) {
           totalRevenue += invoice.totalPrice;
+          totalPaidOrders++;
         }
       }
 
-      // Tính sales theo category
-      final salesByCategory = <String, int>{};
-      for (var invoice in db.salesInvoiceList) {
+      // Thay đổi Map để lưu doanh thu theo category
+      final salesByCategory = <String, double>{};
+      
+      for (var invoice in salesInvoices) {
         if (invoice.paymentStatus == PaymentStatus.paid) {
-          for (var detail in invoice.details) {
+          // Lấy chi tiết của từng hóa đơn
+          final invoiceWithDetails = await Firebase().getSalesInvoiceWithDetails(invoice.salesInvoiceID!);
+          for (var detail in invoiceWithDetails.details) {
             final category = detail.category ?? 'Unknown';
-            salesByCategory[category] = (salesByCategory[category] ?? 0) + detail.quantity;
+            // Tính doanh thu = số lượng * giá bán
+            final revenue = detail.quantity * detail.sellingPrice;
+            salesByCategory[category] = (salesByCategory[category] ?? 0) + revenue;
           }
         }
       }
@@ -45,7 +53,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
         final month = DateTime(now.year, now.month - i, 1);
         double salesInMonth = 0.0;
         
-        for (var invoice in db.salesInvoiceList) {
+        for (var invoice in salesInvoices) {
           if (invoice.paymentStatus == PaymentStatus.paid &&
               invoice.date.year == month.year && 
               invoice.date.month == month.month) {
@@ -59,9 +67,10 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
       // Emit new state with loaded data
       emit(state.copyWith(
         username: db.username ?? 'User',
-        totalProducts: totalProducts,
-        totalCustomers: totalCustomers,
+        totalProducts: db.productList.length,
+        totalCustomers: db.customerList.length,
         totalRevenue: totalRevenue,
+        totalOrders: totalPaidOrders,
         salesByCategory: salesByCategory,
         monthlySales: monthlySales,
       ));

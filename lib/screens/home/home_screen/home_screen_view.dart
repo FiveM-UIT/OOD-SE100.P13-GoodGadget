@@ -115,7 +115,7 @@ class _HomeScreen extends State<HomeScreen> {
                             icon: Icons.trending_up_rounded,
                             title: 'Avg. Order',
                             value: currencyFormat.format(
-                              state.totalRevenue / (state.totalCustomers > 0 ? state.totalCustomers : 1)
+                              state.totalOrders > 0 ? state.totalRevenue / state.totalOrders : 0
                             ),
                             color: Colors.purple,
                           ),
@@ -179,14 +179,12 @@ class _HomeScreen extends State<HomeScreen> {
                 // Category Distribution
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Row(
+                  child: Column(
                     children: [
-                      Expanded(
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        height: 300,
                         child: _buildCategoryDistribution(state.salesByCategory),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildTopProducts(state),
                       ),
                     ],
                   ),
@@ -324,39 +322,26 @@ class _HomeScreen extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCategoryDistribution(Map<String, int> salesByCategory) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Category Distribution',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+  Widget _buildCategoryDistribution(Map<String, double> salesByCategory) {
+    return SizedBox(
+      height: 300,
+      child: Column(
+        children: [
+          Expanded(
+            child: PieChart(
+              PieChartData(
+                sectionsSpace: 2,
+                centerSpaceRadius: 40,
+                sections: _generatePieChartSections(salesByCategory),
               ),
             ),
-            const SizedBox(height: 16),
-            AspectRatio(
-              aspectRatio: 1,
-              child: PieChart(
-                PieChartData(
-                  sectionsSpace: 2,
-                  centerSpaceRadius: 40,
-                  sections: _generatePieChartSections(salesByCategory),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Column(
+          ),
+          Container(
+            margin: const EdgeInsets.only(top: 32),
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
               children: salesByCategory.entries.map((entry) {
                 final index = salesByCategory.keys.toList().indexOf(entry.key);
                 final colors = [
@@ -368,43 +353,41 @@ class _HomeScreen extends State<HomeScreen> {
                   Colors.teal,
                 ];
                 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: colors[index % colors.length],
-                          shape: BoxShape.circle,
-                        ),
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: colors[index % colors.length],
+                        shape: BoxShape.circle,
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          entry.key,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      entry.key,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      NumberFormat.currency(locale: 'en_US', symbol: '\$')
+                          .format(entry.value),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                      Text(
-                        '${entry.value} units',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
               }).toList(),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  List<PieChartSectionData> _generatePieChartSections(Map<String, int> data) {
+  List<PieChartSectionData> _generatePieChartSections(Map<String, double> data) {
     final colors = [
       Colors.blue,
       Colors.green,
@@ -414,7 +397,7 @@ class _HomeScreen extends State<HomeScreen> {
       Colors.teal,
     ];
 
-    final total = data.values.fold(0, (sum, value) => sum + value);
+    final total = data.values.fold(0.0, (sum, value) => sum + value);
     
     return data.entries.map((entry) {
       final index = data.keys.toList().indexOf(entry.key);
@@ -422,7 +405,7 @@ class _HomeScreen extends State<HomeScreen> {
       
       return PieChartSectionData(
         color: colors[index % colors.length],
-        value: entry.value.toDouble(),
+        value: entry.value,
         title: '${percentage.toStringAsFixed(1)}%',
         radius: 100,
         titleStyle: const TextStyle(

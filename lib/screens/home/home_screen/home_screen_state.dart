@@ -7,7 +7,8 @@ class HomeScreenState extends Equatable {
   final int totalProducts;
   final int totalCustomers;
   final double totalRevenue;
-  final Map<String, int> salesByCategory;
+  final int totalOrders;
+  final Map<String, double> salesByCategory;
   final List<SalesData> monthlySales;
 
   const HomeScreenState({
@@ -15,6 +16,7 @@ class HomeScreenState extends Equatable {
     this.totalProducts = 0,
     this.totalCustomers = 0,
     this.totalRevenue = 0.0,
+    this.totalOrders = 0,
     this.salesByCategory = const {},
     this.monthlySales = const [],
   });
@@ -25,6 +27,7 @@ class HomeScreenState extends Equatable {
     totalProducts, 
     totalCustomers, 
     totalRevenue,
+    totalOrders,
     salesByCategory,
     monthlySales,
   ];
@@ -34,7 +37,8 @@ class HomeScreenState extends Equatable {
     int? totalProducts,
     int? totalCustomers,
     double? totalRevenue,
-    Map<String, int>? salesByCategory,
+    int? totalOrders,
+    Map<String, double>? salesByCategory,
     List<SalesData>? monthlySales,
   }) {
     return HomeScreenState(
@@ -42,6 +46,7 @@ class HomeScreenState extends Equatable {
       totalProducts: totalProducts ?? this.totalProducts,
       totalCustomers: totalCustomers ?? this.totalCustomers,
       totalRevenue: totalRevenue ?? this.totalRevenue,
+      totalOrders: totalOrders ?? this.totalOrders,
       salesByCategory: salesByCategory ?? this.salesByCategory,
       monthlySales: monthlySales ?? this.monthlySales,
     );

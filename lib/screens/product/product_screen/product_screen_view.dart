@@ -1,12 +1,14 @@
+// product_screen_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_cubit.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_state.dart';
-import 'package:gizmoglobe_client/screens/product/product_screen/product_tab/product_tab_view.dart';
+import 'product_tab/product_tab_view.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
 import '../../../enums/product_related/category_enum.dart';
+import 'package:gizmoglobe_client/widgets/dialog/add_edit_product_dialog.dart'; // Import the new dialog
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
@@ -80,7 +82,13 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
             actions: [
               ElevatedButton.icon(
                 onPressed: () {
-                  // Add your onPressed code here!
+                  // Show the Add/Edit dialog with null product for adding
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AddEditProductDialog();
+                    },
+                  );
                 },
                 icon: const Icon(Icons.add, color: Colors.white),
                 label: const Text('Add', style: TextStyle(color: Colors.white)),

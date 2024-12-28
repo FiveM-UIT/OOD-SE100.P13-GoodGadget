@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gizmoglobe_client/enums/product_related/cpu_enums/cpu_family.dart';
 import 'package:gizmoglobe_client/enums/product_related/drive_enums/drive_capacity.dart';
 import 'package:gizmoglobe_client/enums/product_related/drive_enums/drive_type.dart';
@@ -27,6 +28,8 @@ import '../../enums/stakeholders/employee_role.dart';
 import '../../objects/address_related/address.dart';
 import '../../objects/customer.dart';
 import '../../objects/employee.dart';
+import '../../objects/invoice_related/incoming_invoice.dart';
+import '../../objects/invoice_related/incoming_invoice_detail.dart';
 import '../../objects/invoice_related/sales_invoice_detail.dart';
 import '../../objects/manufacturer.dart';
 import '../../objects/product_related/product.dart';
@@ -236,6 +239,72 @@ Future<void> pushSalesInvoiceSampleData() async {
     print('Successfully pushed sales invoice samples to Firestore');
   } catch (e) {
     print('Error in pushSalesInvoiceSampleData: $e');
+    rethrow;
+  }
+}
+
+Future<void> pushWarrantyInvoiceSampleData() async {
+  try {
+    final db = FirebaseFirestore.instance;
+    final batch = db.batch();
+    final Database database = Database();
+
+    database.generateSampleData();
+
+    // Tạo collections
+    final warrantyInvoicesCollection = db.collection('warranty_invoices');
+    final warrantyInvoiceDetailsCollection = db.collection('warranty_invoice_details');
+
+    // Xóa dữ liệu cũ
+    final existingInvoices = await warrantyInvoicesCollection.get();
+    for (var doc in existingInvoices.docs) {
+      batch.delete(doc.reference);
+    }
+
+    final existingDetails = await warrantyInvoiceDetailsCollection.get();
+    for (var doc in existingDetails.docs) {
+      batch.delete(doc.reference);
+    }
+
+    // Upload dữ liệu mới
+    for (var invoice in database.warrantyInvoiceList) {
+      // Tạo ID mới cho hóa đơn
+      final String invoiceID = warrantyInvoicesCollection.doc().id;
+
+      // Chuẩn bị dữ liệu hóa đơn
+      final Map<String, dynamic> invoiceData = {
+        'warrantyInvoiceID': invoiceID,
+        'customerID': invoice.customerID,
+        'date': Timestamp.fromDate(invoice.date ?? DateTime.now()),
+        'status': invoice.status.getName(),
+        'reason': invoice.reason,
+      };
+
+      // Set dữ liệu hóa đơn
+      batch.set(warrantyInvoicesCollection.doc(invoiceID), invoiceData);
+
+      // Upload chi tiết hóa đơn
+      for (var detail in invoice.details) {
+        final String detailID = warrantyInvoiceDetailsCollection.doc().id;
+
+        // Chuẩn bị dữ liệu chi tiết
+        final Map<String, dynamic> detailData = {
+          'warrantyInvoiceDetailID': detailID,
+          'warrantyInvoiceID': invoiceID,
+          'productID': detail.productID,
+          'quantity': detail.quantity,
+        };
+
+        // Set dữ liệu chi tiết
+        batch.set(warrantyInvoiceDetailsCollection.doc(detailID), detailData);
+      }
+    }
+
+    // Thực thi batch
+    await batch.commit();
+    print('Successfully pushed warranty invoice samples to Firestore');
+  } catch (e) {
+    print('Error in pushWarrantyInvoiceSampleData: $e');
     rethrow;
   }
 }
@@ -1545,4 +1614,208 @@ class Firebase {
       rethrow;
     }
   }
+
+  Future<void> updateUserProfile(String userID, String newUsername) async {
+    try {
+      // Cập nhật thông tin trong collection users
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userID)
+          .update({
+        'username': newUsername,
+      });
+
+      // Kiểm tra và cập nhật thông tin trong collection customers nếu là khách hàng
+      QuerySnapshot customerSnapshot = await FirebaseFirestore.instance
+          .collection('customers')
+          .where('customerID', isEqualTo: userID)
+          .get();
+
+      if (customerSnapshot.docs.isNotEmpty) {
+        await FirebaseFirestore.instance
+            .collection('customers')
+            .doc(customerSnapshot.docs.first.id)
+            .update({
+          'customerName': newUsername,
+        });
+      }
+
+      // Kiểm tra và cập nhật thông tin trong collection employees nếu là nhân viên
+      QuerySnapshot employeeSnapshot = await FirebaseFirestore.instance
+          .collection('employees')
+          .where('employeeID', isEqualTo: userID)
+          .get();
+
+      if (employeeSnapshot.docs.isNotEmpty) {
+        await FirebaseFirestore.instance
+            .collection('employees')
+            .doc(employeeSnapshot.docs.first.id)
+            .update({
+          'employeeName': newUsername,
+        });
+      }
+    } catch (e) {
+      print('Error updating user profile: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateUserPassword(String newPassword) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await user.updatePassword(newPassword);
+      } else {
+        throw Exception('No user is currently signed in');
+      }
+    } catch (e) {
+      print('Error updating password: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<IncomingInvoice>> getIncomingInvoices() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('incoming_invoices')
+          .get();
+
+      return snapshot.docs.map((doc) {
+        return IncomingInvoice.fromMap(doc.id, doc.data());
+      }).toList();
+    } catch (e) {
+      print('Error getting incoming invoices: $e');
+      rethrow;
+    }
+  }
+
+  Stream<List<IncomingInvoice>> incomingInvoicesStream() {
+    return FirebaseFirestore.instance
+        .collection('incoming_invoices')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return IncomingInvoice.fromMap(doc.id, doc.data());
+      }).toList();
+    });
+  }
+
+  Future<String> createIncomingInvoice(IncomingInvoice invoice) async {
+    try {
+      final docRef = await FirebaseFirestore.instance
+          .collection('incoming_invoices')
+          .add(invoice.toMap());
+      return docRef.id;
+    } catch (e) {
+      print('Error creating incoming invoice: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateIncomingInvoice(IncomingInvoice invoice) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('incoming_invoices')
+          .doc(invoice.incomingInvoiceID)
+          .update(invoice.toMap());
+    } catch (e) {
+      print('Error updating incoming invoice: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> createIncomingInvoiceDetail(IncomingInvoiceDetail detail) async {
+    try {
+      final docRef = await FirebaseFirestore.instance
+          .collection('incoming_invoice_details')
+          .add(detail.toMap());
+      detail.incomingInvoiceDetailID = docRef.id;
+    } catch (e) {
+      print('Error creating incoming invoice detail: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateIncomingInvoiceDetail(IncomingInvoiceDetail detail) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('incoming_invoice_details')
+          .doc(detail.incomingInvoiceDetailID)
+          .update(detail.toMap());
+    } catch (e) {
+      print('Error updating incoming invoice detail: $e');
+      rethrow;
+    }
+  }
+
+  Future<IncomingInvoice> getIncomingInvoiceWithDetails(String invoiceId) async {
+    try {
+      // Lấy thông tin hóa đơn
+      final invoiceDoc = await FirebaseFirestore.instance
+          .collection('incoming_invoices')
+          .doc(invoiceId)
+          .get();
+
+      if (!invoiceDoc.exists) {
+        throw Exception('Invoice not found');
+      }
+
+      final invoice = IncomingInvoice.fromMap(invoiceDoc.id, invoiceDoc.data()!);
+
+      // Lấy chi tiết hóa đơn
+      final detailsSnapshot = await FirebaseFirestore.instance
+          .collection('incoming_invoice_details')
+          .where('incomingInvoiceID', isEqualTo: invoiceId)
+          .get();
+
+      // Lấy danh sách productIDs từ details
+      final productIds = detailsSnapshot.docs
+          .map((doc) => doc.data()['productID'] as String)
+          .toList();
+
+      // Lấy thông tin sản phẩm
+      final productsSnapshot = await FirebaseFirestore.instance
+          .collection('products')
+          .where(FieldPath.documentId, whereIn: productIds)
+          .get();
+
+      // Tạo map productId -> productName
+      final productMap = {
+        for (var doc in productsSnapshot.docs)
+          doc.id: doc.data()['productName'] as String
+      };
+
+      // Chuyển đổi thành danh sách details với productName
+      final details = detailsSnapshot.docs.map((doc) {
+        final detail = IncomingInvoiceDetail.fromMap(doc.id, doc.data());
+        final productName = productMap[detail.productID] ?? 'Unknown Product';
+
+        // Cập nhật giá nhập mới cho sản phẩm
+        updateProductImportPrice(detail.productID, detail.importPrice);
+
+        return detail.copyWith(productName: productName);
+      }).toList();
+
+      invoice.details = details;
+      return invoice;
+    } catch (e) {
+      print('Error getting incoming invoice with details: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateProductImportPrice(String productId, double newImportPrice) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('products')
+          .doc(productId)
+          .update({
+        'importPrice': newImportPrice,
+      });
+    } catch (e) {
+      print('Error updating product import price: $e');
+      rethrow;
+    }
+  }
+
 }

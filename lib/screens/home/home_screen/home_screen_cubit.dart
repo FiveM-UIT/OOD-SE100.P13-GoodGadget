@@ -38,7 +38,7 @@ class HomeScreenCubit extends Cubit<HomeScreenState> {
           // Lấy chi tiết của từng hóa đơn
           final invoiceWithDetails = await Firebase().getSalesInvoiceWithDetails(invoice.salesInvoiceID!);
           for (var detail in invoiceWithDetails.details) {
-            final category = detail.category ?? 'Unknown';
+            final category = detail.category.toString();
             // Tính doanh thu = số lượng * giá bán
             final revenue = detail.quantity * detail.sellingPrice;
             salesByCategory[category] = (salesByCategory[category] ?? 0) + revenue;

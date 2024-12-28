@@ -28,6 +28,24 @@ class IncomingInvoice {
     };
   }
 
+  copyWith({
+      String? incomingInvoiceID,
+      String? manufacturerID,
+      DateTime? date,
+      PaymentStatus? status,
+      double? totalPrice,
+      List<IncomingInvoiceDetail>? details,
+    }) {
+      return IncomingInvoice(
+        incomingInvoiceID: incomingInvoiceID ?? this.incomingInvoiceID,
+        manufacturerID: manufacturerID ?? this.manufacturerID,
+        date: date ?? this.date,
+        status: status ?? this.status,
+        totalPrice: totalPrice ?? this.totalPrice,
+        details: details ?? this.details,
+      );
+    }
+
   static IncomingInvoice fromMap(String id, Map<String, dynamic> map) {
     return IncomingInvoice(
       incomingInvoiceID: id,

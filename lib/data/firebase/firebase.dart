@@ -36,6 +36,7 @@ import '../../objects/product_related/product.dart';
 import '../../objects/product_related/product_factory.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice.dart';
 
+
 Future<void> pushProductSamplesToFirebase() async {
   try {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -133,6 +134,7 @@ Future<void> pushProductSamplesToFirebase() async {
     print('Error pushing product samples to Firebase: $e');
   }
 }
+
 
 Future<void> pushAddressSamplesToFirebase() async {
   try {
@@ -327,7 +329,7 @@ class Firebase {
         DocumentReference docRef = await firestore.collection('customers').add(
           customer.toMap(),
         );
-        
+
         customer.customerID = docRef.id;
         // Cập nhật lại document với ID
         await docRef.update({
@@ -454,10 +456,10 @@ class Firebase {
       DocumentReference customerRef = await FirebaseFirestore.instance
           .collection('customers')
           .add(customer.toMap());
-      
+
       String customerId = customerRef.id;
       customer.customerID = customerId;
-      
+
       // Cập nhật customerID trong document customer
       await customerRef.update({'customerID': customerId});
 
@@ -589,7 +591,7 @@ class Firebase {
           .collection('employees')
           .doc(employee.employeeID)
           .update(updateData);
-      
+
       QuerySnapshot userSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .where('email', isEqualTo: oldEmail)
@@ -847,7 +849,7 @@ class Firebase {
       List<Product> products = [];
       for (var doc in snapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        
+
         // Lấy manufacturer từ manufacturerID
         String manufacturerId = data['manufacturerID'];
         Manufacturer? manufacturer = await getManufacturerById(manufacturerId);
@@ -855,7 +857,7 @@ class Firebase {
 
         // Chuyển đổi category string thành enum
         CategoryEnum category = CategoryEnum.values.firstWhere(
-          (e) => e.getName() == data['category'],
+              (e) => e.getName() == data['category'],
           orElse: () => CategoryEnum.ram,
         );
 
@@ -871,7 +873,7 @@ class Firebase {
           'sales': data['sales'] as int,
           'stock': data['stock'] as int,
           'status': ProductStatusEnum.values.firstWhere(
-            (e) => e.getName() == data['status'],
+                (e) => e.getName() == data['status'],
             orElse: () => ProductStatusEnum.active,
           ),
         };
@@ -881,15 +883,15 @@ class Firebase {
           case CategoryEnum.ram:
             productProps.addAll({
               'bus': RAMBus.values.firstWhere(
-                (e) => e.getName() == data['bus'],
+                    (e) => e.getName() == data['bus'],
                 orElse: () => RAMBus.mhz3200,
               ),
               'capacity': RAMCapacity.values.firstWhere(
-                (e) => e.getName() == data['capacity'],
+                    (e) => e.getName() == data['capacity'],
                 orElse: () => RAMCapacity.gb8,
               ),
               'ramType': RAMType.values.firstWhere(
-                (e) => e.getName() == data['ramType'],
+                    (e) => e.getName() == data['ramType'],
                 orElse: () => RAMType.ddr4,
               ),
             });
@@ -897,7 +899,7 @@ class Firebase {
           case CategoryEnum.cpu:
             productProps.addAll({
               'family': CPUFamily.values.firstWhere(
-                (e) => e.getName() == data['family'],
+                    (e) => e.getName() == data['family'],
                 orElse: () => CPUFamily.corei3Ultra3,
               ),
               'core': data['core'] as int,
@@ -908,15 +910,15 @@ class Firebase {
           case CategoryEnum.gpu:
             productProps.addAll({
               'series': GPUSeries.values.firstWhere(
-                (e) => e.getName() == data['series'],
+                    (e) => e.getName() == data['series'],
                 orElse: () => GPUSeries.rtx,
               ),
               'capacity': GPUCapacity.values.firstWhere(
-                (e) => e.getName() == data['capacity'],
+                    (e) => e.getName() == data['capacity'],
                 orElse: () => GPUCapacity.gb8,
               ),
               'busWidth': GPUBus.values.firstWhere(
-                (e) => e.getName() == data['busWidth'],
+                    (e) => e.getName() == data['busWidth'],
                 orElse: () => GPUBus.bit128,
               ),
               'clockSpeed': (data['clockSpeed'] as num).toDouble(),
@@ -925,15 +927,15 @@ class Firebase {
           case CategoryEnum.mainboard:
             productProps.addAll({
               'formFactor': MainboardFormFactor.values.firstWhere(
-                (e) => e.getName() == data['formFactor'],
+                    (e) => e.getName() == data['formFactor'],
                 orElse: () => MainboardFormFactor.atx,
               ),
               'series': MainboardSeries.values.firstWhere(
-                (e) => e.getName() == data['series'],
+                    (e) => e.getName() == data['series'],
                 orElse: () => MainboardSeries.h,
               ),
               'compatibility': MainboardCompatibility.values.firstWhere(
-                (e) => e.getName() == data['compatibility'],
+                    (e) => e.getName() == data['compatibility'],
                 orElse: () => MainboardCompatibility.intel,
               ),
             });
@@ -941,11 +943,11 @@ class Firebase {
           case CategoryEnum.drive:
             productProps.addAll({
               'type': DriveType.values.firstWhere(
-                (e) => e.getName() == data['type'],
+                    (e) => e.getName() == data['type'],
                 orElse: () => DriveType.sataSSD,
               ),
               'capacity': DriveCapacity.values.firstWhere(
-                (e) => e.getName() == data['capacity'],
+                    (e) => e.getName() == data['capacity'],
                 orElse: () => DriveCapacity.gb256,
               ),
             });
@@ -954,11 +956,11 @@ class Firebase {
             productProps.addAll({
               'wattage': data['wattage'] as int,
               'efficiency': PSUEfficiency.values.firstWhere(
-                (e) => e.getName() == data['efficiency'],
+                    (e) => e.getName() == data['efficiency'],
                 orElse: () => PSUEfficiency.gold,
               ),
               'modular': PSUModular.values.firstWhere(
-                (e) => e.getName() == data['modular'],
+                    (e) => e.getName() == data['modular'],
                 orElse: () => PSUModular.fullModular,
               ),
             });
@@ -986,13 +988,13 @@ class Firebase {
       for (var doc in snapshot.docs) {
         try {
           Map<String, dynamic> data = doc.data();
-          
+
           String manufacturerId = data['manufacturerID'];
           Manufacturer? manufacturer = await getManufacturerById(manufacturerId);
           if (manufacturer == null) continue;
 
           CategoryEnum category = CategoryEnum.values.firstWhere(
-            (e) => e.getName() == data['category'],
+                (e) => e.getName() == data['category'],
             orElse: () => CategoryEnum.ram,
           );
 
@@ -1007,53 +1009,53 @@ class Firebase {
             'sales': data['sales'] as int,
             'stock': data['stock'] as int,
             'status': ProductStatusEnum.values.firstWhere(
-              (e) => e.getName() == data['status'],
+                  (e) => e.getName() == data['status'],
               orElse: () => ProductStatusEnum.active,
             ),
           };
 
           switch (category) {
-            case CategoryEnum.ram:
-              productProps.addAll({
-                'bus': RAMBus.values.firstWhere(
-                  (e) => e.getName() == data['bus'],
-                  orElse: () => RAMBus.mhz3200,
-                ),
-                'capacity': RAMCapacity.values.firstWhere(
-                  (e) => e.getName() == data['capacity'],
-                  orElse: () => RAMCapacity.gb8,
-                ),
-                'ramType': RAMType.values.firstWhere(
-                  (e) => e.getName() == data['ramType'],
-                  orElse: () => RAMType.ddr4,
-                ),
-              });
-              break;
+          case CategoryEnum.ram:
+          productProps.addAll({
+          'bus': RAMBus.values.firstWhere(
+          (e) => e.getName() == data['bus'],
+          orElse: () => RAMBus.mhz3200,
+          ),
+          'capacity': RAMCapacity.values.firstWhere(
+          (e) => e.getName() == data['capacity'],
+          orElse: () => RAMCapacity.gb8,
+          ),
+          'ramType': RAMType.values.firstWhere(
+          (e) => e.getName() == data['ramType'],
+          orElse: () => RAMType.ddr4,
+          ),
+          });
+          break;
 
-            case CategoryEnum.cpu:
-              productProps.addAll({
-                'family': CPUFamily.values.firstWhere(
-                  (e) => e.getName() == data['family'],
-                  orElse: () => CPUFamily.corei3Ultra3,
-                ),
-                'core': data['core'],
-                'thread': data['thread'],
-                'clockSpeed': (data['clockSpeed'] as num).toDouble(),
-              });
-              break;
+          case CategoryEnum.cpu:
+          productProps.addAll({
+          'family': CPUFamily.values.firstWhere(
+          (e) => e.getName() == data['family'],
+          orElse: () => CPUFamily.corei3Ultra3,
+          ),
+            'core': data['core'],
+            'thread': data['thread'],
+            'clockSpeed': (data['clockSpeed'] as num).toDouble(),
+          });
+          break;
 
             case CategoryEnum.gpu:
               productProps.addAll({
                 'series': GPUSeries.values.firstWhere(
-                  (e) => e.getName() == data['series'],
+                      (e) => e.getName() == data['series'],
                   orElse: () => GPUSeries.rtx,
                 ),
                 'capacity': GPUCapacity.values.firstWhere(
-                  (e) => e.getName() == data['capacity'],
+                      (e) => e.getName() == data['capacity'],
                   orElse: () => GPUCapacity.gb4,
                 ),
                 'busWidth': GPUBus.values.firstWhere(
-                  (e) => e.getName() == data['busWidth'],
+                      (e) => e.getName() == data['busWidth'],
                   orElse: () => GPUBus.bit128,
                 ),
                 'clockSpeed': (data['clockSpeed'] as num).toDouble(),
@@ -1063,15 +1065,15 @@ class Firebase {
             case CategoryEnum.mainboard:
               productProps.addAll({
                 'formFactor': MainboardFormFactor.values.firstWhere(
-                  (e) => e.getName() == data['formFactor'],
+                      (e) => e.getName() == data['formFactor'],
                   orElse: () => MainboardFormFactor.atx,
                 ),
                 'series': MainboardSeries.values.firstWhere(
-                  (e) => e.getName() == data['series'],
+                      (e) => e.getName() == data['series'],
                   orElse: () => MainboardSeries.h,
                 ),
                 'compatibility': MainboardCompatibility.values.firstWhere(
-                  (e) => e.getName() == data['compatibility'],
+                      (e) => e.getName() == data['compatibility'],
                   orElse: () => MainboardCompatibility.intel,
                 ),
               });
@@ -1080,11 +1082,11 @@ class Firebase {
             case CategoryEnum.drive:
               productProps.addAll({
                 'type': DriveType.values.firstWhere(
-                  (e) => e.getName() == data['type'],
+                      (e) => e.getName() == data['type'],
                   orElse: () => DriveType.sataSSD,
                 ),
                 'capacity': DriveCapacity.values.firstWhere(
-                  (e) => e.getName() == data['capacity'],
+                      (e) => e.getName() == data['capacity'],
                   orElse: () => DriveCapacity.gb256,
                 ),
               });
@@ -1094,11 +1096,11 @@ class Firebase {
               productProps.addAll({
                 'wattage': data['wattage'] as int,
                 'efficiency': PSUEfficiency.values.firstWhere(
-                  (e) => e.getName() == data['efficiency'],
+                      (e) => e.getName() == data['efficiency'],
                   orElse: () => PSUEfficiency.bronze,
                 ),
                 'modular': PSUModular.values.firstWhere(
-                  (e) => e.getName() == data['modular'],
+                      (e) => e.getName() == data['modular'],
                   orElse: () => PSUModular.nonModular,
                 ),
               });
@@ -1148,10 +1150,10 @@ class Firebase {
           .collection('sales_invoices')
           .doc(invoice.salesInvoiceID)
           .update({
-            ...invoice.toMap(),
-            'paymentStatus': invoice.paymentStatus.toString(),
-            'salesStatus': invoice.salesStatus.toString(),
-          });
+        ...invoice.toMap(),
+        'paymentStatus': invoice.paymentStatus.toString(),
+        'salesStatus': invoice.salesStatus.toString(),
+      });
     } catch (e) {
       print('Error updating sales invoice: $e');
       rethrow;
@@ -1164,11 +1166,11 @@ class Firebase {
       final docRef = await FirebaseFirestore.instance
           .collection('sales_invoices')
           .add({
-            ...invoice.toMap(),
-            'date': Timestamp.fromDate(invoice.date),
-            'paymentStatus': invoice.paymentStatus.toString(),
-            'salesStatus': invoice.salesStatus.toString(),
-          });
+        ...invoice.toMap(),
+        'date': Timestamp.fromDate(invoice.date),
+        'paymentStatus': invoice.paymentStatus.toString(),
+        'salesStatus': invoice.salesStatus.toString(),
+      });
 
       // Cập nhật lại document với ID
       await docRef.update({
@@ -1379,7 +1381,7 @@ class Firebase {
 
       // Đảm bảo currentStock không null
       final currentStock = doc.data()?['stock'] as int? ?? 0;
-      
+
       await doc.reference.update({
         'stock': currentStock + stockChange
       });
@@ -1576,7 +1578,10 @@ class Firebase {
           break;
       }
 
-      await FirebaseFirestore.instance.collection('products').add(productData);
+      DocumentReference docRef = await FirebaseFirestore.instance.collection('products').add(productData);
+      await docRef.update({
+        'productID': docRef.id
+      });
       List<Product> products = await getProducts();
       Database().updateProductList(products);
     } catch (e) {
@@ -1584,6 +1589,7 @@ class Firebase {
       rethrow;
     }
   }
+
 
   Future<void> updateProductStockAndSales(String productID, int stockChange, int salesChange) async {
     try {
@@ -1599,7 +1605,7 @@ class Firebase {
       // Đảm bảo các giá trị không null
       final currentStock = doc.data()?['stock'] as int? ?? 0;
       final currentSales = doc.data()?['sales'] as int? ?? 0;
-      
+
       // Cập nhật cả stock và sales
       await doc.reference.update({
         'stock': currentStock + stockChange,

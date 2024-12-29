@@ -21,6 +21,7 @@ import 'package:gizmoglobe_client/objects/product_related/mainboard.dart';
 import 'package:gizmoglobe_client/objects/product_related/psu.dart';
 import 'package:gizmoglobe_client/objects/product_related/ram.dart';
 
+import '../../enums/invoice_related/sales_status.dart';
 import '../../enums/product_related/category_enum.dart';
 import '../../enums/product_related/product_status_enum.dart';
 import '../../enums/stakeholders/employee_role.dart';
@@ -242,6 +243,7 @@ Future<void> pushSalesInvoiceSampleData() async {
 
 class Firebase {
   static final Firebase _firebase = Firebase._internal();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   factory Firebase() {
     return _firebase;
@@ -894,6 +896,8 @@ class Firebase {
               ),
             });
             break;
+          default:
+            print('Unknown category: ${data['category']}');
         }
 
         // Tạo product instance thông qua factory
@@ -1034,6 +1038,9 @@ class Firebase {
                 ),
               });
               break;
+
+            default:
+              print('Unknown category: ${data['category']}');
           }
 
           Product product = ProductFactory.createProduct(category, productProps);
@@ -1437,10 +1444,11 @@ class Firebase {
 
   Future<void> addProduct(Product product) async {
     try {
+      // Tạo map chứa thông tin cơ bản của sản phẩm
       Map<String, dynamic> productData = {
         'productName': product.productName,
         'importPrice': product.importPrice,
-        'sellingPrice': product.sellingPrice,
+        'sellingPrice': product.sellingPrice, 
         'discount': product.discount,
         'release': product.release,
         'sales': product.sales,
@@ -1450,6 +1458,7 @@ class Firebase {
         'category': product.category.getName(),
       };
 
+      // Thêm các thuộc tính đặc thù theo từng loại sản phẩm
       switch (product.runtimeType) {
         case RAM:
           final ram = product as RAM;
@@ -1507,11 +1516,14 @@ class Firebase {
           break;
       }
 
+      // Thêm sản phẩm vào collection 'products' trên Firebase
       await FirebaseFirestore.instance.collection('products').add(productData);
+
+      // Cập nhật lại danh sách sản phẩm trong Database
       List<Product> products = await getProducts();
       Database().updateProductList(products);
     } catch (e) {
-      print('Error adding product: $e');
+      print('Lỗi khi thêm sản phẩm: $e');
       rethrow;
     }
   }
@@ -1542,6 +1554,20 @@ class Firebase {
       Database().updateProductList(products);
     } catch (e) {
       print('Error updating product stock and sales: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> changeSalesInvoiceStatus(SalesInvoice salesInvoice) async {
+    try {
+      await _firestore.collection('sales_invoices')
+          .doc(salesInvoice.salesInvoiceID).update({
+        'salesStatus': SalesStatus.completed.getName(),
+      });
+
+      //await Database().fetchSalesInvoice();
+    } catch (e) {
+      print('Error confirming delivery: $e');
       rethrow;
     }
   }

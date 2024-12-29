@@ -1,4 +1,5 @@
 enum CategoryEnum {
+  empty(''),
   ram('RAM'),
   cpu('CPU'),
   psu('PSU'),

@@ -33,7 +33,7 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
     super.initState();
     searchController = TextEditingController();
     searchFocusNode = FocusNode();
-    tabController = TabController(length: CategoryEnum.values.length + 1, vsync: this);
+    tabController = TabController(length: getTabCount(), vsync: this);
   }
 
   @override
@@ -43,7 +43,7 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
     super.dispose();
   }
 
-  int getTabCount() => CategoryEnum.values.length + 1;
+  int getTabCount() => CategoryEnum.values.length;
 
   void onTabChanged(int index) {
     cubit.updateSelectedTabIndex(index);
@@ -112,8 +112,10 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
               indicator: const BoxDecoration(),
               tabs: [
                 const Tab(text: 'All'),
-                ...CategoryEnum.values.map((category) => Tab(
-                  text: category.toString().split('.').last,
+                ...CategoryEnum.values
+                    .where((category) => category != CategoryEnum.empty)
+                    .map((category) => Tab(
+                  text: category.toString(),
                 )),
               ],
             ),

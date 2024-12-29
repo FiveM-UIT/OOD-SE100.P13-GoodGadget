@@ -7,20 +7,20 @@ import 'package:gizmoglobe_client/objects/product_related/product_argument.dart'
 
 import '../../../enums/processing/sort_enum.dart';
 
-class AddProductScreenState extends Equatable {
+class AddProductState extends Equatable {
   final ProductArgument? productArgument;
 
-  const AddProductScreenState({
+  const AddProductState({
     this.productArgument,
   });
 
   @override
   List<Object?> get props => [productArgument];
 
-  AddProductScreenState copyWith({
+  AddProductState copyWith({
     ProductArgument? productArgument,
   }) {
-    return AddProductScreenState(
+    return AddProductState(
       productArgument: productArgument ?? this.productArgument,
     );
   }

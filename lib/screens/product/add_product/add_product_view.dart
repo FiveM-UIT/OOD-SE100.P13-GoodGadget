@@ -36,8 +36,8 @@ import '../../../objects/product_related/psu.dart';
 import '../../../objects/product_related/ram.dart';
 import '../../../widgets/general/field_with_icon.dart';
 import '../../../widgets/general/gradient_dropdown.dart';
-import 'add_product_detail_state.dart';
-import 'add_product_screen_cubit.dart';
+import 'add_product_state.dart';
+import 'add_product_cubit.dart';
 
 
 class AddProductScreen extends StatefulWidget {
@@ -45,7 +45,7 @@ class AddProductScreen extends StatefulWidget {
 
   static Widget newInstance() =>
       BlocProvider(
-        create: (context) => AddProductScreenCubit(),
+        create: (context) => AddProductCubit(),
         child: const AddProductScreen(),
       );
 
@@ -55,7 +55,32 @@ class AddProductScreen extends StatefulWidget {
 }
 
 class _AddProductScreenState extends State<AddProductScreen> {
-  AddProductScreenCubit get cubit => context.read<AddProductScreenCubit>();
+  AddProductCubit get cubit => context.read<AddProductCubit>();
+  late TextEditingController productNameController;
+  late TextEditingController importPriceController;
+  late TextEditingController sellingPriceController;
+  late TextEditingController discountController;
+  late TextEditingController stockController;
+  late TextEditingController cpuCoreController;
+  late TextEditingController cpuThreadController;
+  late TextEditingController cpuClockSpeedController;
+  late TextEditingController psuWattageController;
+  late TextEditingController gpuClockSpeedController;
+
+  @override
+  void initState() {
+    super.initState();
+    productNameController = TextEditingController();
+    importPriceController = TextEditingController();
+    sellingPriceController = TextEditingController();
+    discountController = TextEditingController();
+    stockController = TextEditingController();
+    cpuCoreController = TextEditingController();
+    cpuThreadController = TextEditingController();
+    cpuClockSpeedController = TextEditingController();
+    psuWattageController = TextEditingController();
+    gpuClockSpeedController = TextEditingController();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +103,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           )
         ],
       ),
-      body: BlocBuilder<AddProductScreenCubit, AddProductScreenState>(
+      body: BlocBuilder<AddProductCubit, AddProductState>(
         builder: (context, state) {
           return SingleChildScrollView(
             child: Column(
@@ -105,6 +130,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     children: [
                       buildInputWidget<String>(
                         'Product Name',
+                        productNameController,
                         state.productArgument?.productName,
                             (value) {
                          cubit.updateProductArgument(state.productArgument!.copyWith(productName: value));
@@ -112,6 +138,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       ),
                       buildInputWidget<double>(
                         'Import Price',
+                        importPriceController,
                         state.productArgument?.importPrice,
                             (value) {
                           cubit.updateProductArgument(state.productArgument!.copyWith(importPrice: value));
@@ -119,6 +146,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       ),
                       buildInputWidget<double>(
                         'Selling Price',
+                        sellingPriceController,
                         state.productArgument?.sellingPrice,
                             (value) {
                           cubit.updateProductArgument(state.productArgument!.copyWith(sellingPrice: value));
@@ -126,6 +154,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       ),
                       buildInputWidget<double>(
                         'Discount',
+                        discountController,
                         state.productArgument?.discount,
                             (value) {
                           cubit.updateProductArgument(state.productArgument!.copyWith(discount: value));
@@ -133,6 +162,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       ),
                       buildInputWidget<DateTime>(
                         'Release Date',
+                        TextEditingController(),
                         state.productArgument?.release ?? DateTime.now(),
                             (value) {
                           cubit.updateProductArgument(state.productArgument!.copyWith(release: value));
@@ -140,6 +170,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       ),
                       buildInputWidget<int>(
                         'Stock',
+                        stockController,
                         state.productArgument?.stock,
                             (value) {
                           final newStatus = value! > 0 ? ProductStatusEnum.active : ProductStatusEnum.outOfStock;
@@ -175,7 +206,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const Text('Status', style: AppTextStyle.smallText),
-                          BlocBuilder<AddProductScreenCubit, AddProductScreenState>(
+                          BlocBuilder<AddProductCubit, AddProductState>(
                             builder: (context, state) {
                               final status = (state.productArgument?.stock ?? 0) > 0
                                   ? ProductStatusEnum.active
@@ -192,6 +223,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
                       buildInputWidget<CategoryEnum>(
                         'Category',
+                        TextEditingController(),
                         state.productArgument?.category,
                             (value) {
                           cubit.updateProductArgument(state.productArgument!.copyWith(category: value));
@@ -199,7 +231,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         CategoryEnum.values,
                       ),
 
-                      BlocBuilder<AddProductScreenCubit, AddProductScreenState>(
+                      BlocBuilder<AddProductCubit, AddProductState>(
                         builder: (context, state) {
                           return buildCategorySpecificInputs(state.productArgument?.category ?? CategoryEnum.empty, state, cubit);
                         },
@@ -214,9 +246,217 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
     );
   }
+
+  Widget buildCategorySpecificInputs(CategoryEnum category, AddProductState state, AddProductCubit cubit) {
+    switch (category) {
+      case CategoryEnum.ram:
+        return Column(
+          children: [
+            buildInputWidget<RAMBus>(
+              'RAM Bus',
+              TextEditingController(),
+              state.productArgument?.ramBus,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(ramBus: value));
+              },
+              RAMBus.values,
+            ),
+            buildInputWidget<RAMCapacity>(
+              'RAM Capacity',
+              TextEditingController(),
+              state.productArgument?.ramCapacity,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(ramCapacity: value));
+              },
+              RAMCapacity.values,
+            ),
+            buildInputWidget<RAMType>(
+              'RAM Type',
+              TextEditingController(),
+              state.productArgument?.ramType,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(ramType: value));
+              },
+              RAMType.values,
+            ),
+          ],
+        );
+      case CategoryEnum.cpu:
+        return Column(
+          children: [
+            buildInputWidget<CPUFamily>(
+              'CPU Family',
+              TextEditingController(),
+              state.productArgument?.family,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(family: value));
+              },
+              CPUFamily.values,
+            ),
+            buildInputWidget<int>(
+              'CPU Core',
+              cpuCoreController,
+              state.productArgument?.core,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(core: value));
+              },
+            ),
+            buildInputWidget<int>(
+              'CPU Thread',
+              cpuThreadController,
+              state.productArgument?.thread,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(thread: value));
+              },
+            ),
+            buildInputWidget<double>(
+              'CPU Clock Speed',
+              cpuClockSpeedController,
+              state.productArgument?.cpuClockSpeed,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(cpuClockSpeed: value));
+              },
+            ),
+          ],
+        );
+      case CategoryEnum.psu:
+        return Column(
+          children: [
+            buildInputWidget<int>(
+              'PSU Wattage',
+              psuWattageController,
+              state.productArgument?.wattage,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(wattage: value));
+              },
+            ),
+            buildInputWidget<PSUEfficiency>(
+              'PSU Efficiency',
+              TextEditingController(),
+              state.productArgument?.efficiency,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(efficiency: value));
+              },
+              PSUEfficiency.values,
+            ),
+            buildInputWidget<PSUModular>(
+              'PSU Modular',
+              TextEditingController(),
+              state.productArgument?.modular,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(modular: value));
+              },
+              PSUModular.values,
+            ),
+          ],
+        );
+      case CategoryEnum.gpu:
+        return Column(
+          children: [
+            buildInputWidget<GPUSeries>(
+              'GPU Series',
+              TextEditingController(),
+              state.productArgument?.gpuSeries,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(gpuSeries: value));
+              },
+              GPUSeries.values,
+            ),
+            buildInputWidget<GPUCapacity>(
+              'GPU Capacity',
+              TextEditingController(),
+              state.productArgument?.gpuCapacity,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(gpuCapacity: value));
+              },
+              GPUCapacity.values,
+            ),
+            buildInputWidget<GPUBus>(
+              'GPU Bus',
+              TextEditingController(),
+              state.productArgument?.gpuBus,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(gpuBus: value));
+              },
+              GPUBus.values,
+            ),
+            buildInputWidget<double>(
+              'GPU Clock Speed',
+              gpuClockSpeedController,
+              state.productArgument?.gpuClockSpeed,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(gpuClockSpeed: value));
+              },
+            ),
+          ],
+        );
+      case CategoryEnum.mainboard:
+        return Column(
+          children: [
+            buildInputWidget<MainboardFormFactor>(
+              'Form Factor',
+              TextEditingController(),
+              state.productArgument?.formFactor,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(formFactor: value));
+              },
+              MainboardFormFactor.values,
+            ),
+            buildInputWidget<MainboardSeries>(
+              'Series',
+              TextEditingController(),
+              state.productArgument?.mainboardSeries,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(mainboardSeries: value));
+              },
+              MainboardSeries.values,
+            ),
+            buildInputWidget<MainboardCompatibility>(
+              'Compatibility',
+              TextEditingController(),
+              state.productArgument?.compatibility,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(compatibility: value));
+              },
+              MainboardCompatibility.values,
+            ),
+          ],
+        );
+      case CategoryEnum.drive:
+        return Column(
+          children: [
+            buildInputWidget<DriveType>(
+              'Drive Type',
+              TextEditingController(),
+              state.productArgument?.driveType,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(driveType: value));
+              },
+              DriveType.values,
+            ),
+            buildInputWidget<DriveCapacity>(
+              'Drive Capacity',
+              TextEditingController(),
+              state.productArgument?.driveCapacity,
+                  (value) {
+                cubit.updateProductArgument(state.productArgument!.copyWith(driveCapacity: value));
+              },
+              DriveCapacity.values,
+            ),
+          ],
+        );
+      default:
+        return Container();
+    }
+  }
 }
 
-Widget buildInputWidget<T>(String propertyName, T? propertyValue, void Function(T?) onChanged, [List<T>? enumValues]) {
+Widget buildInputWidget<T>(
+    String propertyName,
+    TextEditingController? controller,
+    T? propertyValue,
+    void Function(T?) onChanged,
+    [List<T>? enumValues]) {
   if (enumValues != null) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -233,9 +473,6 @@ Widget buildInputWidget<T>(String propertyName, T? propertyValue, void Function(
       ],
     );
   } else {
-    final controller = TextEditingController(text: propertyValue?.toString() ?? '');
-    controller.selection = TextSelection.fromPosition(TextPosition(offset: controller.text.length));
-
     TextInputType keyboardType;
     List<TextInputFormatter> inputFormatters;
 
@@ -255,7 +492,7 @@ Widget buildInputWidget<T>(String propertyName, T? propertyValue, void Function(
       children: [
         Text(propertyName, style: AppTextStyle.smallText),
         FieldWithIcon(
-          controller: controller,
+          controller: controller!,
           hintText: 'Enter $propertyName',
           onChanged: (value) {
             if (value.isEmpty) {
@@ -277,186 +514,3 @@ Widget buildInputWidget<T>(String propertyName, T? propertyValue, void Function(
   }
 }
 
-Widget buildCategorySpecificInputs(CategoryEnum category, AddProductScreenState state, AddProductScreenCubit cubit) {
-  switch (category) {
-    case CategoryEnum.ram:
-      return Column(
-        children: [
-          buildInputWidget<RAMBus>(
-            'RAM Bus',
-            state.productArgument?.ramBus,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(ramBus: value));
-            },
-            RAMBus.values,
-          ),
-          buildInputWidget<RAMCapacity>(
-            'RAM Capacity',
-            state.productArgument?.ramCapacity,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(ramCapacity: value));
-            },
-            RAMCapacity.values,
-          ),
-          buildInputWidget<RAMType>(
-            'RAM Type',
-            state.productArgument?.ramType,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(ramType: value));
-            },
-            RAMType.values,
-          ),
-        ],
-      );
-    case CategoryEnum.cpu:
-      return Column(
-        children: [
-          buildInputWidget<CPUFamily>(
-            'CPU Family',
-            state.productArgument?.family,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(family: value));
-            },
-            CPUFamily.values,
-          ),
-          buildInputWidget<int>(
-            'CPU Core',
-            state.productArgument?.core,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(core: value));
-            },
-          ),
-          buildInputWidget<int>(
-            'CPU Thread',
-            state.productArgument?.thread,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(thread: value));
-            },
-          ),
-          buildInputWidget<double>(
-            'CPU Clock Speed',
-            state.productArgument?.cpuClockSpeed,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(cpuClockSpeed: value));
-            },
-          ),
-        ],
-      );
-    case CategoryEnum.psu:
-      return Column(
-        children: [
-          buildInputWidget<int>(
-            'PSU Wattage',
-            state.productArgument?.wattage,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(wattage: value));
-            },
-          ),
-          buildInputWidget<PSUEfficiency>(
-            'PSU Efficiency',
-            state.productArgument?.efficiency,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(efficiency: value));
-            },
-            PSUEfficiency.values,
-          ),
-          buildInputWidget<PSUModular>(
-            'PSU Modular',
-            state.productArgument?.modular,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(modular: value));
-            },
-            PSUModular.values,
-          ),
-        ],
-      );
-    case CategoryEnum.gpu:
-      return Column(
-        children: [
-          buildInputWidget<GPUSeries>(
-            'GPU Series',
-            state.productArgument?.gpuSeries,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(gpuSeries: value));
-            },
-            GPUSeries.values,
-          ),
-          buildInputWidget<GPUCapacity>(
-            'GPU Capacity',
-            state.productArgument?.gpuCapacity,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(gpuCapacity: value));
-            },
-            GPUCapacity.values,
-          ),
-          buildInputWidget<GPUBus>(
-            'GPU Bus',
-            state.productArgument?.gpuBus,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(gpuBus: value));
-            },
-            GPUBus.values,
-          ),
-          buildInputWidget<double>(
-            'GPU Clock Speed',
-            state.productArgument?.gpuClockSpeed,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(gpuClockSpeed: value));
-            },
-          ),
-        ],
-      );
-    case CategoryEnum.mainboard:
-      return Column(
-        children: [
-          buildInputWidget<MainboardFormFactor>(
-            'Form Factor',
-            state.productArgument?.formFactor,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(formFactor: value));
-            },
-            MainboardFormFactor.values,
-          ),
-          buildInputWidget<MainboardSeries>(
-            'Series',
-            state.productArgument?.mainboardSeries,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(mainboardSeries: value));
-            },
-            MainboardSeries.values,
-          ),
-          buildInputWidget<MainboardCompatibility>(
-            'Compatibility',
-            state.productArgument?.compatibility,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(compatibility: value));
-            },
-            MainboardCompatibility.values,
-          ),
-        ],
-      );
-    case CategoryEnum.drive:
-      return Column(
-        children: [
-          buildInputWidget<DriveType>(
-            'Drive Type',
-            state.productArgument?.driveType,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(driveType: value));
-            },
-            DriveType.values,
-          ),
-          buildInputWidget<DriveCapacity>(
-            'Drive Capacity',
-            state.productArgument?.driveCapacity,
-                (value) {
-              cubit.updateProductArgument(state.productArgument!.copyWith(driveCapacity: value));
-            },
-            DriveCapacity.values,
-          ),
-        ],
-      );
-    default:
-      return Container();
-  }
-}

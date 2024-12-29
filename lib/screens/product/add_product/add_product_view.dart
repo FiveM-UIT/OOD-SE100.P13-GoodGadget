@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_cubit.dart';
 import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_state.dart';
+import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_view.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_view.dart';
 import 'package:gizmoglobe_client/widgets/dialog/information_dialog.dart';
 import 'package:gizmoglobe_client/widgets/general/app_text_style.dart';
@@ -39,6 +40,7 @@ import '../../../objects/product_related/psu.dart';
 import '../../../objects/product_related/ram.dart';
 import '../../../widgets/general/field_with_icon.dart';
 import '../../../widgets/general/gradient_dropdown.dart';
+import '../../main/main_screen/main_screen_view.dart';
 import 'add_product_state.dart';
 import 'add_product_cubit.dart';
 
@@ -127,13 +129,15 @@ class _AddProductState extends State<AddProductScreen> {
                     title: state.dialogName.toString(),
                     content: state.notifyMessage.toString(),
                     onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProductScreen.newInstance(),
-                          ),
-                        );
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MainScreen(),
+                        ),
+                            (Route<dynamic> route) => false,
+                      ).then((_) {
+                        MainScreen().setIndex(1);
+                      });
                     },
                   ),
             );
@@ -775,9 +779,6 @@ Widget buildInputWidget<T>(
             ],
           );
         } else {
-          final controller = TextEditingController(text: propertyValue?.toString() ?? '');
-          controller.selection = TextSelection.fromPosition(TextPosition(offset: controller.text.length));
-
           TextInputType keyboardType;
           List<TextInputFormatter> inputFormatters;
 
@@ -799,7 +800,7 @@ Widget buildInputWidget<T>(
               FieldWithIcon(
                 controller: controller,
                 hintText: 'Enter $propertyName',
-                onChanged: (value) {
+                onSubmitted: (value) {
                   if (value.isEmpty) {
                     onChanged(null);
                   } else if (T == int) {

@@ -39,6 +39,7 @@ import '../../../objects/product_related/psu.dart';
 import '../../../objects/product_related/ram.dart';
 import '../../../widgets/general/field_with_icon.dart';
 import '../../../widgets/general/gradient_dropdown.dart';
+import '../../main/main_screen/main_screen_view.dart';
 import 'edit_product_state.dart';
 import 'edit_product_cubit.dart';
 
@@ -154,13 +155,14 @@ class _EditProductState extends State<EditProductScreen> {
                     title: state.dialogName.toString(),
                     content: state.notifyMessage.toString(),
                     onPressed: () {
-                      Navigator.pop(context);
                       Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProductScreen.newInstance(),
-                          ),
-                        );
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MainScreen(),
+                        ),
+                      ).then((_) {
+                        MainScreen().setIndex(1);
+                      });
                     },
                   ),
             );

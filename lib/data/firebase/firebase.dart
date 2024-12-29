@@ -894,6 +894,8 @@ class Firebase {
               ),
             });
             break;
+          default:
+            print('Unknown category: ${data['category']}');
         }
 
         // Tạo product instance thông qua factory
@@ -1034,6 +1036,9 @@ class Firebase {
                 ),
               });
               break;
+
+            default:
+              print('Unknown category: ${data['category']}');
           }
 
           Product product = ProductFactory.createProduct(category, productProps);

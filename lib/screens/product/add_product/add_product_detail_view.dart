@@ -201,7 +201,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
                       BlocBuilder<AddProductScreenCubit, AddProductScreenState>(
                         builder: (context, state) {
-                          return buildCategorySpecificInputs(state.productArgument?.category ?? CategoryEnum.ram, state, cubit);
+                          return buildCategorySpecificInputs(state.productArgument?.category ?? CategoryEnum.empty, state, cubit);
                         },
                       ),
                     ],

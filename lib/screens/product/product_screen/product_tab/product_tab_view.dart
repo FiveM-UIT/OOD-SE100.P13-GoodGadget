@@ -1,4 +1,3 @@
-// product_tab_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
@@ -16,7 +15,6 @@ import '../../mixin/product_tab_mixin.dart';
 import '../../product_detail/product_detail_view.dart';
 import 'product_tab_cubit.dart';
 import 'product_tab_state.dart';
-import 'package:gizmoglobe_client/widgets/dialog/add_edit_product_dialog.dart'; // Import the new dialog
 
 class ProductTab extends StatefulWidget {
   const ProductTab({super.key});
@@ -101,29 +99,18 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                                   ],
                                 ),
                               );
-                              cubit.applyFilters();
-                            }
-                          },
-                        ),
-                      )
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: BlocBuilder<TabCubit, TabState>(
-                  builder: (context, state) {
-                    if (state.filteredProductList.isEmpty) {
-                      return const Center(
-                        child: Text('No products found'),
-                      );
-                    }
-                    return ListView.builder(
-                      itemCount: state.filteredProductList.length,
-                      itemBuilder: (context, index) {
-                        final product = state.filteredProductList[index];
-                        final isSelected = state.selectedProduct == product;
+                            }).toList(),
+                          ),
+                          const Spacer(),
+                          Center(
+                            child: GradientIconButton(
+                              icon: Icons.filter_list_alt,
+                              iconSize: 28,
+                              onPressed: () async {
+                                final FilterArgument arguments = state.filterArgument.copy(
+                                    filter: state.filterArgument
+                                );
+
                                 final result = await Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (context) => FilterScreen.newInstance(
@@ -151,15 +138,15 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                   Expanded(
                     child: BlocBuilder<TabCubit, TabState>(
                       builder: (context, state) {
-                        if (state.productList.isEmpty) {
+                        if (state.filteredProductList.isEmpty) {
                           return const Center(
                             child: Text('No products found'),
                           );
                         }
                         return ListView.builder(
-                          itemCount: state.productList.length,
+                          itemCount: state.filteredProductList.length,
                           itemBuilder: (context, index) {
-                            final product = state.productList[index];
+                            final product = state.filteredProductList[index];
                             final isSelected = state.selectedProduct == product;
 
                             IconData getCategoryIcon(CategoryEnum category) {
@@ -248,12 +235,11 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                                               onTap: () async {
                                                 Navigator.pop(context);
                                                 cubit.setSelectedProduct(null);
-                                                // Show the Add/Edit dialog with the selected product for editing
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (BuildContext context) {
-                                                    return AddEditProductDialog(product: product);
-                                                  },
+                                                final updatedProduct = await Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => ProductDetailScreen.newInstance(product),
+                                                  ),
                                                 );
                                               },
                                             ),

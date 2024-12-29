@@ -54,10 +54,10 @@ class AddProductScreen extends StatefulWidget {
 
 
   @override
-  State<AddProductScreen> createState() => _AddProductScreenState();
+  State<AddProductScreen> createState() => _AddProductState();
 }
 
-class _AddProductScreenState extends State<AddProductScreen> {
+class _AddProductState extends State<AddProductScreen> {
   AddProductCubit get cubit => context.read<AddProductCubit>();
   late TextEditingController productNameController;
   late TextEditingController importPriceController;
@@ -221,6 +221,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const Text('Manufacturer', style: AppTextStyle.smallText),
+                          const SizedBox(height: 8),
                           DropdownSearch<Manufacturer>(
                             items: (String filter, dynamic infiniteScrollProps) => Database().manufacturerList,
                             compareFn: (Manufacturer? m1, Manufacturer? m2) => m1?.manufacturerID == m2?.manufacturerID,
@@ -232,29 +233,81 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             decoratorProps: DropDownDecoratorProps(
                               decoration: InputDecoration(
                                 hintText: 'Select Manufacturer',
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                                hintStyle: const TextStyle(color: Colors.grey),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide.none,
+                                  borderSide: const BorderSide(color: Colors.blue, width: 2),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: const BorderSide(color: Colors.blue, width: 2),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: const BorderSide(color: Colors.blue, width: 2),
+                                ),
+                                filled: true,
+                                fillColor: Color(0xFF202046),
+                              ),
+                            ),
+                            popupProps: PopupProps.menu(
+                              showSearchBox: true,
+                              searchFieldProps: TextFieldProps(
+                                decoration: InputDecoration(
+                                  hintText: 'Search manufacturer...',
+                                  hintStyle: const TextStyle(color: Colors.grey),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ],
                       ),
+
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const Text('Status', style: AppTextStyle.smallText),
+                          const SizedBox(height: 8),
                           BlocBuilder<AddProductCubit, AddProductState>(
                             builder: (context, state) {
                               final status = (state.productArgument?.stock ?? 0) > 0
                                   ? ProductStatusEnum.active
                                   : ProductStatusEnum.outOfStock;
 
-                              return Text(
-                                status.toString(),
-                                style: AppTextStyle.smallText,
+                              return Container(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: status == ProductStatusEnum.active ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: status == ProductStatusEnum.active ? Colors.green : Colors.red,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      status == ProductStatusEnum.active ? Icons.check_circle : Icons.error,
+                                      color: status == ProductStatusEnum.active ? Colors.green : Colors.red,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      status == ProductStatusEnum.active ? 'Active' : 'Out of Stock',
+                                      style: TextStyle(
+                                        color: status == ProductStatusEnum.active ? Colors.green : Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               );
                             },
                           ),
@@ -271,11 +324,40 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         CategoryEnum.values,
                       ),
 
-                      BlocBuilder<AddProductCubit, AddProductState>(
-                        builder: (context, state) {
-                          return buildCategorySpecificInputs(state.productArgument?.category ?? CategoryEnum.empty, state, cubit);
-                        },
-                      ),
+                      if (state.productArgument?.category != null && state.productArgument?.category != CategoryEnum.empty)
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${state.productArgument?.category.toString().split('.').last} Specifications',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF202046),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  buildCategorySpecificInputs(
+                                    state.productArgument?.category ?? CategoryEnum.empty,
+                                    state,
+                                    cubit,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                      const SizedBox(height: 32), //
                     ],
                   ),
                 ),

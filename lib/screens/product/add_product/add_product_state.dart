@@ -10,13 +10,13 @@ import 'package:gizmoglobe_client/objects/product_related/product_argument.dart'
 
 import '../../../enums/processing/sort_enum.dart';
 
-class AddProductScreenState extends Equatable {
+class AddProductState extends Equatable {
   final ProductArgument? productArgument;
   final ProcessState processState;
   final DialogName dialogName;
   final NotifyMessage notifyMessage;
 
-  const AddProductScreenState({
+  const AddProductState({
     this.productArgument,
     this.processState = ProcessState.idle,
     this.dialogName = DialogName.empty,
@@ -26,13 +26,13 @@ class AddProductScreenState extends Equatable {
   @override
   List<Object?> get props => [productArgument, processState, dialogName, notifyMessage];
 
-  AddProductScreenState copyWith({
+  AddProductState copyWith({
     ProductArgument? productArgument,
     ProcessState? processState,
     DialogName? dialogName,
     NotifyMessage? notifyMessage,
   }) {
-    return AddProductScreenState(
+    return AddProductState(
       productArgument: productArgument ?? this.productArgument,
       processState: processState ?? this.processState,
       dialogName: dialogName ?? this.dialogName,

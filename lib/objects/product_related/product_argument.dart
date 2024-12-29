@@ -102,8 +102,8 @@ class ProductArgument {
     this.driveCapacity,
   });
 
-  ProductArgument copyWith(
-      {String? productID,
+  ProductArgument copyWith({
+      String? productID,
       String? productName,
       Manufacturer? manufacturer,
       CategoryEnum? category,

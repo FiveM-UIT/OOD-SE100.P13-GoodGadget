@@ -4,12 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_cubit.dart';
 import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_state.dart';
+import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_view.dart';
+import 'package:gizmoglobe_client/widgets/dialog/information_dialog.dart';
 import 'package:gizmoglobe_client/widgets/general/app_text_style.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
 import 'package:intl/intl.dart';
 
 import '../../../data/database/database.dart';
+import '../../../enums/processing/process_state_enum.dart';
 import '../../../enums/product_related/category_enum.dart';
 import '../../../enums/product_related/cpu_enums/cpu_family.dart';
 import '../../../enums/product_related/drive_enums/drive_capacity.dart';
@@ -95,15 +98,48 @@ class _AddProductScreenState extends State<AddProductScreen> {
         title: const GradientText(text: 'Add Product'),
         actions: [
           TextButton(
-          onPressed: () {
-              cubit.addProduct();
-              Navigator.pop(context);
+          onPressed: () async {
+              await cubit.addProduct();
             },
             child: const Text('Save', style: AppTextStyle.regularText),
           )
         ],
       ),
-      body: BlocBuilder<AddProductCubit, AddProductState>(
+      body: BlocConsumer<AddProductCubit, AddProductState>(
+        listener: (context, state) {
+          if (state.processState == ProcessState.success) {
+            showDialog(
+              context: context,
+              builder:  (context) =>
+                  InformationDialog(
+                    title: state.dialogName.toString(),
+                    content: state.notifyMessage.toString(),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductScreen.newInstance(),
+                          ),
+                        );
+                    },
+                  ),
+            );
+          } else {
+            if (state.processState == ProcessState.failure) {
+              showDialog(
+                context: context,
+                builder:  (context) =>
+                    InformationDialog(
+                      title: state.dialogName.toString(),
+                      content: state.notifyMessage.toString(),
+                      onPressed: () {},
+                    ),
+              );
+            }
+          }
+          cubit.toIdle();
+        },
         builder: (context, state) {
           return SingleChildScrollView(
             child: Column(
@@ -173,8 +209,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         stockController,
                         state.productArgument?.stock,
                             (value) {
-                          final newStatus = value! > 0 ? ProductStatusEnum.active : ProductStatusEnum.outOfStock;
-                          cubit.updateProductArgument(state.productArgument!.copyWith(stock: value, status: newStatus));
+                          if (value == null) {
+                            cubit.updateProductArgument(state.productArgument!.copyWith(stock: value));
+                          } else {
+                            final newStatus = value > 0 ? ProductStatusEnum.active : ProductStatusEnum.outOfStock;
+                            cubit.updateProductArgument(state.productArgument!.copyWith(stock: value, status: newStatus));
+                          }
                         },
                       ),
                       Column(
@@ -449,6 +489,46 @@ class _AddProductScreenState extends State<AddProductScreen> {
         return Container();
     }
   }
+
+  void setProductName(String value) {
+    productNameController.text = value;
+  }
+
+  void setImportPrice(double value) {
+    importPriceController.text = value.toString();
+  }
+
+  void setSellingPrice(double value) {
+    sellingPriceController.text = value.toString();
+  }
+
+  void setDiscount(double value) {
+    discountController.text = value.toString();
+  }
+
+  void setStock(int value) {
+    stockController.text = value.toString();
+  }
+
+  void setCpuCore(int value) {
+    cpuCoreController.text = value.toString();
+  }
+
+  void setCpuThread(int value) {
+    cpuThreadController.text = value.toString();
+  }
+
+  void setCpuClockSpeed(double value) {
+    cpuClockSpeedController.text = value.toString();
+  }
+
+  void setPsuWattage(int value) {
+    psuWattageController.text = value.toString();
+  }
+
+  void setGpuClockSpeed(double value) {
+    gpuClockSpeedController.text = value.toString();
+  }
 }
 
 Widget buildInputWidget<T>(
@@ -498,9 +578,11 @@ Widget buildInputWidget<T>(
             if (value.isEmpty) {
               onChanged(null);
             } else if (T == int) {
-              onChanged(int.tryParse(value) as T?);
+              final parsedValue = int.tryParse(value);
+              onChanged(parsedValue as T?);
             } else if (T == double) {
-              onChanged(double.tryParse(value) as T?);
+              final parsedValue = double.tryParse(value);
+              onChanged(parsedValue as T?);
             } else {
               onChanged(value as T?);
             }

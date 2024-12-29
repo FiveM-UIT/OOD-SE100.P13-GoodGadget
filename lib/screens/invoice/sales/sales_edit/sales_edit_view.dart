@@ -680,7 +680,7 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
     // Convert string to CategoryEnum
     CategoryEnum? categoryEnum;
     try {
-      categoryEnum = CategoryEnum.values.firstWhere(
+      categoryEnum = CategoryEnum.nonEmptyValues.firstWhere(
               (e) => e.getName().toLowerCase() == category.toLowerCase()
       );
     } catch (e) {

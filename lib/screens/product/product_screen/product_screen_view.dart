@@ -47,7 +47,7 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
     super.dispose();
   }
 
-  int getTabCount() => CategoryEnum.values.length;
+  int getTabCount() => CategoryEnum.nonEmptyValues.length + 1;
 
   void onTabChanged(int index) {
     cubit.updateSelectedTabIndex(index);
@@ -116,8 +116,7 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
               indicator: const BoxDecoration(),
               tabs: [
                 const Tab(text: 'All'),
-                ...CategoryEnum.values
-                    .where((category) => category != CategoryEnum.empty)
+                ...CategoryEnum.nonEmptyValues
                     .map((category) => Tab(
                   text: category.toString(),
                 )),

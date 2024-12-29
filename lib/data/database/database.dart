@@ -177,7 +177,7 @@ class Database {
           );
 
           // Chuyển đổi dữ liệu từ Firestore sang enum
-          final category = CategoryEnum.values.firstWhere(
+          final category = CategoryEnum.nonEmptyValues.firstWhere(
                 (c) => c.getName() == data['category'],
             orElse: () {
               print('Invalid category for product ${doc.id}');

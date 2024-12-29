@@ -188,206 +188,269 @@ class _AddProductState extends State<AddProductScreen> {
                 // Product Input Section
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildInputWidget<String>(
-                        'Product Name',
-                        productNameController,
-                        state.productArgument?.productName,
-                            (value) {
-                         cubit.updateProductArgument(state.productArgument!.copyWith(productName: value));
-                        },
-                      ),
-                      buildInputWidget<double>(
-                        'Import Price',
-                        importPriceController,
-                        state.productArgument?.importPrice,
-                            (value) {
-                          cubit.updateProductArgument(state.productArgument!.copyWith(importPrice: value));
-                        },
-                      ),
-                      buildInputWidget<double>(
-                        'Selling Price',
-                        sellingPriceController,
-                        state.productArgument?.sellingPrice,
-                            (value) {
-                          cubit.updateProductArgument(state.productArgument!.copyWith(sellingPrice: value));
-                        },
-                      ),
-                      buildInputWidget<double>(
-                        'Discount',
-                        discountController,
-                        state.productArgument?.discount,
-                            (value) {
-                          cubit.updateProductArgument(state.productArgument!.copyWith(discount: value));
-                        },
-                      ),
-                      buildInputWidget<DateTime>(
-                        'Release Date',
-                        TextEditingController(),
-                        state.productArgument?.release ?? DateTime.now(),
-                            (value) {
-                          cubit.updateProductArgument(state.productArgument!.copyWith(release: value));
-                        },
-                      ),
-                      buildInputWidget<int>(
-                        'Stock',
-                        stockController,
-                        state.productArgument?.stock,
-                            (value) {
-                          if (value == null) {
-                            cubit.updateProductArgument(state.productArgument!.copyWith(stock: value));
-                          } else {
-                            final newStatus = value > 0 ? ProductStatusEnum.active : ProductStatusEnum.outOfStock;
-                            cubit.updateProductArgument(state.productArgument!.copyWith(stock: value, status: newStatus));
-                          }
-                        },
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                  child: Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Manufacturer', style: AppTextStyle.smallText),
-                          const SizedBox(height: 8),
-                          DropdownSearch<Manufacturer>(
-                            items: (String filter, dynamic infiniteScrollProps) => Database().manufacturerList,
-                            compareFn: (Manufacturer? m1, Manufacturer? m2) => m1?.manufacturerID == m2?.manufacturerID,
-                            itemAsString: (Manufacturer m) => m.manufacturerName,
-                            onChanged: (value) {
-                              cubit.updateProductArgument(state.productArgument!.copyWith(manufacturer: value));
+                          const Text(
+                            'Basic Information',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF202046),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          buildInputWidget<String>(
+                            'Product Name',
+                            productNameController,
+                            state.productArgument?.productName,
+                                (value) {
+                              cubit.updateProductArgument(state.productArgument!.copyWith(productName: value));
                             },
-                            selectedItem: state.productArgument?.manufacturer,
-                            decoratorProps: DropDownDecoratorProps(
-                              decoration: InputDecoration(
-                                hintText: 'Select Manufacturer',
-                                hintStyle: const TextStyle(color: Colors.grey),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: Colors.blue, width: 2),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: Colors.blue, width: 2),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: Colors.blue, width: 2),
-                                ),
-                                filled: true,
-                                fillColor: Color(0xFF202046),
-                              ),
-                            ),
-                            popupProps: PopupProps.menu(
-                              showSearchBox: true,
-                              searchFieldProps: TextFieldProps(
-                                decoration: InputDecoration(
-                                  hintText: 'Search manufacturer...',
-                                  hintStyle: const TextStyle(color: Colors.grey),
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: buildInputWidget<double>(
+                                  'Import Price',
+                                  importPriceController,
+                                  state.productArgument?.importPrice,
+                                      (value) {
+                                    cubit.updateProductArgument(state.productArgument!.copyWith(importPrice: value));
+                                  },
                                 ),
                               ),
-                            ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: buildInputWidget<double>(
+                                  'Selling Price',
+                                  sellingPriceController,
+                                  state.productArgument?.sellingPrice,
+                                      (value) {
+                                    cubit.updateProductArgument(state.productArgument!.copyWith(sellingPrice: value));
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: buildInputWidget<double>(
+                                  'Discount',
+                                  discountController,
+                                  state.productArgument?.discount,
+                                      (value) {
+                                    cubit.updateProductArgument(state.productArgument!.copyWith(discount: value));
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: buildInputWidget<int>(
+                                  'Stock',
+                                  stockController,
+                                  state.productArgument?.stock,
+                                      (value) {
+                                    final newStatus = value! > 0 ? ProductStatusEnum.active : ProductStatusEnum.outOfStock;
+                                    cubit.updateProductArgument(state.productArgument!.copyWith(stock: value, status: newStatus));
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          const Text('Status', style: AppTextStyle.smallText),
-                          const SizedBox(height: 8),
-                          BlocBuilder<AddProductCubit, AddProductState>(
-                            builder: (context, state) {
-                              final status = (state.productArgument?.stock ?? 0) > 0
-                                  ? ProductStatusEnum.active
-                                  : ProductStatusEnum.outOfStock;
-
-                              return Container(
-                                margin: const EdgeInsets.symmetric(vertical: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                decoration: BoxDecoration(
-                                  color: status == ProductStatusEnum.active ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: status == ProductStatusEnum.active ? Colors.green : Colors.red,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      status == ProductStatusEnum.active ? Icons.check_circle : Icons.error,
-                                      color: status == ProductStatusEnum.active ? Colors.green : Colors.red,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      status == ProductStatusEnum.active ? 'Active' : 'Out of Stock',
-                                      style: TextStyle(
-                                        color: status == ProductStatusEnum.active ? Colors.green : Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-
-                      buildInputWidget<CategoryEnum>(
-                        'Category',
-                        TextEditingController(),
-                        state.productArgument?.category,
-                            (value) {
-                          cubit.updateProductArgument(state.productArgument!.copyWith(category: value));
-                        },
-                        CategoryEnum.values,
-                      ),
-
-                      if (state.productArgument?.category != null && state.productArgument?.category != CategoryEnum.empty)
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Card(
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '${state.productArgument?.category.toString().split('.').last} Specifications',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF202046),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  buildCategorySpecificInputs(
-                                    state.productArgument?.category ?? CategoryEnum.empty,
-                                    state,
-                                    cubit,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                      const SizedBox(height: 32), //
-                    ],
+                    ),
                   ),
                 ),
+
+                // Additional Information Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Additional Information',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF202046),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          buildInputWidget<DateTime>(
+                            'Release Date',
+                            TextEditingController(),
+                            state.productArgument?.release ?? DateTime.now(),
+                                (value) {
+                              cubit.updateProductArgument(state.productArgument!.copyWith(release: value));
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          buildInputWidget<CategoryEnum>(
+                            'Category',
+                            TextEditingController(),
+                            state.productArgument?.category,
+                                (value) {
+                              cubit.updateProductArgument(state.productArgument!.copyWith(category: value));
+                            },
+                            CategoryEnum.nonEmptyValues,
+                          ),
+                          const SizedBox(height: 16),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const Text('Manufacturer', style: AppTextStyle.smallText),
+                              const SizedBox(height: 8),
+                              DropdownSearch<Manufacturer>(
+                                items: (String filter, dynamic infiniteScrollProps) => Database().manufacturerList,
+                                compareFn: (Manufacturer? m1, Manufacturer? m2) => m1?.manufacturerID == m2?.manufacturerID,
+                                itemAsString: (Manufacturer m) => m.manufacturerName,
+                                onChanged: (value) {
+                                  cubit.updateProductArgument(state.productArgument!.copyWith(manufacturer: value));
+                                },
+                                selectedItem: state.productArgument?.manufacturer,
+                                decoratorProps: DropDownDecoratorProps(
+                                  decoration: InputDecoration(
+                                    hintText: 'Select Manufacturer',
+                                    hintStyle: const TextStyle(color: Colors.grey),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(color: Colors.blue, width: 2),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(color: Colors.blue, width: 2),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(color: Colors.blue, width: 2),
+                                    ),
+                                    filled: true,
+                                    fillColor: const Color(0xFF202046),
+                                  ),
+                                ),
+                                popupProps: PopupProps.menu(
+                                  showSearchBox: true,
+                                  searchFieldProps: TextFieldProps(
+                                    decoration: InputDecoration(
+                                      hintText: 'Search manufacturer...',
+                                      hintStyle: const TextStyle(color: Colors.grey),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const Text('Status', style: AppTextStyle.smallText),
+                              const SizedBox(height: 8),
+                              BlocBuilder<AddProductCubit, AddProductState>(
+                                builder: (context, state) {
+                                  final status = (state.productArgument?.stock ?? 0) > 0
+                                      ? ProductStatusEnum.active
+                                      : ProductStatusEnum.outOfStock;
+
+                                  return Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: status == ProductStatusEnum.active ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        color: status == ProductStatusEnum.active ? Colors.green : Colors.red,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          status == ProductStatusEnum.active ? Icons.check_circle : Icons.error,
+                                          color: status == ProductStatusEnum.active ? Colors.green : Colors.red,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          status == ProductStatusEnum.active ? 'Active' : 'Out of Stock',
+                                          style: TextStyle(
+                                            color: status == ProductStatusEnum.active ? Colors.green : Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Category Specific Section
+                if (state.productArgument?.category != null && state.productArgument?.category != CategoryEnum.empty)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${state.productArgument?.category.toString()} Specifications',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF202046),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            buildCategorySpecificInputs(
+                              state.productArgument?.category ?? CategoryEnum.empty,
+                              state,
+                              cubit,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 32), // Bottom padding
               ],
             ),
           );

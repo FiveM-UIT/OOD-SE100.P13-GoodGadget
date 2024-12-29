@@ -1516,10 +1516,8 @@ class Firebase {
           break;
       }
 
-      // Thêm sản phẩm vào collection 'products' trên Firebase
       await FirebaseFirestore.instance.collection('products').add(productData);
 
-      // Cập nhật lại danh sách sản phẩm trong Database
       List<Product> products = await getProducts();
       Database().updateProductList(products);
     } catch (e) {

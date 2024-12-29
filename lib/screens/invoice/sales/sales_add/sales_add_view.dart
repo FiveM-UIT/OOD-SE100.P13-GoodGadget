@@ -62,41 +62,79 @@ class _SalesAddViewState extends State<_SalesAddView> {
               builder: (context, state) {
                 return AlertDialog(
                   title: const Text('Add Product'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      DropdownButtonFormField<Product>(
-                        decoration: const InputDecoration(
-                          labelText: 'Product',
-                          hintText: 'Select product',
-                        ),
-                        value: selectedProduct,
-                        items: state.products
-                            .where((product) => product.stock > 0)
-                            .map((product) {
-                          return DropdownMenuItem(
-                            value: product,
-                            child: Text(
-                              '${product.productName} (\$${product.sellingPrice.toStringAsFixed(2)}) - Stock: ${product.stock}',
+                  content: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        DropdownButtonFormField<Product>(
+                          decoration: InputDecoration(
+                            labelText: 'Product',
+                            hintText: 'Select product',
+                            labelStyle: const TextStyle(color: Colors.white),
+                            hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedProduct = value;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _quantityController,
-                        decoration: const InputDecoration(
-                          labelText: 'Quantity',
-                          hintText: 'Enter quantity',
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                            ),
+                          ),
+                          value: selectedProduct,
+                          isExpanded: true,
+                          hint: Text(
+                            'Select product',
+                            style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                          ),
+                          items: state.products
+                              .where((product) => product.stock > 0)
+                              .map((product) {
+                            return DropdownMenuItem(
+                              value: product,
+                              child: Text(
+                                '${product.productName} (\$${product.sellingPrice.toStringAsFixed(2)}) - Stock: ${product.stock}',
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            );
+                          }).toList(),
+                          dropdownColor: Theme.of(context).colorScheme.surface,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedProduct = value;
+                            });
+                          },
                         ),
-                        keyboardType: TextInputType.number,
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: _quantityController,
+                          decoration: InputDecoration(
+                            labelText: 'Quantity',
+                            hintText: 'Enter quantity',
+                            labelStyle: const TextStyle(color: Colors.white),
+                            hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                            ),
+                          ),
+                          keyboardType: TextInputType.number,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
                   actions: [
                     TextButton(
@@ -529,26 +567,61 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                   final detail = state.invoiceDetails[index];
                                   return Card(
                                     margin: const EdgeInsets.only(bottom: 8),
-                                    child: ListTile(
-                                      title: Text(
-                                        detail.productName ?? '',
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
-                                      ),
-                                      subtitle: Text('\$${detail.sellingPrice} x ${detail.quantity}'),
-                                      trailing: Row(
-                                        mainAxisSize: MainAxisSize.min,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            '\$${detail.subtotal}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  detail.productName ?? '',
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 16,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(Icons.delete),
+                                                onPressed: () => cubit.removeDetail(index),
+                                                color: Colors.red,
+                                                padding: EdgeInsets.zero,
+                                                constraints: const BoxConstraints(),
+                                              ),
+                                            ],
                                           ),
-                                          IconButton(
-                                            icon: const Icon(Icons.delete),
-                                            onPressed: () => cubit.removeDetail(index),
-                                            color: Colors.red,
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'Price: \$${detail.sellingPrice.toStringAsFixed(2)}',
+                                                    style: TextStyle(
+                                                      color: Colors.white.withOpacity(0.8),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 16),
+                                                  Text(
+                                                    'Quantity: ${detail.quantity}',
+                                                    style: TextStyle(
+                                                      color: Colors.white.withOpacity(0.8),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Text(
+                                                '\$${detail.subtotal.toStringAsFixed(2)}',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),

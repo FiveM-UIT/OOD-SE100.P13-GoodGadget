@@ -22,14 +22,15 @@ import 'product_tab_state.dart';
 abstract class TabCubit extends Cubit<TabState> {
   TabCubit() : super(const TabState());
 
-  void initialize(FilterArgument filter) {
+  void initialize(FilterArgument filter, {String? searchText, List<Product>? initialProducts}) {
     emit(state.copyWith(
-      productList: Database().productList,
+      productList: initialProducts!.isEmpty ? Database().productList : initialProducts,
+      filteredProductList: initialProducts.isEmpty ? Database().productList : initialProducts,
+      searchText: searchText ?? '',
     ));
     emit(state.copyWith(
       manufacturerList: getManufacturerList(),
-      filterArgument: filter.copyWith(
-        manufacturerList: getManufacturerList(),
+      filterArgument: filter.copyWith(manufacturerList: getManufacturerList()
       ),
     ));
     applyFilters();
@@ -137,7 +138,7 @@ abstract class TabCubit extends Cubit<TabState> {
         filteredProducts.sort((a, b) => a.sales.compareTo(b.sales));
     }
 
-    emit(state.copyWith(productList: filteredProducts));
+    emit(state.copyWith(filteredProductList: filteredProducts));
   }
 
   Future<void> changeStatus(Product product) async {

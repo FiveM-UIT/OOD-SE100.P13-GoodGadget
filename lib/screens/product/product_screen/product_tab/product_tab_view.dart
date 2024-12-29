@@ -8,6 +8,7 @@ import '../../../../enums/processing/sort_enum.dart';
 import '../../../../enums/product_related/category_enum.dart';
 import '../../../../enums/product_related/product_status_enum.dart';
 import '../../../../objects/product_related/filter_argument.dart';
+import '../../../../objects/product_related/product.dart';
 import '../../../../widgets/general/app_text_style.dart';
 import '../../filter/filter_screen/filter_screen_view.dart';
 import '../../mixin/product_tab_mixin.dart';
@@ -18,38 +19,38 @@ import 'product_tab_state.dart';
 class ProductTab extends StatefulWidget {
   const ProductTab({super.key});
 
-  static Widget newInstance() => BlocProvider<TabCubit>(
-    create: (context) => AllTabCubit()..initialize(const FilterArgument()),
+  static Widget newInstance({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+    create: (context) => AllTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
 
-  static Widget newRam() => BlocProvider<TabCubit>(
-    create: (context) => RamTabCubit()..initialize(const FilterArgument()),
+  static Widget newRam({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+    create: (context) => RamTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
 
-  static Widget newCpu() => BlocProvider<TabCubit>(
-    create: (context) => CpuTabCubit()..initialize(const FilterArgument()),
+  static Widget newCpu({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+    create: (context) => CpuTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
 
-  static Widget newPsu() => BlocProvider<TabCubit>(
-    create: (context) => PsuTabCubit()..initialize(const FilterArgument()),
+  static Widget newPsu({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+    create: (context) => PsuTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
 
-  static Widget newGpu() => BlocProvider<TabCubit>(
-    create: (context) => GpuTabCubit()..initialize(const FilterArgument()),
+  static Widget newGpu({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+    create: (context) => GpuTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
 
-  static Widget newDrive() => BlocProvider<TabCubit>(
-    create: (context) => DriveTabCubit()..initialize(const FilterArgument()),
+  static Widget newDrive({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+    create: (context) => DriveTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
 
-  static Widget newMainboard() => BlocProvider<TabCubit>(
-    create: (context) => MainboardTabCubit()..initialize(const FilterArgument()),
+  static Widget newMainboard({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+    create: (context) => MainboardTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
 
@@ -137,15 +138,15 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
               Expanded(
                 child: BlocBuilder<TabCubit, TabState>(
                   builder: (context, state) {
-                    if (state.productList.isEmpty) {
+                    if (state.filteredProductList.isEmpty) {
                       return const Center(
                         child: Text('No products found'),
                       );
                     }
                     return ListView.builder(
-                      itemCount: state.productList.length,
+                      itemCount: state.filteredProductList.length,
                       itemBuilder: (context, index) {
-                        final product = state.productList[index];
+                        final product = state.filteredProductList[index];
                         final isSelected = state.selectedProduct == product;
 
                         IconData getCategoryIcon(CategoryEnum category) {

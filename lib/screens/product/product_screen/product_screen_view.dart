@@ -8,14 +8,17 @@ import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_
 import 'package:gizmoglobe_client/screens/product/product_screen/product_tab/product_tab_view.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
 import '../../../enums/product_related/category_enum.dart';
+import '../../../objects/product_related/product.dart';
 import '../../../widgets/general/gradient_dropdown.dart';
 
 class ProductScreen extends StatefulWidget {
-  const ProductScreen({super.key});
+  final List<Product>? initialProducts;
 
-  static Widget newInstance() => BlocProvider(
+  const ProductScreen({super.key, this.initialProducts});
+
+  static Widget newInstance({List<Product>? initialProducts}) => BlocProvider(
     create: (context) => ProductScreenCubit(),
-    child: const ProductScreen(),
+    child: ProductScreen(initialProducts: initialProducts),
   );
 
   @override
@@ -34,6 +37,7 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
     searchController = TextEditingController();
     searchFocusNode = FocusNode();
     tabController = TabController(length: getTabCount(), vsync: this);
+    cubit.initialize(widget.initialProducts ?? []);
   }
 
   @override
@@ -126,13 +130,13 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
                 return TabBarView(
                   controller: tabController,
                   children: [
-                    ProductTab.newInstance(),
-                    ProductTab.newRam(),
-                    ProductTab.newCpu(),
-                    ProductTab.newPsu(),
-                    ProductTab.newGpu(),
-                    ProductTab.newDrive(),
-                    ProductTab.newMainboard(),
+                    ProductTab.newInstance(searchText: state.searchText, initialProducts: state.initialProducts),
+                    ProductTab.newRam(searchText: state.searchText, initialProducts: state.initialProducts),
+                    ProductTab.newCpu(searchText: state.searchText, initialProducts: state.initialProducts),
+                    ProductTab.newPsu(searchText: state.searchText, initialProducts: state.initialProducts),
+                    ProductTab.newGpu(searchText: state.searchText, initialProducts: state.initialProducts),
+                    ProductTab.newDrive(searchText: state.searchText, initialProducts: state.initialProducts),
+                    ProductTab.newMainboard(searchText: state.searchText, initialProducts: state.initialProducts),
                   ],
                 );
               },

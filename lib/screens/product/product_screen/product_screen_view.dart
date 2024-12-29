@@ -1,14 +1,14 @@
-// product_screen_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gizmoglobe_client/screens/product/add_product/add_product_detail_view.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_cubit.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_state.dart';
-import 'product_tab/product_tab_view.dart';
+import 'package:gizmoglobe_client/screens/product/product_screen/product_tab/product_tab_view.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
 import '../../../enums/product_related/category_enum.dart';
-import 'package:gizmoglobe_client/widgets/dialog/add_edit_product_dialog.dart'; // Import the new dialog
+import '../../../widgets/general/gradient_dropdown.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
@@ -82,12 +82,11 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
             actions: [
               ElevatedButton.icon(
                 onPressed: () {
-                  // Show the Add/Edit dialog with null product for adding
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AddEditProductDialog();
-                    },
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddProductScreen.newInstance(),
+                    ),
                   );
                 },
                 icon: const Icon(Icons.add, color: Colors.white),

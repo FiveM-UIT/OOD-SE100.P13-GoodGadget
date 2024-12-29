@@ -59,5 +59,4 @@ abstract class Product {
     this.stock = stock ?? this.stock;
     this.manufacturer = manufacturer ?? this.manufacturer;
   }
-
 }

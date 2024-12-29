@@ -29,6 +29,6 @@ class AddProductScreenCubit extends Cubit<AddProductScreenState> {
 
   void addProduct() {
     Product product = state.productArgument!.buildProduct();
-    Database().addProduct(product);
+    Firebase().addProduct(product);
   }
 }

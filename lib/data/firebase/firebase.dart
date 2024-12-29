@@ -1442,10 +1442,11 @@ class Firebase {
 
   Future<void> addProduct(Product product) async {
     try {
+      // Tạo map chứa thông tin cơ bản của sản phẩm
       Map<String, dynamic> productData = {
         'productName': product.productName,
         'importPrice': product.importPrice,
-        'sellingPrice': product.sellingPrice,
+        'sellingPrice': product.sellingPrice, 
         'discount': product.discount,
         'release': product.release,
         'sales': product.sales,
@@ -1455,6 +1456,7 @@ class Firebase {
         'category': product.category.getName(),
       };
 
+      // Thêm các thuộc tính đặc thù theo từng loại sản phẩm
       switch (product.runtimeType) {
         case RAM:
           final ram = product as RAM;
@@ -1512,11 +1514,14 @@ class Firebase {
           break;
       }
 
+      // Thêm sản phẩm vào collection 'products' trên Firebase
       await FirebaseFirestore.instance.collection('products').add(productData);
+
+      // Cập nhật lại danh sách sản phẩm trong Database
       List<Product> products = await getProducts();
       Database().updateProductList(products);
     } catch (e) {
-      print('Error adding product: $e');
+      print('Lỗi khi thêm sản phẩm: $e');
       rethrow;
     }
   }

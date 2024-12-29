@@ -102,7 +102,6 @@ class _AddProductState extends State<AddProductScreen> {
             child: ElevatedButton.icon(
               onPressed: () {
                 cubit.addProduct();
-                Navigator.pop(context);
               },
               icon: const Icon(Icons.save_outlined, size: 20),
               label: const Text('Save'),
@@ -713,10 +712,7 @@ Widget buildInputWidget<T>(
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(propertyName, style: AppTextStyle.smallText),
-        ),
+        Text(propertyName, style: AppTextStyle.smallText),
         GradientDropdown<T>(
           items: (String filter, dynamic infiniteScrollProps) => enumValues,
           compareFn: (T? d1, T? d2) => d1 == d2,
@@ -725,6 +721,7 @@ Widget buildInputWidget<T>(
           selectedItem: propertyValue,
           hintText: 'Select $propertyName',
         ),
+        const SizedBox(height: 8),
       ],
     );
   } else {
@@ -766,6 +763,7 @@ Widget buildInputWidget<T>(
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
         ),
+        const SizedBox(height: 8),
       ],
     );
   }

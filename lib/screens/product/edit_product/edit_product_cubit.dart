@@ -15,15 +15,14 @@ import '../../../objects/product_related/gpu.dart';
 import '../../../objects/product_related/mainboard.dart';
 import '../../../objects/product_related/psu.dart';
 import '../../../objects/product_related/ram.dart';
-import 'add_product_state.dart';
+import 'edit_product_state.dart';
 
-class AddProductCubit extends Cubit<AddProductState> {
-  AddProductCubit() : super(const AddProductState()) {
-    initialize();
-  }
+class EditProductCubit extends Cubit<EditProductState> {
+  EditProductCubit() : super(const EditProductState());
 
-  void initialize() {
-    emit(state.copyWith(productArgument: ProductArgument(sales: 0, release: DateTime.now())));
+  void initialize(Product product) {
+    ProductArgument productArgument = ProductArgument();
+    emit(state.copyWith(productArgument: productArgument.fromProduct(product)));
   }
 
   void updateProductArgument(ProductArgument productArgument) {
@@ -34,14 +33,14 @@ class AddProductCubit extends Cubit<AddProductState> {
     emit(state.copyWith(processState: ProcessState.idle));
   }
 
-  Future<void> addProduct() async {
+  Future<void> editProduct() async {
     emit(state.copyWith(processState: ProcessState.loading));
     try {
       Product product = state.productArgument!.buildProduct();
-      await Firebase().addProduct(product);
-      emit(state.copyWith(processState: ProcessState.success, dialogName: DialogName.success, notifyMessage: NotifyMessage.msg13));
+      await Firebase().updateProduct(product);
+      emit(state.copyWith(processState: ProcessState.success, dialogName: DialogName.success, notifyMessage: NotifyMessage.msg15));
     } catch (e) {
-      emit(state.copyWith(processState: ProcessState.failure, dialogName: DialogName.failure, notifyMessage: NotifyMessage.msg14));
+      emit(state.copyWith(processState: ProcessState.failure, dialogName: DialogName.failure, notifyMessage: NotifyMessage.msg16));
     }
   }
 }

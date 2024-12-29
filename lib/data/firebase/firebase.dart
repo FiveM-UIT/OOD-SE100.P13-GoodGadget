@@ -1569,4 +1569,5 @@ class Firebase {
       rethrow;
     }
   }
+
 }

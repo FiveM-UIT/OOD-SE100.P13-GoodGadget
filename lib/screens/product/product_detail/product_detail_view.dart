@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gizmoglobe_client/screens/product/edit_product/edit_product_view.dart';
 import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_cubit.dart';
 import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_state.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
@@ -128,13 +129,13 @@ class ProductDetailScreen extends StatelessWidget {
                       Row(
                         children: [
                           _buildStatusChip(product.status),
-                          SizedBox(width: 16),
+                          const SizedBox(width: 16),
                           Icon(
                             product.stock > 0 ? Icons.check_circle : Icons.error,
                             color: product.stock > 0 ? Colors.green : Colors.red,
                             size: 16,
                           ),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text(
                             'Stock: ${product.stock}',
                             style: TextStyle(
@@ -144,15 +145,14 @@ class ProductDetailScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
+
                       _buildInfoRow(
                         icon: Icons.calendar_today,
                         title: 'Release Date',
                         value: DateFormat('dd/MM/yyyy').format(product.release),
                       ),
-                      
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       
                       // Technical Specifications Section
                       Text(
@@ -162,9 +162,86 @@ class ProductDetailScreen extends StatelessWidget {
                           color: Colors.blue[300],
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       
                       ..._buildProductSpecificDetails(context, product, state.technicalSpecs),
+
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EditProductScreen.newInstance(product),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                              ),
+                              label: const Text(
+                                'Edit',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                // showDialog(
+                                //   context: context,
+                                //   builder: (dialogContext) => AlertDialog(
+                                //     title: const Text('Delete Customer'),
+                                //     content: const Text(
+                                //       'Are you sure you want to delete this customer?',
+                                //     ),
+                                //     actions: [
+                                //       TextButton(
+                                //         onPressed: () => Navigator.pop(dialogContext),
+                                //         child: const Text('Cancel'),
+                                //       ),
+                                //       TextButton(
+                                //         onPressed: () async {
+                                //           Navigator.pop(dialogContext); // Close dialog
+                                //           await cubit.deleteCustomer();
+                                //           if (mounted) {
+                                //             Navigator.pop(context); // Return to list
+                                //           }
+                                //         },
+                                //         child: const Text(
+                                //           'Delete',
+                                //           style: TextStyle(color: Colors.red),
+                                //         ),
+                                //       ),
+                                //     ],
+                                //   ),
+                                // );
+                              },
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                              ),
+                              label: const Text(
+                                'Discontinue',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gizmoglobe_client/screens/product/edit_product/edit_product_view.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 
 import '../../../../data/database/database.dart';
@@ -235,10 +236,10 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                                               onTap: () async {
                                                 Navigator.pop(context);
                                                 cubit.setSelectedProduct(null);
-                                                final updatedProduct = await Navigator.push(
+                                                Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
-                                                    builder: (context) => ProductDetailScreen.newInstance(product),
+                                                    builder: (context) => EditProductScreen.newInstance(product),
                                                   ),
                                                 );
                                               },

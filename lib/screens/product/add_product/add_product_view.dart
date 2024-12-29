@@ -704,68 +704,120 @@ class _AddProductState extends State<AddProductScreen> {
 
 Widget buildInputWidget<T>(
     String propertyName,
-    TextEditingController? controller,
+    TextEditingController controller,
     T? propertyValue,
     void Function(T?) onChanged,
-    [List<T>? enumValues]) {
-  if (enumValues != null) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Text(propertyName, style: AppTextStyle.smallText),
-        GradientDropdown<T>(
-          items: (String filter, dynamic infiniteScrollProps) => enumValues,
-          compareFn: (T? d1, T? d2) => d1 == d2,
-          itemAsString: (T d) => d.toString(),
-          onChanged: onChanged,
-          selectedItem: propertyValue,
-          hintText: 'Select $propertyName',
-        ),
-        const SizedBox(height: 8),
-      ],
-    );
-  } else {
-    TextInputType keyboardType;
-    List<TextInputFormatter> inputFormatters;
+    [List<T>? enumValues]
+    ) {
+  return Builder(
+      builder: (BuildContext context) {
+        if (T == DateTime) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(propertyName, style: AppTextStyle.smallText),
+              GestureDetector(
+                onTap: () async {
+                  final DateTime? picked = await showDatePicker(
+                    context: context,
+                    initialDate: propertyValue as DateTime? ?? DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
+                    builder: (context, child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: const ColorScheme.light(
+                            primary: Color(0xFF202046),    // header background color
+                            onPrimary: Colors.white,       // header text color
+                            onSurface: Colors.black,       // body text color
+                          ),
+                          textButtonTheme: TextButtonThemeData(
+                            style: TextButton.styleFrom(
+                              foregroundColor: const Color(0xFF202046), // button text color
+                            ),
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
+                  );
+                  if (picked != null) {
+                    onChanged(picked as T?);
+                  }
+                },
+                child: AbsorbPointer(
+                  child: FieldWithIcon(
+                    controller: TextEditingController(
+                      text: (propertyValue as DateTime?)?.toString().split(' ')[0] ?? '',
+                    ),
+                    readOnly: true,
+                    hintText: 'Select $propertyName',
+                    fillColor: const Color(0xFF202046),
+                    suffixIcon: const Icon(Icons.calendar_today),
+                  ),
+                ),
+              ),
+            ],
+          );
+        } else if (enumValues != null) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(propertyName, style: AppTextStyle.smallText),
+              GradientDropdown<T>(
+                items: (String filter, dynamic infiniteScrollProps) => enumValues,
+                compareFn: (T? d1, T? d2) => d1 == d2,
+                itemAsString: (T d) => d.toString(),
+                onChanged: onChanged,
+                selectedItem: propertyValue,
+                hintText: 'Select $propertyName',
+              ),
+            ],
+          );
+        } else {
+          final controller = TextEditingController(text: propertyValue?.toString() ?? '');
+          controller.selection = TextSelection.fromPosition(TextPosition(offset: controller.text.length));
 
-    if (T == int) {
-      keyboardType = TextInputType.number;
-      inputFormatters = [FilteringTextInputFormatter.digitsOnly];
-    } else if (T == double) {
-      keyboardType = const TextInputType.numberWithOptions(decimal: true);
-      inputFormatters = [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))];
-    } else {
-      keyboardType = TextInputType.text;
-      inputFormatters = [FilteringTextInputFormatter.allow(RegExp(r'.*'))];
-    }
+          TextInputType keyboardType;
+          List<TextInputFormatter> inputFormatters;
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Text(propertyName, style: AppTextStyle.smallText),
-        FieldWithIcon(
-          controller: controller!,
-          hintText: 'Enter $propertyName',
-          onChanged: (value) {
-            if (value.isEmpty) {
-              onChanged(null);
-            } else if (T == int) {
-              final parsedValue = int.tryParse(value);
-              onChanged(parsedValue as T?);
-            } else if (T == double) {
-              final parsedValue = double.tryParse(value);
-              onChanged(parsedValue as T?);
-            } else {
-              onChanged(value as T?);
-            }
-          },
-          fillColor: const Color(0xFF202046),
-          keyboardType: keyboardType,
-          inputFormatters: inputFormatters,
-        ),
-        const SizedBox(height: 8),
-      ],
-    );
-  }
+          if (T == int) {
+            keyboardType = TextInputType.number;
+            inputFormatters = [FilteringTextInputFormatter.digitsOnly];
+          } else if (T == double) {
+            keyboardType = const TextInputType.numberWithOptions(decimal: true);
+            inputFormatters = [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))];
+          } else {
+            keyboardType = TextInputType.text;
+            inputFormatters = [FilteringTextInputFormatter.allow(RegExp(r'.*'))];
+          }
+
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(propertyName, style: AppTextStyle.smallText),
+              FieldWithIcon(
+                controller: controller,
+                hintText: 'Enter $propertyName',
+                onChanged: (value) {
+                  if (value.isEmpty) {
+                    onChanged(null);
+                  } else if (T == int) {
+                    onChanged(int.tryParse(value) as T?);
+                  } else if (T == double) {
+                    onChanged(double.tryParse(value) as T?);
+                  } else {
+                    onChanged(value as T?);
+                  }
+                },
+                fillColor: const Color(0xFF202046),
+                keyboardType: keyboardType,
+                inputFormatters: inputFormatters,
+              ),
+            ],
+          );
+        }
+      }
+  );
 }
 

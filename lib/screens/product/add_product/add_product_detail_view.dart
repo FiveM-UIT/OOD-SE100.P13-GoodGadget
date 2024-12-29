@@ -226,12 +226,28 @@ Widget buildInputWidget<T>(String propertyName, T? propertyValue, void Function(
             Text(propertyName, style: AppTextStyle.smallText),
             GestureDetector(
               onTap: () async {
-                print("Tapped"); // Để debug
                 final DateTime? picked = await showDatePicker(
                   context: context,
                   initialDate: propertyValue as DateTime? ?? DateTime.now(),
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2100),
+                  builder: (context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: const ColorScheme.light(
+                          primary: Color(0xFF202046),    // header background color
+                          onPrimary: Colors.white,       // header text color
+                          onSurface: Colors.black,       // body text color
+                        ),
+                        textButtonTheme: TextButtonThemeData(
+                          style: TextButton.styleFrom(
+                            foregroundColor: const Color(0xFF202046), // button text color
+                          ),
+                        ),
+                      ),
+                      child: child!,
+                    );
+                  },
                 );
                 if (picked != null) {
                   onChanged(picked as T?);
@@ -245,7 +261,7 @@ Widget buildInputWidget<T>(String propertyName, T? propertyValue, void Function(
                   readOnly: true,
                   hintText: 'Select $propertyName',
                   fillColor: const Color(0xFF202046),
-                  suffixIcon: const Icon(Icons.calendar_today), // Thêm icon calendar
+                  suffixIcon: const Icon(Icons.calendar_today),
                 ),
               ),
             ),

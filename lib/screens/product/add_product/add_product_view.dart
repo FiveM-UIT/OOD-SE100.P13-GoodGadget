@@ -97,12 +97,25 @@ class _AddProductState extends State<AddProductScreen> {
         ),
         title: const GradientText(text: 'Add Product'),
         actions: [
-          TextButton(
-          onPressed: () async {
-              await cubit.addProduct();
-            },
-            child: const Text('Save', style: AppTextStyle.regularText),
-          )
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                cubit.addProduct();
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.save_outlined, size: 20),
+              label: const Text('Save'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF202046),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
       body: BlocConsumer<AddProductCubit, AddProductState>(
@@ -151,10 +164,24 @@ class _AddProductState extends State<AddProductScreen> {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.grey[100],
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-                  child: Image.network(
-                    'https://ramleather.vn/wp-content/uploads/2022/07/woocommerce-placeholder-200x200-1.jpg',
-                    fit: BoxFit.contain,
+                  child: Center(
+                    child: Image.network(
+                      'https://ramleather.vn/wp-content/uploads/2022/07/woocommerce-placeholder-200x200-1.jpg',
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
 
@@ -623,7 +650,10 @@ Widget buildInputWidget<T>(
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text(propertyName, style: AppTextStyle.smallText),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(propertyName, style: AppTextStyle.smallText),
+        ),
         GradientDropdown<T>(
           items: (String filter, dynamic infiniteScrollProps) => enumValues,
           compareFn: (T? d1, T? d2) => d1 == d2,

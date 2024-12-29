@@ -155,11 +155,12 @@ class _EditProductState extends State<EditProductScreen> {
                     title: state.dialogName.toString(),
                     content: state.notifyMessage.toString(),
                     onPressed: () {
-                      Navigator.pushReplacement(
+                      Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
                           builder: (context) => MainScreen(),
                         ),
+                            (Route<dynamic> route) => false,
                       ).then((_) {
                         MainScreen().setIndex(1);
                       });

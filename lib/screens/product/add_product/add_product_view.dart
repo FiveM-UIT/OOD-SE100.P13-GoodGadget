@@ -129,12 +129,12 @@ class _AddProductState extends State<AddProductScreen> {
                     title: state.dialogName.toString(),
                     content: state.notifyMessage.toString(),
                     onPressed: () {
-                      Navigator.pushAndRemoveUntil(
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => MainScreen(),
                         ),
-                            (Route<dynamic> route) => false,
                       ).then((_) {
                         MainScreen().setIndex(1);
                       });

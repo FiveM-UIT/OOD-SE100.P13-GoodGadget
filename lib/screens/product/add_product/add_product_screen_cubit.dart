@@ -15,10 +15,10 @@ import '../../../objects/product_related/gpu.dart';
 import '../../../objects/product_related/mainboard.dart';
 import '../../../objects/product_related/psu.dart';
 import '../../../objects/product_related/ram.dart';
-import 'add_product_state.dart';
+import 'add_product_detail_state.dart';
 
-class AddProductCubit extends Cubit<AddProductState> {
-  AddProductCubit() : super(const AddProductState()) {
+class AddProductScreenCubit extends Cubit<AddProductScreenState> {
+  AddProductScreenCubit() : super(const AddProductScreenState()) {
     initialize();
   }
 

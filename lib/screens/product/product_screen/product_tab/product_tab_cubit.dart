@@ -35,6 +35,17 @@ abstract class TabCubit extends Cubit<TabState> {
     ));
     applyFilters();
   }
+  Future<void> _fetchProducts() async {
+    try {
+      emit(state.copyWith(processState: ProcessState.loading));
+      List<Product> products = await Firebase().getProducts();
+      Database().updateProductList(products);
+      emit(state.copyWith(productList: products, processState: ProcessState.success));
+    } catch (e) {
+      print(e);
+      emit(state.copyWith(processState: ProcessState.failure));
+    }
+  }
 
   void updateFilter({
     FilterArgument? filter,
@@ -116,7 +127,7 @@ abstract class TabCubit extends Cubit<TabState> {
       }
 
       return matchFilter(product, state.filterArgument);
-     }).toList();
+    }).toList();
 
     switch (state.selectedSortOption) {
       case SortEnum.releaseLatest:
@@ -153,11 +164,10 @@ abstract class TabCubit extends Cubit<TabState> {
       } else {
         status = ProductStatusEnum.discontinued;
       }
-      
-      await Firebase().changeProductStatus(product.productID!, status);
 
-      emit(state.copyWith(productList: Database().productList, processState: ProcessState.success));
+      await Firebase().changeProductStatus(product.productID!, status);
       applyFilters();
+      _fetchProducts();
     } catch (e) {
       print(e);
       emit(state.copyWith(processState: ProcessState.failure));

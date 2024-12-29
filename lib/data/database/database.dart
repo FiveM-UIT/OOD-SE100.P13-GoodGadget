@@ -1387,8 +1387,4 @@ class Database {
   void updateProductList (List<Product> productList) {
     this.productList = productList;
   }
-
-  void addProduct(Product product) {
-    productList.add(product);
-  }
 }

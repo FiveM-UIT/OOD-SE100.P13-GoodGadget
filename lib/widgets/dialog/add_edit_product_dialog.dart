@@ -173,7 +173,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
               DropdownButtonFormField<CategoryEnum>(
                 value: _selectedCategory,
                 decoration: const InputDecoration(labelText: 'Category'),
-                items: CategoryEnum.values.map((CategoryEnum category) {
+                items: CategoryEnum.nonEmptyValues.map((CategoryEnum category) {
                   return DropdownMenuItem<CategoryEnum>(
                     value: category,
                     child: Text(category.toString()),

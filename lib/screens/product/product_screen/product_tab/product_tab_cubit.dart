@@ -65,7 +65,7 @@ abstract class TabCubit extends Cubit<TabState> {
   }
 
   void updateTabIndex(int index) {
-    emit(state.copyWith(filterArgument: state.filterArgument.copyWith(categoryList: [CategoryEnum.values[index]])));
+    emit(state.copyWith(filterArgument: state.filterArgument.copyWith(categoryList: [CategoryEnum.nonEmptyValues[index]])));
     applyFilters();
   }
 

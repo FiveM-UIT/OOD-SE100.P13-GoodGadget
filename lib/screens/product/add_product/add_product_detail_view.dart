@@ -217,64 +217,100 @@ class _AddProductScreenState extends State<AddProductScreen> {
 }
 
 Widget buildInputWidget<T>(String propertyName, T? propertyValue, void Function(T?) onChanged, [List<T>? enumValues]) {
-  if (enumValues != null) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Text(propertyName, style: AppTextStyle.smallText),
-        GradientDropdown<T>(
-          items: (String filter, dynamic infiniteScrollProps) => enumValues,
-          compareFn: (T? d1, T? d2) => d1 == d2,
-          itemAsString: (T d) => d.toString(),
-          onChanged: onChanged,
-          selectedItem: propertyValue,
-          hintText: 'Select $propertyName',
-        ),
-      ],
-    );
-  } else {
-    final controller = TextEditingController(text: propertyValue?.toString() ?? '');
-    controller.selection = TextSelection.fromPosition(TextPosition(offset: controller.text.length));
+  return Builder(
+    builder: (BuildContext context) {
+      if (T == DateTime) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(propertyName, style: AppTextStyle.smallText),
+            GestureDetector(
+              onTap: () async {
+                print("Tapped"); // Để debug
+                final DateTime? picked = await showDatePicker(
+                  context: context,
+                  initialDate: propertyValue as DateTime? ?? DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                );
+                if (picked != null) {
+                  onChanged(picked as T?);
+                }
+              },
+              child: AbsorbPointer(
+                child: FieldWithIcon(
+                  controller: TextEditingController(
+                    text: (propertyValue as DateTime?)?.toString().split(' ')[0] ?? '',
+                  ),
+                  readOnly: true,
+                  hintText: 'Select $propertyName',
+                  fillColor: const Color(0xFF202046),
+                  suffixIcon: const Icon(Icons.calendar_today), // Thêm icon calendar
+                ),
+              ),
+            ),
+          ],
+        );
+      } else if (enumValues != null) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(propertyName, style: AppTextStyle.smallText),
+            GradientDropdown<T>(
+              items: (String filter, dynamic infiniteScrollProps) => enumValues,
+              compareFn: (T? d1, T? d2) => d1 == d2,
+              itemAsString: (T d) => d.toString(),
+              onChanged: onChanged,
+              selectedItem: propertyValue,
+              hintText: 'Select $propertyName',
+            ),
+          ],
+        );
+      } else {
+        final controller = TextEditingController(text: propertyValue?.toString() ?? '');
+        controller.selection = TextSelection.fromPosition(TextPosition(offset: controller.text.length));
 
-    TextInputType keyboardType;
-    List<TextInputFormatter> inputFormatters;
+        TextInputType keyboardType;
+        List<TextInputFormatter> inputFormatters;
 
-    if (T == int) {
-      keyboardType = TextInputType.number;
-      inputFormatters = [FilteringTextInputFormatter.digitsOnly];
-    } else if (T == double) {
-      keyboardType = const TextInputType.numberWithOptions(decimal: true);
-      inputFormatters = [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))];
-    } else {
-      keyboardType = TextInputType.text;
-      inputFormatters = [FilteringTextInputFormatter.allow(RegExp(r'.*'))];
+        if (T == int) {
+          keyboardType = TextInputType.number;
+          inputFormatters = [FilteringTextInputFormatter.digitsOnly];
+        } else if (T == double) {
+          keyboardType = const TextInputType.numberWithOptions(decimal: true);
+          inputFormatters = [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))];
+        } else {
+          keyboardType = TextInputType.text;
+          inputFormatters = [FilteringTextInputFormatter.allow(RegExp(r'.*'))];
+        }
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(propertyName, style: AppTextStyle.smallText),
+            FieldWithIcon(
+              controller: controller,
+              hintText: 'Enter $propertyName',
+              onChanged: (value) {
+                if (value.isEmpty) {
+                  onChanged(null);
+                } else if (T == int) {
+                  onChanged(int.tryParse(value) as T?);
+                } else if (T == double) {
+                  onChanged(double.tryParse(value) as T?);
+                } else {
+                  onChanged(value as T?);
+                }
+              },
+              fillColor: const Color(0xFF202046),
+              keyboardType: keyboardType,
+              inputFormatters: inputFormatters,
+            ),
+          ],
+        );
+      }
     }
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Text(propertyName, style: AppTextStyle.smallText),
-        FieldWithIcon(
-          controller: controller,
-          hintText: 'Enter $propertyName',
-          onChanged: (value) {
-            if (value.isEmpty) {
-              onChanged(null);
-            } else if (T == int) {
-              onChanged(int.tryParse(value) as T?);
-            } else if (T == double) {
-              onChanged(double.tryParse(value) as T?);
-            } else {
-              onChanged(value as T?);
-            }
-          },
-          fillColor: const Color(0xFF202046),
-          keyboardType: keyboardType,
-          inputFormatters: inputFormatters,
-        ),
-      ],
-    );
-  }
+  );
 }
 
 Widget buildCategorySpecificInputs(CategoryEnum category, AddProductScreenState state, AddProductScreenCubit cubit) {

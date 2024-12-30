@@ -42,7 +42,10 @@ class SalesAddCubit extends Cubit<SalesAddState> {
   }
 
   void updateAddress(String address) {
-    emit(state.copyWith(address: address));
+    emit(state.copyWith(
+      address: address,
+      selectedCustomer: state.selectedCustomer,
+    ));
   }
 
   void updatePaymentStatus(PaymentStatus status) {

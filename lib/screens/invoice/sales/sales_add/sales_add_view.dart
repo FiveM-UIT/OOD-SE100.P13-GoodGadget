@@ -381,10 +381,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
                               onChanged: (customer) {
                                 if (customer != null) {
                                   cubit.updateCustomer(customer);
-                                  // Auto-fill address if available
-                                  if (customer.addresses?.isNotEmpty ?? false) {
-                                    _addressController.text = customer.addresses! as String;
-                                  }
+                                  _addressController.clear();
                                 }
                               },
                               validator: (value) {

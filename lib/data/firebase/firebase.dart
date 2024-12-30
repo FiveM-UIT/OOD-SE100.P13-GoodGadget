@@ -31,6 +31,8 @@ import '../../objects/address_related/province.dart';
 import '../../objects/address_related/ward.dart';
 import '../../objects/customer.dart';
 import '../../objects/employee.dart';
+import '../../objects/invoice_related/incoming_invoice.dart';
+import '../../objects/invoice_related/incoming_invoice_detail.dart';
 import '../../objects/invoice_related/sales_invoice_detail.dart';
 import '../../objects/manufacturer.dart';
 import '../../objects/product_related/product.dart';

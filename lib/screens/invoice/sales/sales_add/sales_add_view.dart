@@ -183,7 +183,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
     );
   }
 
-  void _showAddressBottomSheet(BuildContext context) async {
+  void _showAddressBottomSheet(BuildContext context, SalesAddState state) async {
     try {
       if (state.selectedCustomer == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -417,7 +417,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                 fillColor: Theme.of(context).colorScheme.surface,
                                 suffixIcon: IconButton(
                                   icon: Icon(Icons.edit, color: Colors.white.withOpacity(0.7)),
-                                  onPressed: () => _showAddressBottomSheet(context),
+                                  onPressed: () => _showAddressBottomSheet(context, state),
                                 ),
                               ),
                               style: const TextStyle(color: Colors.white),

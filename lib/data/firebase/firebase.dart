@@ -1626,4 +1626,163 @@ class Firebase {
     }
   }
 
+  // Incoming Invoice Methods
+  Stream<List<IncomingInvoice>> incomingInvoicesStream() {
+    return _firestore
+        .collection('incoming_invoices')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return IncomingInvoice.fromMap(doc.id, doc.data());
+      }).toList();
+    });
+  }
+
+  Future<List<IncomingInvoice>> getIncomingInvoices() async {
+    try {
+      final QuerySnapshot snapshot = await _firestore
+          .collection('incoming_invoices')
+          .get();
+
+      return snapshot.docs.map((doc) {
+        return IncomingInvoice.fromMap(doc.id, doc.data() as Map<String, dynamic>);
+      }).toList();
+    } catch (e) {
+      print('Error loading incoming invoices: $e');
+      rethrow;
+    }
+  }
+
+  Future<IncomingInvoice> getIncomingInvoiceWithDetails(String invoiceId) async {
+    try {
+      // Get the invoice
+      final DocumentSnapshot invoiceDoc = await _firestore
+          .collection('incoming_invoices')
+          .doc(invoiceId)
+          .get();
+
+      if (!invoiceDoc.exists) {
+        throw Exception('Invoice not found');
+      }
+
+      // Create invoice object
+      IncomingInvoice invoice = IncomingInvoice.fromMap(
+        invoiceDoc.id,
+        invoiceDoc.data() as Map<String, dynamic>,
+      );
+
+      // Get invoice details
+      final QuerySnapshot detailsSnapshot = await _firestore
+          .collection('incoming_invoice_details')
+          .where('incomingInvoiceID', isEqualTo: invoiceId)
+          .get();
+
+      // Add details to invoice
+      invoice.details = detailsSnapshot.docs.map((doc) {
+        return IncomingInvoiceDetail.fromMap(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }).toList();
+
+      return invoice;
+    } catch (e) {
+      print('Error loading incoming invoice details: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateIncomingInvoice(IncomingInvoice invoice) async {
+    try {
+      if (invoice.incomingInvoiceID == null) {
+        throw Exception('Invoice ID cannot be null');
+      }
+
+      // Update invoice
+      await _firestore
+          .collection('incoming_invoices')
+          .doc(invoice.incomingInvoiceID)
+          .update(invoice.toMap());
+
+      // Update details
+      for (var detail in invoice.details) {
+        if (detail.incomingInvoiceDetailID != null) {
+          await _firestore
+              .collection('incoming_invoice_details')
+              .doc(detail.incomingInvoiceDetailID)
+              .update(detail.toMap());
+        } else {
+          // Create new detail if it doesn't exist
+          final docRef = await _firestore
+              .collection('incoming_invoice_details')
+              .add(detail.toMap());
+
+          await docRef.update({
+            'incomingInvoiceDetailID': docRef.id,
+          });
+        }
+      }
+    } catch (e) {
+      print('Error updating incoming invoice: $e');
+      rethrow;
+    }
+  }
+
+  Future<String> createIncomingInvoice(IncomingInvoice invoice) async {
+    try {
+      // Create invoice
+      final docRef = await _firestore
+          .collection('incoming_invoices')
+          .add(invoice.toMap());
+
+      // Update invoice with ID
+      await docRef.update({
+        'incomingInvoiceID': docRef.id,
+      });
+
+      // Create details
+      for (var detail in invoice.details) {
+        detail.incomingInvoiceID = docRef.id;
+        final detailRef = await _firestore
+            .collection('incoming_invoice_details')
+            .add(detail.toMap());
+
+        await detailRef.update({
+          'incomingInvoiceDetailID': detailRef.id,
+        });
+      }
+
+      return docRef.id;
+    } catch (e) {
+      print('Error creating incoming invoice: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteIncomingInvoice(String invoiceId) async {
+    try {
+      // Delete invoice details first
+      final QuerySnapshot detailsSnapshot = await _firestore
+          .collection('incoming_invoice_details')
+          .where('incomingInvoiceID', isEqualTo: invoiceId)
+          .get();
+
+      for (var doc in detailsSnapshot.docs) {
+        await _firestore
+            .collection('incoming_invoice_details')
+            .doc(doc.id)
+            .delete();
+      }
+
+      // Delete invoice
+      await _firestore
+          .collection('incoming_invoices')
+          .doc(invoiceId)
+          .delete();
+    } catch (e) {
+      print('Error deleting incoming invoice: $e');
+      rethrow;
+    }
+  }
+
 }

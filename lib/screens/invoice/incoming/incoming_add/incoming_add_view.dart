@@ -196,7 +196,7 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
   Widget _buildSubmitButton(IncomingAddState state) {
     return SizedBox(
       width: double.infinity,
-      child: GradientButton(
+      child: ElevatedButton(
         onPressed: state.isSubmitting
             ? null
             : () async {

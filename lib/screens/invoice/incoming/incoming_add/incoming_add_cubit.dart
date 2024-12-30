@@ -130,7 +130,7 @@ class IncomingAddCubit extends Cubit<IncomingAddState> {
 
     try {
       final invoice = IncomingInvoice(
-        manufacturerID: state.selectedManufacturer!.manufacturerID,
+        manufacturerID: state.selectedManufacturer?.manufacturerID ?? '',
         date: DateTime.now(),
         status: PaymentStatus.unpaid,
         totalPrice: state.totalPrice,

@@ -106,17 +106,42 @@ class _SalesAddViewState extends State<_SalesAddView> {
                       items: state.products
                           .where((product) => product.stock > 0)
                           .map((product) {
-                        return DropdownMenuItem(
+                        return DropdownMenuItem<Product>(
                           value: product,
-                          child: Text(
-                            '${product.productName} (\$${product.sellingPrice.toStringAsFixed(2)}) - Stock: ${product.stock}',
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Colors.white),
+                          child: Container(
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width * 0.6,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    product.productName,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '(\$${product.sellingPrice.toStringAsFixed(2)})',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '[${product.stock}]',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.7),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       }).toList(),
                       dropdownColor: Theme.of(context).colorScheme.surface,
                       style: const TextStyle(color: Colors.white),
+                      isExpanded: true,
                     ),
                     const SizedBox(height: 16),
                     TextField(

@@ -7,7 +7,6 @@ import 'package:gizmoglobe_client/objects/product_related/product.dart';
 
 class SalesAddState extends Equatable {
   final bool isLoading;
-  final bool isLoadingData;
   final String? error;
   final Customer? selectedCustomer;
   final String address;
@@ -21,7 +20,6 @@ class SalesAddState extends Equatable {
 
   SalesAddState({
     this.isLoading = false,
-    this.isLoadingData = true,
     this.error,
     this.selectedCustomer,
     this.address = '',
@@ -55,7 +53,6 @@ class SalesAddState extends Equatable {
 
   SalesAddState copyWith({
     bool? isLoading,
-    bool? isLoadingData,
     String? error,
     Customer? selectedCustomer,
     String? address,
@@ -69,7 +66,6 @@ class SalesAddState extends Equatable {
   }) {
     return SalesAddState(
       isLoading: isLoading ?? this.isLoading,
-      isLoadingData: isLoadingData ?? this.isLoadingData,
       error: error,
       selectedCustomer: selectedCustomer,
       address: address ?? this.address,

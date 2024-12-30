@@ -5,6 +5,7 @@ import 'package:gizmoglobe_client/enums/invoice_related/sales_status.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice_detail.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
+import '../../../../objects/customer.dart';
 import 'sales_add_state.dart';
 
 class SalesAddCubit extends Cubit<SalesAddState> {

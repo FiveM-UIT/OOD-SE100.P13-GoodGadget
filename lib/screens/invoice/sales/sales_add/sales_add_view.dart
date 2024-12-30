@@ -183,6 +183,100 @@ class _SalesAddViewState extends State<_SalesAddView> {
     );
   }
 
+  void _showAddressBottomSheet(BuildContext context) async {
+    try {
+      if (state.selectedCustomer == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Vui lòng chọn khách hàng trước'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      final addresses = await Firebase().getCustomerAddresses(state.selectedCustomer!.customerID!);
+      
+      if (!mounted) return;
+
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Chọn địa chỉ',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (addresses.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text('Không có địa chỉ nào'),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: addresses.length,
+                  itemBuilder: (context, index) {
+                    final address = addresses[index];
+                    return ListTile(
+                      title: Text(address.receiverName),
+                      subtitle: Text(address.toString()),
+                      trailing: address.isDefault ? Icon(
+                        Icons.check_circle,
+                        color: Theme.of(context).colorScheme.primary,
+                      ) : null,
+                      onTap: () {
+                        _addressController.text = address.toString();
+                        cubit.updateAddress(address.toString());
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi khi tải địa chỉ: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SalesAddCubit, SalesAddState>(
@@ -303,11 +397,10 @@ class _SalesAddViewState extends State<_SalesAddView> {
                             const SizedBox(height: 16),
                             TextFormField(
                               controller: _addressController,
+                              readOnly: true,
                               decoration: InputDecoration(
-                                labelText: 'Delivery Address',
-                                hintText: 'Enter delivery address',
+                                labelText: 'Địa chỉ giao hàng',
                                 labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
-                                hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
                                 prefixIcon: Icon(Icons.location_on_outlined, color: Colors.white.withOpacity(0.7)),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
@@ -323,15 +416,15 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                 filled: true,
                                 fillColor: Theme.of(context).colorScheme.surface,
                                 suffixIcon: IconButton(
-                                  icon: Icon(Icons.clear, color: Colors.white.withOpacity(0.7)),
-                                  onPressed: () => _addressController.clear(),
+                                  icon: Icon(Icons.edit, color: Colors.white.withOpacity(0.7)),
+                                  onPressed: () => _showAddressBottomSheet(context),
                                 ),
                               ),
                               style: const TextStyle(color: Colors.white),
                               maxLines: 3,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter delivery address';
+                                  return 'Vui lòng chọn địa chỉ giao hàng';
                                 }
                                 return null;
                               },

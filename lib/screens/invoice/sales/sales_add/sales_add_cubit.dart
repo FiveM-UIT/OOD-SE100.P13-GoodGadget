@@ -33,8 +33,11 @@ class SalesAddCubit extends Cubit<SalesAddState> {
     }
   }
 
-  void updateCustomer(customer) {
-    emit(state.copyWith(selectedCustomer: customer));
+  void updateCustomer(Customer customer) {
+    emit(state.copyWith(
+      selectedCustomer: customer,
+      address: '',
+    ));
   }
 
   void updateAddress(String address) {

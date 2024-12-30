@@ -8,6 +8,7 @@ import 'sales_detail_state.dart';
 import '../sales_edit/sales_edit_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../enums/product_related/category_enum.dart';
+import 'package:gizmoglobe_client/widgets/general/status_badge.dart';
 
 class SalesDetailScreen extends StatefulWidget {
   final SalesInvoice invoice;
@@ -51,18 +52,6 @@ class _SalesDetailScreenState extends State<SalesDetailScreen> {
       default:
         return Icons.device_unknown;
     }
-  }
-
-  Color _getStatusColor(dynamic status) {
-    final statusStr = status.toString().toLowerCase();
-    if (statusStr.contains('paid') || statusStr.contains('completed')) {
-      return Colors.green;
-    } else if (statusStr.contains('pending')) {
-      return Colors.orange;
-    } else if (statusStr.contains('cancelled') || statusStr.contains('failed')) {
-      return Colors.red;
-    }
-    return Colors.grey;
   }
 
   Widget _buildTotalPriceRow(String label, String value) {
@@ -128,6 +117,25 @@ class _SalesDetailScreenState extends State<SalesDetailScreen> {
                 },
                 fillColor: Colors.transparent,
               ),
+              actions: [
+                if (state.userRole == 'admin')
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SalesEditScreen(
+                            invoice: state.invoice,
+                          ),
+                        ),
+                      );
+                      if (result != null) {
+                        context.read<SalesDetailCubit>().updateSalesInvoice(result);
+                      }
+                    },
+                  ),
+              ],
             ),
             body: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -181,15 +189,39 @@ class _SalesDetailScreenState extends State<SalesDetailScreen> {
                             wrap: true,
                             maxWidth: MediaQuery.of(context).size.width * 0.6,
                           ),
-                          _buildInfoRow(
-                            'Payment Status', 
-                            state.invoice.paymentStatus.toString(),
-                            valueColor: _getStatusColor(state.invoice.paymentStatus),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Payment Status',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                StatusBadge(status: state.invoice.paymentStatus),
+                              ],
+                            ),
                           ),
-                          _buildInfoRow(
-                            'Sales Status', 
-                            state.invoice.salesStatus.toString(),
-                            valueColor: _getStatusColor(state.invoice.salesStatus),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Sales Status',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                StatusBadge(status: state.invoice.salesStatus),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 16),
                           _buildTotalPriceRow(

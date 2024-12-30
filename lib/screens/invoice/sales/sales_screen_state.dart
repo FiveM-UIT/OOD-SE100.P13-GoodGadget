@@ -6,12 +6,14 @@ class SalesScreenState extends Equatable {
   final bool isLoading;
   final String searchQuery;
   final int? selectedIndex;
+  final String? userRole;
 
   const SalesScreenState({
     this.invoices = const [],
     this.isLoading = false,
     this.searchQuery = '',
     this.selectedIndex,
+    this.userRole,
   });
 
   SalesScreenState copyWith({
@@ -19,15 +21,17 @@ class SalesScreenState extends Equatable {
     bool? isLoading,
     String? searchQuery,
     int? selectedIndex,
+    String? userRole,
   }) {
     return SalesScreenState(
       invoices: invoices ?? this.invoices,
       isLoading: isLoading ?? this.isLoading,
       searchQuery: searchQuery ?? this.searchQuery,
       selectedIndex: selectedIndex,
+      userRole: userRole ?? this.userRole,
     );
   }
 
   @override
-  List<Object?> get props => [invoices, isLoading, searchQuery, selectedIndex];
+  List<Object?> get props => [invoices, isLoading, searchQuery, selectedIndex, userRole];
 }

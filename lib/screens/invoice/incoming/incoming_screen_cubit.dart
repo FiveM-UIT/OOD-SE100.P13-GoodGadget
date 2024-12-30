@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/incoming_invoice.dart';
+import '../../../enums/invoice_related/payment_status.dart';
 import 'incoming_screen_state.dart';
 
 class IncomingScreenCubit extends Cubit<IncomingScreenState> {
@@ -13,6 +14,16 @@ class IncomingScreenCubit extends Cubit<IncomingScreenState> {
     _invoicesStream = _firebase.incomingInvoicesStream();
     _listenToInvoices();
     loadInvoices();
+    _loadUserRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    try {
+      final userRole = await _firebase.getUserRole();
+      emit(state.copyWith(userRole: userRole));
+    } catch (e) {
+      print('Error loading user role: $e');
+    }
   }
 
   void _listenToInvoices() {
@@ -54,7 +65,9 @@ class IncomingScreenCubit extends Cubit<IncomingScreenState> {
     }
 
     final filteredInvoices = state.invoices.where((invoice) {
-      return invoice.manufacturerID.toLowerCase().contains(query.toLowerCase());
+      final searchQuery = query.toLowerCase();
+      return invoice.manufacturerID.toLowerCase().contains(searchQuery) ||
+          invoice.incomingInvoiceID!.toLowerCase().contains(searchQuery);
     }).toList();
 
     emit(state.copyWith(invoices: filteredInvoices));
@@ -96,6 +109,25 @@ class IncomingScreenCubit extends Cubit<IncomingScreenState> {
     } catch (e) {
       print('Error getting invoice details: $e');
       return null;
+    }
+  }
+
+  Future<void> quickUpdatePaymentStatus(String invoiceId, PaymentStatus newStatus) async {
+    try {
+      final invoice = state.invoices.firstWhere((inv) => inv.incomingInvoiceID == invoiceId);
+      final updatedInvoice = IncomingInvoice(
+        incomingInvoiceID: invoice.incomingInvoiceID,
+        manufacturerID: invoice.manufacturerID,
+        date: invoice.date,
+        status: newStatus,
+        totalPrice: invoice.totalPrice,
+        details: invoice.details,
+      );
+
+      await _firebase.updateIncomingInvoice(updatedInvoice);
+      // Refresh sẽ được xử lý thông qua stream listener
+    } catch (e) {
+      print('Error updating payment status: $e');
     }
   }
 }

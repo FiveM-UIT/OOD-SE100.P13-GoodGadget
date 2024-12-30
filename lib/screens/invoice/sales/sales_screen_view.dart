@@ -3,12 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/screens/invoice/sales/sales_add/sales_add_view.dart';
 import 'package:gizmoglobe_client/screens/invoice/sales/sales_detail/sales_detail_view.dart';
 import 'package:gizmoglobe_client/screens/invoice/sales/sales_edit/sales_edit_view.dart';
+import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'package:intl/intl.dart';
 import '../../../data/firebase/firebase.dart';
 import 'sales_screen_cubit.dart';
 import 'sales_screen_state.dart';
+import 'package:gizmoglobe_client/widgets/general/status_badge.dart';
 
 class SalesScreen extends StatefulWidget {
   const SalesScreen({super.key});
@@ -26,6 +28,104 @@ class _SalesScreenState extends State<SalesScreen> {
   final TextEditingController searchController = TextEditingController();
   final firebase = Firebase();
   SalesScreenCubit get cubit => context.read<SalesScreenCubit>();
+
+  Future<void> _handleViewInvoice(BuildContext contextDialog, SalesInvoice invoice) async {
+    // Đóng dialog menu trước
+    Navigator.pop(contextDialog);
+    cubit.setSelectedIndex(null);
+
+    // Hiển thị loading trong context chính
+    if (!mounted) return;
+    BuildContext dialogContext = context;
+    showDialog(
+      context: dialogContext,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    try {
+      final detailedInvoice = await firebase.getSalesInvoiceWithDetails(invoice.salesInvoiceID!);
+      
+      if (!mounted) return;
+      // Đóng dialog loading
+      Navigator.of(dialogContext).pop();
+      
+      if (!mounted) return;
+      // Navigate to detail screen
+      await Navigator.push(
+        dialogContext,
+        MaterialPageRoute(
+          builder: (context) => SalesDetailScreen(
+            invoice: detailedInvoice,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      // Đóng dialog loading
+      Navigator.of(dialogContext).pop();
+      
+      if (!mounted) return;
+      ScaffoldMessenger.of(dialogContext).showSnackBar(
+        SnackBar(content: Text('Error loading invoice details: $e')),
+      );
+    }
+  }
+
+  Future<void> _handleEditInvoice(BuildContext contextDialog, SalesInvoice invoice) async {
+    // Đóng dialog menu trước
+    Navigator.pop(contextDialog);
+    cubit.setSelectedIndex(null);
+
+    // Hiển thị loading trong context chính
+    if (!mounted) return;
+    BuildContext dialogContext = context;
+    showDialog(
+      context: dialogContext,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    try {
+      final detailedInvoice = await firebase.getSalesInvoiceWithDetails(invoice.salesInvoiceID!);
+      
+      if (!mounted) return;
+      // Đóng dialog loading
+      Navigator.of(dialogContext).pop();
+      
+      if (!mounted) return;
+      // Navigate to edit screen
+      final result = await Navigator.push(
+        dialogContext,
+        MaterialPageRoute(
+          builder: (context) => SalesEditScreen(
+            invoice: detailedInvoice,
+          ),
+        ),
+      );
+
+      if (result != null && mounted) {
+        cubit.updateSalesInvoice(result);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      // Đóng dialog loading
+      Navigator.of(dialogContext).pop();
+      
+      if (!mounted) return;
+      ScaffoldMessenger.of(dialogContext).showSnackBar(
+        SnackBar(content: Text('Error loading invoice details: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,8 +197,9 @@ class _SalesScreenState extends State<SalesScreen> {
 
                                 return GestureDetector(
                                   onTap: () async {
+                                    BuildContext dialogContext = context;
                                     showDialog(
-                                      context: context,
+                                      context: dialogContext,
                                       barrierDismissible: false,
                                       builder: (BuildContext context) {
                                         return const Center(
@@ -111,10 +212,11 @@ class _SalesScreenState extends State<SalesScreen> {
                                       final detailedInvoice = await firebase.getSalesInvoiceWithDetails(invoice.salesInvoiceID!);
                                       
                                       if (!mounted) return;
+                                      Navigator.of(dialogContext).pop();
                                       
-                                      Navigator.pop(context);
-                                      Navigator.push(
-                                        context,
+                                      if (!mounted) return;
+                                      await Navigator.push(
+                                        dialogContext,
                                         MaterialPageRoute(
                                           builder: (context) => SalesDetailScreen(
                                             invoice: detailedInvoice,
@@ -122,8 +224,11 @@ class _SalesScreenState extends State<SalesScreen> {
                                         ),
                                       );
                                     } catch (e) {
-                                      Navigator.pop(context);
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      if (!mounted) return;
+                                      Navigator.of(dialogContext).pop();
+                                      
+                                      if (!mounted) return;
+                                      ScaffoldMessenger.of(dialogContext).showSnackBar(
                                         SnackBar(content: Text('Error loading invoice details: $e')),
                                       );
                                     }
@@ -155,69 +260,19 @@ class _SalesScreenState extends State<SalesScreen> {
                                                     color: Colors.white,
                                                   ),
                                                   title: const Text('View'),
-                                                  onTap: () async {
-                                                    Navigator.pop(context);
-                                                    cubit.setSelectedIndex(null);
-
-                                                    showDialog(
-                                                      context: context,
-                                                      barrierDismissible: false,
-                                                      builder: (BuildContext context) {
-                                                        return const Center(
-                                                          child: CircularProgressIndicator(),
-                                                        );
-                                                      },
-                                                    );
-
-                                                    try {
-                                                      final detailedInvoice = await firebase.getSalesInvoiceWithDetails(invoice.salesInvoiceID!);
-                                                      
-                                                      if (!mounted) return;
-                                                      
-                                                      Navigator.pop(context);
-                                                      
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) => SalesDetailScreen(
-                                                            invoice: detailedInvoice,
-                                                          ),
-                                                        ),
-                                                      );
-                                                    } catch (e) {
-                                                      Navigator.pop(context);
-                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                        SnackBar(content: Text('Error loading invoice details: $e')),
-                                                      );
-                                                    }
-                                                  },
+                                                  onTap: () => _handleViewInvoice(context, invoice),
                                                 ),
-                                                ListTile(
-                                                  dense: true,
-                                                  leading: const Icon(
-                                                    Icons.edit_outlined,
-                                                    size: 20,
-                                                    color: Colors.white,
+                                                if (state.userRole == 'admin')
+                                                  ListTile(
+                                                    dense: true,
+                                                    leading: const Icon(
+                                                      Icons.edit_outlined,
+                                                      size: 20,
+                                                      color: Colors.white,
+                                                    ),
+                                                    title: const Text('Edit'),
+                                                    onTap: () => _handleEditInvoice(context, invoice),
                                                   ),
-                                                  title: const Text('Edit'),
-                                                  onTap: () {
-                                                    Navigator.pop(context);
-                                                    cubit.setSelectedIndex(null);
-                                                    // Navigate to edit screen
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) => SalesEditScreen(
-                                                          invoice: invoice,
-                                                        ),
-                                                      ),
-                                                    ).then((updatedInvoice) {
-                                                      if (updatedInvoice != null) {
-                                                        cubit.updateSalesInvoice(updatedInvoice);
-                                                      }
-                                                    });
-                                                  },
-                                                ),
                                               ],
                                             ),
                                           ),
@@ -271,37 +326,54 @@ class _SalesScreenState extends State<SalesScreen> {
                                                     'Invoice #${invoice.salesInvoiceID}',
                                                     style: const TextStyle(
                                                       fontWeight:
-                                                          FontWeight.w500,
+                                                          FontWeight.bold,
                                                       fontSize: 16,
                                                     ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
                                                   ),
                                                   const SizedBox(height: 4),
                                                   Text(
-                                                    DateFormat('dd/MM/yyyy')
-                                                        .format(invoice.date),
+                                                    invoice.customerName ?? 'Unknown Customer',
                                                     style: TextStyle(
                                                       color: Theme.of(context)
                                                           .colorScheme
                                                           .onSurface
                                                           .withOpacity(0.6),
-                                                      fontSize: 14,
                                                     ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Wrap(
+                                                    spacing: 8,
+                                                    runSpacing: 4,
+                                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                                    children: [
+                                                      StatusBadge(status: invoice.paymentStatus),
+                                                      StatusBadge(status: invoice.salesStatus),
+                                                      Text(
+                                                        DateFormat('dd/MM/yyyy').format(invoice.date),
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Theme.of(context)
+                                                              .colorScheme
+                                                              .onSurface
+                                                              .withOpacity(0.6),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ],
                                               ),
                                             ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                Text(
-                                                  '\$${invoice.totalPrice.toStringAsFixed(2)}',
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
-                                              ],
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              '\$${invoice.totalPrice.toStringAsFixed(2)}',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
                                             ),
                                           ],
                                         ),

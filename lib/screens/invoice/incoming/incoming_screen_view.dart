@@ -5,8 +5,12 @@ import 'package:gizmoglobe_client/screens/invoice/incoming/incoming_add/incoming
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'package:intl/intl.dart';
+import '../../../enums/invoice_related/payment_status.dart';
+import '../../../objects/invoice_related/incoming_invoice.dart';
+import 'incoming_detail/incoming_detail_view.dart';
 import 'incoming_screen_cubit.dart';
 import 'incoming_screen_state.dart';
+import '../../../widgets/general/status_badge.dart';
 
 class IncomingScreen extends StatefulWidget {
   const IncomingScreen({super.key});
@@ -52,23 +56,23 @@ class _IncomingScreenState extends State<IncomingScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    GradientIconButton(
-                      icon: Icons.add,
-                      iconSize: 32,
-                      onPressed: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => IncomingAddScreen.newInstance(),
-                          ),
-                        );
-                        
-                        // Refresh list if new invoice was created
-                        if (result == true && mounted) {
-                          context.read<IncomingScreenCubit>().loadInvoices();
-                        }
-                      },
-                    )
+                    if (state.userRole == 'admin')
+                      GradientIconButton(
+                        icon: Icons.add,
+                        iconSize: 32,
+                        onPressed: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => IncomingAddScreen.newInstance(),
+                            ),
+                          );
+                          
+                          if (result != null && mounted) {
+                            context.read<IncomingScreenCubit>().loadInvoices();
+                          }
+                        },
+                      )
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -111,15 +115,12 @@ class _IncomingScreenState extends State<IncomingScreen> {
                                       if (!mounted) return;
                                       
                                       Navigator.pop(context);
-                                      // TODO: Navigate to detail screen
-                                      // Navigator.push(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //     builder: (context) => IncomingDetailScreen(
-                                      //       invoice: detailedInvoice,
-                                      //     ),
-                                      //   ),
-                                      // );
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => IncomingDetailScreen.newInstance(detailedInvoice),
+                                        ),
+                                      );
                                     } catch (e) {
                                       Navigator.pop(context);
                                       ScaffoldMessenger.of(context).showSnackBar(
@@ -128,6 +129,7 @@ class _IncomingScreenState extends State<IncomingScreen> {
                                     }
                                   },
                                   onLongPress: () {
+                                    if (!mounted) return;
                                     cubit.setSelectedIndex(index);
                                     showDialog(
                                       context: context,
@@ -154,70 +156,19 @@ class _IncomingScreenState extends State<IncomingScreen> {
                                                     color: Colors.white,
                                                   ),
                                                   title: const Text('View'),
-                                                  onTap: () async {
-                                                    Navigator.pop(context);
-                                                    cubit.setSelectedIndex(null);
-
-                                                    showDialog(
-                                                      context: context,
-                                                      barrierDismissible: false,
-                                                      builder: (BuildContext context) {
-                                                        return const Center(
-                                                          child: CircularProgressIndicator(),
-                                                        );
-                                                      },
-                                                    );
-
-                                                    try {
-                                                      final detailedInvoice = await firebase.getIncomingInvoiceWithDetails(invoice.incomingInvoiceID!);
-                                                      
-                                                      if (!mounted) return;
-                                                      
-                                                      Navigator.pop(context);
-                                                      
-                                                      // TODO: Navigate to detail screen
-                                                      // Navigator.push(
-                                                      //   context,
-                                                      //   MaterialPageRoute(
-                                                      //     builder: (context) => IncomingDetailScreen(
-                                                      //       invoice: detailedInvoice,
-                                                      //     ),
-                                                      //   ),
-                                                      // );
-                                                    } catch (e) {
-                                                      Navigator.pop(context);
-                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                        SnackBar(content: Text('Error loading invoice details: $e')),
-                                                      );
-                                                    }
-                                                  },
+                                                  onTap: () => _handleViewInvoice(context, invoice),
                                                 ),
-                                                ListTile(
-                                                  dense: true,
-                                                  leading: const Icon(
-                                                    Icons.edit_outlined,
-                                                    size: 20,
-                                                    color: Colors.white,
+                                                if (state.userRole == 'admin' && invoice.status == PaymentStatus.unpaid)
+                                                  ListTile(
+                                                    dense: true,
+                                                    leading: const Icon(
+                                                      Icons.check_circle_outline,
+                                                      size: 20,
+                                                      color: Colors.white,
+                                                    ),
+                                                    title: const Text('Mark as Paid'),
+                                                    onTap: () => _handleEditInvoice(context, invoice),
                                                   ),
-                                                  title: const Text('Edit'),
-                                                  onTap: () {
-                                                    Navigator.pop(context);
-                                                    cubit.setSelectedIndex(null);
-                                                    // TODO: Navigate to edit screen
-                                                    // Navigator.push(
-                                                    //   context,
-                                                    //   MaterialPageRoute(
-                                                    //     builder: (context) => IncomingEditScreen(
-                                                    //       invoice: invoice,
-                                                    //     ),
-                                                    //   ),
-                                                    // ).then((updatedInvoice) {
-                                                    //   if (updatedInvoice != null) {
-                                                    //     cubit.updateIncomingInvoice(updatedInvoice);
-                                                    //   }
-                                                    // });
-                                                  },
-                                                ),
                                               ],
                                             ),
                                           ),
@@ -271,55 +222,47 @@ class _IncomingScreenState extends State<IncomingScreen> {
                                                     'Invoice #${invoice.incomingInvoiceID}',
                                                     style: const TextStyle(
                                                       fontWeight:
-                                                          FontWeight.w500,
+                                                          FontWeight.bold,
                                                       fontSize: 16,
                                                     ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
                                                   ),
                                                   const SizedBox(height: 4),
                                                   Text(
-                                                    DateFormat('dd/MM/yyyy')
-                                                        .format(invoice.date),
+                                                    invoice.manufacturerID,
                                                     style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .onSurface
-                                                          .withOpacity(0.6),
-                                                      fontSize: 14,
+                                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                                     ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Wrap(
+                                                    spacing: 8,
+                                                    runSpacing: 4,
+                                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                                    children: [
+                                                      StatusBadge(status: invoice.status),
+                                                      Text(
+                                                        DateFormat('dd/MM/yyyy').format(invoice.date),
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ],
                                               ),
                                             ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                Text(
-                                                  '\$${invoice.totalPrice.toStringAsFixed(2)}',
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Container(
-                                                  padding: const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 4,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: _getStatusColor(invoice.status.getName()),
-                                                    borderRadius: BorderRadius.circular(4),
-                                                  ),
-                                                  child: Text(
-                                                    invoice.status.getName(),
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              '\$${invoice.totalPrice.toStringAsFixed(2)}',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -338,16 +281,88 @@ class _IncomingScreenState extends State<IncomingScreen> {
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'paid':
-        return Colors.green;
-      case 'unpaid':
-        return Colors.red;
-      case 'pending':
-        return Colors.orange;
-      default:
-        return Colors.grey;
+  Future<void> _handleViewInvoice(BuildContext contextDialog, IncomingInvoice invoice) async {
+    // Đóng dialog menu trước
+    Navigator.pop(contextDialog);
+    cubit.setSelectedIndex(null);
+
+    // Hiển thị loading trong context chính
+    if (!mounted) return;
+    BuildContext dialogContext = context;
+    showDialog(
+      context: dialogContext,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    try {
+      final detailedInvoice = await firebase.getIncomingInvoiceWithDetails(invoice.incomingInvoiceID!);
+      
+      if (!mounted) return;
+      // Đóng dialog loading
+      Navigator.of(dialogContext).pop();
+      
+      if (!mounted) return;
+      // Navigate to detail screen
+      await Navigator.push(
+        dialogContext,
+        MaterialPageRoute(
+          builder: (context) => IncomingDetailScreen.newInstance(detailedInvoice),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      // Đóng dialog loading
+      Navigator.of(dialogContext).pop();
+      
+      if (!mounted) return;
+      ScaffoldMessenger.of(dialogContext).showSnackBar(
+        SnackBar(content: Text('Error loading invoice details: $e')),
+      );
+    }
+  }
+
+  Future<void> _handleEditInvoice(BuildContext contextDialog, IncomingInvoice invoice) async {
+    // Chỉ cho phép chỉnh sửa từ unpaid sang paid
+    if (invoice.status != PaymentStatus.unpaid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Only unpaid invoices can be marked as paid')),
+      );
+      Navigator.pop(contextDialog);
+      return;
+    }
+
+    Navigator.pop(contextDialog);
+    cubit.setSelectedIndex(null);
+
+    // Hiển thị dialog xác nhận
+    if (!mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Payment'),
+          content: const Text('Mark this invoice as paid?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && mounted) {
+      await cubit.quickUpdatePaymentStatus(invoice.incomingInvoiceID!, PaymentStatus.paid);
     }
   }
 }

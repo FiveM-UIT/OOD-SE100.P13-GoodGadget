@@ -1204,49 +1204,49 @@ class Database {
       ),
     ];
 
-    warrantyInvoiceList = [
-      WarrantyInvoice(
-        customerID: 'noxiFkqUTN4bum27HPCq', // Tran Nhat Tan
-        date: DateTime(2024, 3, 1),
-        status: WarrantyStatus.pending,
-        reason: 'RAM không hoạt động',
-        details: [
-          WarrantyInvoiceDetail(
-            warrantyInvoiceID: '',
-            productID: '2xMyMBUL86Gv16kxUC8V', // G.Skill Ripjaws V DDR4
-            quantity: 1,
-          ),
-        ],
-      ),
-
-      WarrantyInvoice(
-        customerID: 'dKV74hSAXozpmhPgXerv', // Do Hong Quan
-        date: DateTime(2024, 3, 10),
-        status: WarrantyStatus.processing,
-        reason: 'CPU quá nóng khi sử dụng',
-        details: [
-          WarrantyInvoiceDetail(
-            warrantyInvoiceID: '',
-            productID: '3udzXJtFke9jwkqhVh46', // Intel Core i5-13600K
-            quantity: 1,
-          ),
-        ],
-      ),
-
-      WarrantyInvoice(
-        customerID: 'DyyMyOTtZ7J2SQzsr6IZ', // To Vinh Tien
-        date: DateTime(2024, 3, 15),
-        status: WarrantyStatus.completed,
-        reason: 'Mainboard không nhận RAM',
-        details: [
-          WarrantyInvoiceDetail(
-            warrantyInvoiceID: '',
-            productID: 'mL08tBQDtbM95zDqAbbj', // MSI PRO H610I
-            quantity: 1,
-          ),
-        ],
-      ),
-    ];
+    // warrantyInvoiceList = [
+    //   WarrantyInvoice(
+    //     customerID: 'noxiFkqUTN4bum27HPCq', // Tran Nhat Tan
+    //     date: DateTime(2024, 3, 1),
+    //     status: WarrantyStatus.pending,
+    //     reason: 'RAM không hoạt động',
+    //     details: [
+    //       WarrantyInvoiceDetail(
+    //         warrantyInvoiceID: '',
+    //         productID: '2xMyMBUL86Gv16kxUC8V', // G.Skill Ripjaws V DDR4
+    //         quantity: 1,
+    //       ),
+    //     ],
+    //   ),
+    //
+    //   WarrantyInvoice(
+    //     customerID: 'dKV74hSAXozpmhPgXerv', // Do Hong Quan
+    //     date: DateTime(2024, 3, 10),
+    //     status: WarrantyStatus.processing,
+    //     reason: 'CPU quá nóng khi sử dụng',
+    //     details: [
+    //       WarrantyInvoiceDetail(
+    //         warrantyInvoiceID: '',
+    //         productID: '3udzXJtFke9jwkqhVh46', // Intel Core i5-13600K
+    //         quantity: 1,
+    //       ),
+    //     ],
+    //   ),
+    //
+    //   WarrantyInvoice(
+    //     customerID: 'DyyMyOTtZ7J2SQzsr6IZ', // To Vinh Tien
+    //     date: DateTime(2024, 3, 15),
+    //     status: WarrantyStatus.completed,
+    //     reason: 'Mainboard không nhận RAM',
+    //     details: [
+    //       WarrantyInvoiceDetail(
+    //         warrantyInvoiceID: '',
+    //         productID: 'mL08tBQDtbM95zDqAbbj', // MSI PRO H610I
+    //         quantity: 1,
+    //       ),
+    //     ],
+    //   ),
+    // ];
 
     incomingInvoiceList = [
       IncomingInvoice(

@@ -13,6 +13,16 @@ class SalesScreenCubit extends Cubit<SalesScreenState> {
     _invoicesStream = _firebase.salesInvoicesStream();
     _listenToInvoices();
     loadInvoices();
+    _loadUserRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    try {
+      final userRole = await _firebase.getUserRole();
+      emit(state.copyWith(userRole: userRole));
+    } catch (e) {
+      print('Error loading user role: $e');
+    }
   }
 
   void _listenToInvoices() {

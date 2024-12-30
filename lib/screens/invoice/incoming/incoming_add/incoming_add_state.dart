@@ -4,6 +4,8 @@ import 'package:gizmoglobe_client/objects/invoice_related/incoming_invoice_detai
 import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
 
+import '../../../../enums/invoice_related/payment_status.dart';
+
 class IncomingAddState extends Equatable {
   final bool isLoading;
   final List<Manufacturer> manufacturers;
@@ -12,6 +14,7 @@ class IncomingAddState extends Equatable {
   final List<IncomingInvoiceDetail> details;
   final String? errorMessage;
   final bool isSubmitting;
+  final PaymentStatus paymentStatus;
 
   const IncomingAddState({
     this.isLoading = false,
@@ -21,6 +24,7 @@ class IncomingAddState extends Equatable {
     this.details = const [],
     this.errorMessage,
     this.isSubmitting = false,
+    this.paymentStatus = PaymentStatus.unpaid,
   });
 
   double get totalPrice => details.fold(
@@ -36,6 +40,7 @@ class IncomingAddState extends Equatable {
     List<IncomingInvoiceDetail>? details,
     String? errorMessage,
     bool? isSubmitting,
+    PaymentStatus? paymentStatus,
   }) {
     return IncomingAddState(
       isLoading: isLoading ?? this.isLoading,
@@ -45,6 +50,7 @@ class IncomingAddState extends Equatable {
       details: details ?? this.details,
       errorMessage: errorMessage,
       isSubmitting: isSubmitting ?? this.isSubmitting,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
     );
   }
 
@@ -57,5 +63,6 @@ class IncomingAddState extends Equatable {
         details,
         errorMessage,
         isSubmitting,
+        paymentStatus,
       ];
 } 

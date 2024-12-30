@@ -21,6 +21,7 @@ import 'package:gizmoglobe_client/objects/product_related/mainboard.dart';
 import 'package:gizmoglobe_client/objects/product_related/psu.dart';
 import 'package:gizmoglobe_client/objects/product_related/ram.dart';
 
+import '../../enums/invoice_related/payment_status.dart';
 import '../../enums/invoice_related/sales_status.dart';
 import '../../enums/product_related/category_enum.dart';
 import '../../enums/product_related/product_status_enum.dart';
@@ -34,10 +35,13 @@ import '../../objects/employee.dart';
 import '../../objects/invoice_related/incoming_invoice.dart';
 import '../../objects/invoice_related/incoming_invoice_detail.dart';
 import '../../objects/invoice_related/sales_invoice_detail.dart';
+import '../../objects/invoice_related/warranty_invoice_detail.dart';
 import '../../objects/manufacturer.dart';
 import '../../objects/product_related/product.dart';
 import '../../objects/product_related/product_factory.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gizmoglobe_client/objects/invoice_related/warranty_invoice.dart';
 
 Future<void> pushProductSamplesToFirebase() async {
   try {
@@ -249,12 +253,16 @@ Future<void> pushSalesInvoiceSampleData() async {
 class Firebase {
   static final Firebase _firebase = Firebase._internal();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   factory Firebase() {
     return _firebase;
   }
 
   Firebase._internal();
+
+  // Thêm getter để lấy current user ID
+  String? get currentUserId => _auth.currentUser?.uid;
 
   Future<void> pushCustomerSampleData() async {
     try {
@@ -1787,4 +1795,245 @@ class Firebase {
     }
   }
 
+  Future<String?> getUserRole([String? userID]) async {
+    try {
+      final id = userID ?? currentUserId;
+      if (id == null) return null;
+
+      final doc = await _firestore.collection('users').doc(id).get();
+      if (doc.exists) {
+        return doc.data()?['role'] as String?;
+      }
+      return null;
+    } catch (e) {
+      print('Error getting user role: $e');
+      return null;
+    }
+  }
+
+  Future<Customer> getCustomer(String customerId) async {
+    try {
+      final doc = await _firestore
+          .collection('customers')
+          .doc(customerId)
+          .get();
+
+      if (!doc.exists) {
+        throw Exception('Customer not found');
+      }
+
+      return Customer.fromMap(doc.id, doc.data()!);
+    } catch (e) {
+      print('Error getting customer: $e');
+      rethrow;
+    }
+  }
+
+  Future<Product?> getProduct(String productId) async {
+    try {
+      print('Getting product: $productId'); // Add logging
+      
+      final doc = await _firestore
+          .collection('products')
+          .doc(productId)
+          .get();
+
+      if (!doc.exists) {
+        print('Product not found: $productId');
+        return null;
+      }
+
+      final data = doc.data()!;
+      data['productID'] = doc.id;
+      
+      final categoryStr = (data['category'] as String).toLowerCase();
+      print('Product category: $categoryStr'); // Add logging
+      
+      CategoryEnum? category;
+      try {
+        category = CategoryEnum.values.firstWhere(
+          (e) => e.getName().toLowerCase() == categoryStr,
+        );
+      } catch (e) {
+        print('Invalid category for product $productId: $categoryStr');
+        return null;
+      }
+
+      final product = ProductFactory.createProduct(category, data);
+      print('Created product: ${product?.productName}'); // Add logging
+      return product;
+    } catch (e) {
+      print('Error getting product $productId: $e');
+      return null;
+    }
+  }
+
+  Future<List<SalesInvoice>> getCustomerSalesInvoices(String customerId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('sales_invoices')
+          .where('customerID', isEqualTo: customerId)
+          .where('paymentStatus', isEqualTo: PaymentStatus.paid.toString())
+          .where('salesStatus', isEqualTo: SalesStatus.completed.toString())
+          .get();
+
+      return Future.wait(snapshot.docs.map((doc) async {
+        final invoice = SalesInvoice.fromMap(doc.id, doc.data());
+        
+        // Load details
+        final detailsSnapshot = await _firestore
+            .collection('sales_invoice_details')
+            .where('salesInvoiceID', isEqualTo: doc.id)
+            .get();
+
+        invoice.details = detailsSnapshot.docs
+            .map((doc) => SalesInvoiceDetail.fromMap(doc.id, doc.data()))
+            .toList();
+
+        return invoice;
+      }));
+    } catch (e) {
+      print('Error getting customer sales invoices: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<WarrantyInvoice>> getWarrantyInvoices() async {
+    try {
+      final QuerySnapshot snapshot = await _firestore
+          .collection('warranty_invoices')
+          .get();
+
+      return snapshot.docs.map((doc) {
+        return WarrantyInvoice.fromMap(doc.id, doc.data() as Map<String, dynamic>);
+      }).toList();
+    } catch (e) {
+      print('Error loading warranty invoices: $e');
+      rethrow;
+    }
+  }
+
+  Future<WarrantyInvoice> getWarrantyInvoiceWithDetails(String invoiceId) async {
+    try {
+      // Get the invoice
+      final DocumentSnapshot invoiceDoc = await _firestore
+          .collection('warranty_invoices')
+          .doc(invoiceId)
+          .get();
+
+      if (!invoiceDoc.exists) {
+        throw Exception('Warranty invoice not found');
+      }
+
+      // Create invoice object
+      WarrantyInvoice invoice = WarrantyInvoice.fromMap(
+        invoiceDoc.id,
+        invoiceDoc.data() as Map<String, dynamic>,
+      );
+
+      // Get invoice details
+      final QuerySnapshot detailsSnapshot = await _firestore
+          .collection('warranty_invoice_details')
+          .where('warrantyInvoiceID', isEqualTo: invoiceId)
+          .get();
+
+      // Add details to invoice
+      invoice.details = detailsSnapshot.docs.map((doc) {
+        return WarrantyInvoiceDetail.fromMap(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }).toList();
+
+      return invoice;
+    } catch (e) {
+      print('Error loading warranty invoice details: $e');
+      rethrow;
+    }
+  }
+
+  Stream<List<WarrantyInvoice>> warrantyInvoicesStream() {
+    return _firestore
+        .collection('warranty_invoices')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return WarrantyInvoice.fromMap(doc.id, doc.data());
+      }).toList();
+    });
+  }
+
+  Future<void> updateWarrantyInvoice(WarrantyInvoice invoice) async {
+    try {
+      await _firestore
+          .collection('warranty_invoices')
+          .doc(invoice.warrantyInvoiceID)
+          .update(invoice.toMap());
+    } catch (e) {
+      print('Error updating warranty invoice: $e');
+      rethrow;
+    }
+  }
+
+  Future<String?> createWarrantyInvoice(WarrantyInvoice invoice) async {
+    try {
+      print('Starting warranty invoice creation in Firebase');
+      
+      // Create warranty invoice document
+      final docRef = await _firestore.collection('warranty_invoices').add({
+        'warrantyInvoiceID': '',  // Temporary placeholder
+        'salesInvoiceID': invoice.salesInvoiceID,
+        'customerName': invoice.customerName,
+        'customerID': invoice.customerID,
+        'date': invoice.date,
+        'status': invoice.status.toString(),
+        'reason': invoice.reason,
+      });
+
+      // Update the document with its own ID
+      await docRef.update({
+        'warrantyInvoiceID': docRef.id,
+      });
+
+      print('Created warranty invoice document with ID: ${docRef.id}');
+
+      // Create warranty details
+      final batch = _firestore.batch();
+      
+      for (var detail in invoice.details) {
+        print('Processing detail: ${detail.toJson()}');
+        
+        final detailRef = _firestore.collection('warranty_invoice_details').doc();
+        batch.set(detailRef, {
+          'warrantyInvoiceID': docRef.id,
+          'warrantyInvoiceDetailID': detailRef.id,
+          'productID': detail.productID,
+          'quantity': detail.quantity,
+        });
+      }
+
+      await batch.commit();
+      print('Successfully created warranty invoice and ${invoice.details.length} details');
+
+      return docRef.id;
+    } catch (e) {
+      print('Error creating warranty invoice: $e');
+      return null;
+    }
+  }
+
+  Future<void> createWarrantyInvoiceDetail(WarrantyInvoiceDetail detail) async {
+    try {
+      final docRef = await _firestore
+          .collection('warranty_invoice_details')
+          .add(detail.toMap());
+
+      await docRef.update({
+        'warrantyInvoiceDetailID': docRef.id,
+      });
+    } catch (e) {
+      print('Error creating warranty invoice detail: $e');
+      rethrow;
+    }
+  }
 }

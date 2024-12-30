@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gizmoglobe_client/data/firebase/firebase.dart';
+import 'package:gizmoglobe_client/enums/invoice_related/warranty_status.dart';
+import 'package:gizmoglobe_client/screens/invoice/warranty/warranty_add/warranty_add_view.dart';
+import 'package:gizmoglobe_client/screens/invoice/warranty/warranty_detail/warranty_detail_view.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
+import 'package:intl/intl.dart';
+import '../../../objects/invoice_related/warranty_invoice.dart';
+import '../../../widgets/general/status_badge.dart';
 import 'warranty_screen_cubit.dart';
 import 'warranty_screen_state.dart';
 
@@ -19,6 +26,7 @@ class WarrantyScreen extends StatefulWidget {
 
 class _WarrantyScreenState extends State<WarrantyScreen> {
   final TextEditingController searchController = TextEditingController();
+  final firebase = Firebase();
   WarrantyScreenCubit get cubit => context.read<WarrantyScreenCubit>();
 
   @override
@@ -26,11 +34,7 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
     return BlocBuilder<WarrantyScreenCubit, WarrantyScreenState>(
       builder: (context, state) {
         return GestureDetector(
-          onTap: () {
-            if (state.selectedIndex != null) {
-              cubit.setSelectedIndex(null);
-            }
-          },
+          onTap: () => cubit.setSelectedIndex(null),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -51,11 +55,193 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
                     GradientIconButton(
                       icon: Icons.add,
                       iconSize: 32,
-                      onPressed: () {
-                        // TODO: Implement add warranty invoice
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WarrantyAddView.newInstance(),
+                          ),
+                        );
+                        
+                        if (result == true) {
+                          print('Warranty invoice created, refreshing list');
+                          cubit.loadInvoices();
+                        }
                       },
                     )
                   ],
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: state.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : state.invoices.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No warranty invoices found',
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground
+                                      .withOpacity(0.6),
+                                ),
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: state.invoices.length,
+                              itemBuilder: (context, index) {
+                                final invoice = state.invoices[index];
+                                final isSelected = state.selectedIndex == index;
+
+                                return GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => _navigateToDetail(invoice),
+                                  onLongPress: () {
+                                    cubit.setSelectedIndex(index);
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: true,
+                                      builder: (BuildContext context) {
+                                        return Dialog(
+                                          backgroundColor: Colors.transparent,
+                                          elevation: 0,
+                                          child: Container(
+                                            width: 120,
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context).cardColor,
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ListTile(
+                                                  dense: true,
+                                                  leading: const Icon(
+                                                    Icons.visibility_outlined,
+                                                    size: 20,
+                                                    color: Colors.white,
+                                                  ),
+                                                  title: const Text('View'),
+                                                  onTap: () => _handleViewFromMenu(context, invoice),
+                                                ),
+                                                if (invoice.status != WarrantyStatus.completed)
+                                                  ListTile(
+                                                    dense: true,
+                                                    leading: const Icon(
+                                                      Icons.check_circle_outline,
+                                                      size: 20,
+                                                      color: Colors.white,
+                                                    ),
+                                                    title: const Text('Mark as Completed'),
+                                                    onTap: () {
+                                                      Navigator.pop(context);
+                                                      cubit.setSelectedIndex(null);
+                                                      cubit.updateWarrantyStatus(
+                                                        invoice.warrantyInvoiceID!,
+                                                        WarrantyStatus.completed,
+                                                      );
+                                                    },
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ).whenComplete(() {
+                                      cubit.setSelectedIndex(null);
+                                    });
+                                  },
+                                  child: AnimatedOpacity(
+                                    duration: const Duration(milliseconds: 200),
+                                    opacity: state.selectedIndex == null ||
+                                            state.selectedIndex == index
+                                        ? 1.0
+                                        : 0.3,
+                                    child: Container(
+                                      margin: const EdgeInsets.only(bottom: 8),
+                                      decoration: BoxDecoration(
+                                        color: state.selectedIndex == index
+                                            ? Theme.of(context)
+                                                .primaryColor
+                                                .withOpacity(0.1)
+                                            : Theme.of(context).cardColor,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 12,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .primaryContainer,
+                                              child: Icon(
+                                                Icons.build_circle,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 16),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Warranty #${invoice.warrantyInvoiceID}',
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 16,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    invoice.customerName ?? 'Unknown Customer',
+                                                    style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurface
+                                                          .withOpacity(0.6),
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Wrap(
+                                                    spacing: 8,
+                                                    runSpacing: 4,
+                                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                                    children: [
+                                                      StatusBadge(status: invoice.status),
+                                                      Text(
+                                                        DateFormat('dd/MM/yyyy').format(invoice.date),
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Theme.of(context)
+                                                              .colorScheme
+                                                              .onSurface
+                                                              .withOpacity(0.6),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                 ),
               ],
             ),
@@ -63,5 +249,47 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
         );
       },
     );
+  }
+
+  Future<void> _navigateToDetail(WarrantyInvoice invoice) async {
+    BuildContext dialogContext = context;
+    showDialog(
+      context: dialogContext,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    try {
+      final detailedInvoice = await firebase.getWarrantyInvoiceWithDetails(invoice.warrantyInvoiceID!);
+      
+      if (!mounted) return;
+      Navigator.of(dialogContext).pop();
+      
+      if (!mounted) return;
+      await Navigator.push(
+        dialogContext,
+        MaterialPageRoute(
+          builder: (context) => WarrantyDetailView(invoice: detailedInvoice),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(dialogContext).pop();
+      
+      if (!mounted) return;
+      ScaffoldMessenger.of(dialogContext).showSnackBar(
+        SnackBar(content: Text('Error loading invoice details: $e')),
+      );
+    }
+  }
+
+  Future<void> _handleViewFromMenu(BuildContext contextDialog, WarrantyInvoice invoice) async {
+    Navigator.pop(contextDialog);  // Close menu first
+    cubit.setSelectedIndex(null);
+    await _navigateToDetail(invoice);
   }
 }

@@ -42,60 +42,8 @@ class _SalesEditScreenContent extends StatefulWidget {
 }
 
 class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
-  double _calculateTotalPrice() {
-    return widget.invoice.details.fold(0, (sum, detail) => sum + detail.subtotal);
-  }
-
-  void _updateQuantity(SalesInvoiceDetail detail, int newQuantity) async {
-    if (newQuantity <= 0) return;
-
-    try {
-      final updatedDetail = SalesInvoiceDetail.withQuantity(
-        salesInvoiceDetailID: detail.salesInvoiceDetailID,
-        salesInvoiceID: detail.salesInvoiceID,
-        productID: detail.productID,
-        productName: detail.productName,
-        category: detail.category,
-        sellingPrice: detail.sellingPrice,
-        quantity: newQuantity,
-      );
-
-      setState(() {
-        final index = widget.invoice.details.indexWhere(
-          (d) => d.salesInvoiceDetailID == detail.salesInvoiceDetailID
-        );
-        if (index != -1) {
-          widget.invoice.details[index] = updatedDetail;
-          widget.invoice.totalPrice = _calculateTotalPrice();
-        }
-      });
-
-      await context.read<SalesEditCubit>().updateInvoiceDetail(updatedDetail);
-    } catch (e) {
-      setState(() {
-        final index = widget.invoice.details.indexWhere(
-          (d) => d.salesInvoiceDetailID == detail.salesInvoiceDetailID
-        );
-        if (index != -1) {
-          widget.invoice.details[index] = detail;
-          widget.invoice.totalPrice = _calculateTotalPrice();
-        }
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error updating quantity: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
   void _showAddressBottomSheet() async {
     try {
-      // Lấy danh sách địa chỉ của khách hàng
       final addresses = await Firebase().getCustomerAddresses(widget.invoice.customerID);
       
       if (!mounted) return;
@@ -179,32 +127,86 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
     }
   }
 
-  void _removeProduct(SalesInvoiceDetail detail) async {
-    try {
-      final index = widget.invoice.details.indexOf(detail);
-      
-      setState(() {
-        widget.invoice.details.removeWhere(
-          (d) => d.salesInvoiceDetailID == detail.salesInvoiceDetailID
-        );
-        widget.invoice.totalPrice = _calculateTotalPrice();
-      });
-
-      await context.read<SalesEditCubit>().removeInvoiceDetail(detail);
-    } catch (e) {
-      setState(() {
-        widget.invoice.details.add(detail);
-        widget.invoice.totalPrice = _calculateTotalPrice();
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error removing product: $e'),
-            backgroundColor: Colors.red,
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        );
-      }
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusDropdown<T extends Enum>({
+    required T value,
+    required List<T> items,
+    required void Function(T?) onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: DropdownButton<T>(
+        value: value,
+        isExpanded: true,
+        dropdownColor: Theme.of(context).cardColor,
+        underline: const SizedBox(),
+        items: items.map((T item) {
+          return DropdownMenuItem<T>(
+            value: item,
+            child: Text(item.toString()),
+          );
+        }).toList(),
+        onChanged: onChanged,
+      ),
+    );
+  }
+
+  IconData _getCategoryIcon(String? category) {
+    if (category == null) return Icons.device_unknown;
+
+    // Convert string to CategoryEnum
+    CategoryEnum? categoryEnum;
+    try {
+      categoryEnum = CategoryEnum.nonEmptyValues.firstWhere(
+              (e) => e.getName().toLowerCase() == category.toLowerCase()
+      );
+    } catch (e) {
+      return Icons.device_unknown;
+    }
+
+    switch (categoryEnum) {
+      case CategoryEnum.ram:
+        return Icons.memory;
+      case CategoryEnum.cpu:
+        return Icons.computer;
+      case CategoryEnum.psu:
+        return Icons.power;
+      case CategoryEnum.gpu:
+        return Icons.videogame_asset;
+      case CategoryEnum.drive:
+        return Icons.storage;
+      case CategoryEnum.mainboard:
+        return Icons.developer_board;
+      default:
+        return Icons.device_unknown;
     }
   }
 
@@ -400,15 +402,42 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  _buildStatusDropdown<PaymentStatus>(
-                    value: state.selectedPaymentStatus,
-                    items: PaymentStatus.values,
-                    onChanged: (status) {
-                      if (status != null) {
-                        context.read<SalesEditCubit>().updatePaymentStatus(status);
-                      }
-                    },
-                  ),
+                  state.selectedPaymentStatus == PaymentStatus.paid
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.1),
+                            border: Border.all(color: Colors.green),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Paid',
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : _buildStatusDropdown<PaymentStatus>(
+                          value: state.selectedPaymentStatus,
+                          items: PaymentStatus.values,
+                          onChanged: (status) {
+                            if (status != null) {
+                              context.read<SalesEditCubit>().updatePaymentStatus(status);
+                            }
+                          },
+                        ),
 
                   const SizedBox(height: 24),
                   const Text(
@@ -536,36 +565,7 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                                     ),
                                   ],
                                 ),
-                              ),
-                              // Controls
-                              const SizedBox(width: 12),
-                              Column(
-                                children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.add_circle_outline,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                    onPressed: () => _updateQuantity(detail, detail.quantity + 1),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.remove_circle_outline,
-                                      color: detail.quantity > 1 
-                                          ? Theme.of(context).colorScheme.primary
-                                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-                                    ),
-                                    onPressed: detail.quantity > 1 
-                                      ? () => _updateQuantity(detail, detail.quantity - 1)
-                                      : null,
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete_outline),
-                                    color: Colors.red,
-                                    onPressed: () => _removeProduct(detail),
-                                  ),
-                                ],
-                              ),
+                              ),                            // Controls
                             ],
                           ),
                         ),
@@ -620,88 +620,5 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
         );
       },
     );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.grey,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusDropdown<T extends Enum>({
-    required T value,
-    required List<T> items,
-    required void Function(T?) onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButton<T>(
-        value: value,
-        isExpanded: true,
-        dropdownColor: Theme.of(context).cardColor,
-        underline: const SizedBox(),
-        items: items.map((T item) {
-          return DropdownMenuItem<T>(
-            value: item,
-            child: Text(item.toString()),
-          );
-        }).toList(),
-        onChanged: onChanged,
-      ),
-    );
-  }
-
-  IconData _getCategoryIcon(String? category) {
-    if (category == null) return Icons.device_unknown;
-
-    // Convert string to CategoryEnum
-    CategoryEnum? categoryEnum;
-    try {
-      categoryEnum = CategoryEnum.nonEmptyValues.firstWhere(
-              (e) => e.getName().toLowerCase() == category.toLowerCase()
-      );
-    } catch (e) {
-      return Icons.device_unknown;
-    }
-
-    switch (categoryEnum) {
-      case CategoryEnum.ram:
-        return Icons.memory;
-      case CategoryEnum.cpu:
-        return Icons.computer;
-      case CategoryEnum.psu:
-        return Icons.power;
-      case CategoryEnum.gpu:
-        return Icons.videogame_asset;
-      case CategoryEnum.drive:
-        return Icons.storage;
-      case CategoryEnum.mainboard:
-        return Icons.developer_board;
-      default:
-        return Icons.device_unknown;
-    }
   }
 } 

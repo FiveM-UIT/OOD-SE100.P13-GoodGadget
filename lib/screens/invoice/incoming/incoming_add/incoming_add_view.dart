@@ -4,6 +4,7 @@ import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/incoming_invoice_detail.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_button.dart';
+import '../../../../enums/invoice_related/payment_status.dart';
 import 'incoming_add_cubit.dart';
 import 'incoming_add_state.dart';
 
@@ -53,6 +54,8 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
                         _buildDetailsList(state),
                         const SizedBox(height: 16),
                         _buildTotalPrice(state),
+                        const SizedBox(height: 16),
+                        _buildPaymentStatusDropdown(state),
                         const SizedBox(height: 24),
                         _buildSubmitButton(state),
                       ],
@@ -253,6 +256,27 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildPaymentStatusDropdown(IncomingAddState state) {
+    return DropdownButtonFormField<PaymentStatus>(
+      decoration: const InputDecoration(
+        labelText: 'Payment Status',
+        border: OutlineInputBorder(),
+      ),
+      value: state.paymentStatus,
+      items: PaymentStatus.values.map((status) {
+        return DropdownMenuItem(
+          value: status,
+          child: Text(status.toString()),
+        );
+      }).toList(),
+      onChanged: (status) {
+        if (status != null) {
+          cubit.updatePaymentStatus(status);
+        }
+      },
     );
   }
 

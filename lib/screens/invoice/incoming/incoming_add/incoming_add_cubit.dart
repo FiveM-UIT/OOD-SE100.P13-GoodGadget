@@ -78,11 +78,20 @@ class IncomingAddCubit extends Cubit<IncomingAddState> {
     final updatedDetails = List<IncomingInvoiceDetail>.from(state.details)
       ..add(detail);
 
-    // Update product's import price and stock
+    // Update product's import price and stock in Firebase
     _firebase.updateProduct(
-      product.copyWith(
+      Product(
+        productID: product.productID!,
+        productName: product.productName,
+        manufacturer: product.manufacturer,
         importPrice: importPrice,
+        sellingPrice: product.sellingPrice,
+        discount: product.discount,
+        release: product.release,
+        sales: product.sales,
         stock: product.stock + quantity,
+        status: product.status,
+        category: product.category,
       ),
     );
 

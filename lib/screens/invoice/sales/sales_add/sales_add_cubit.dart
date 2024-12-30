@@ -12,25 +12,30 @@ class SalesAddCubit extends Cubit<SalesAddState> {
   final _firebase = Firebase();
 
   SalesAddCubit() : super(SalesAddState()) {
-    _loadCustomers();
-    _loadProducts();
+    _loadInitialData();
   }
 
-  Future<void> _loadCustomers() async {
+  Future<void> _loadInitialData() async {
     try {
-      final customers = await _firebase.getCustomers();
-      emit(state.copyWith(customers: customers));
-    } catch (e) {
-      emit(state.copyWith(error: e.toString()));
-    }
-  }
+      // Bắt đầu loading
+      emit(state.copyWith(isLoadingData: true));
+      
+      // Tải song song cả customers và products
+      final futures = await Future.wait([
+        _firebase.getCustomers(),
+        _firebase.getProducts(),
+      ]);
 
-  Future<void> _loadProducts() async {
-    try {
-      final products = await _firebase.getProducts();
-      emit(state.copyWith(products: products));
+      emit(state.copyWith(
+        customers: futures[0] as List<Customer>,
+        products: futures[1] as List<Product>,
+        isLoadingData: false, // Kết thúc loading
+      ));
     } catch (e) {
-      emit(state.copyWith(error: e.toString()));
+      emit(state.copyWith(
+        error: e.toString(),
+        isLoadingData: false,
+      ));
     }
   }
 

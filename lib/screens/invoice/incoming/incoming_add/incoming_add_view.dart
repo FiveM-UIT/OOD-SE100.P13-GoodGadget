@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
+import 'package:gizmoglobe_client/objects/invoice_related/incoming_invoice_detail.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_button.dart';
 import 'incoming_add_cubit.dart';
 import 'incoming_add_state.dart';

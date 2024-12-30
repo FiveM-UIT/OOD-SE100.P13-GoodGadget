@@ -35,12 +35,14 @@ abstract class TabCubit extends Cubit<TabState> {
     ));
     applyFilters();
   }
+
   Future<void> _fetchProducts() async {
     try {
       emit(state.copyWith(processState: ProcessState.loading));
       List<Product> products = await Firebase().getProducts();
       Database().updateProductList(products);
-      emit(state.copyWith(productList: products, processState: ProcessState.success));
+      emit(state.copyWith(productList: Database().productList, processState: ProcessState.success, filteredProductList: Database().productList));
+      applyFilters();
     } catch (e) {
       print(e);
       emit(state.copyWith(processState: ProcessState.failure));
@@ -130,9 +132,6 @@ abstract class TabCubit extends Cubit<TabState> {
     }).toList();
 
     switch (state.selectedSortOption) {
-      case SortEnum.releaseLatest:
-        filteredProducts.sort((a, b) => b.release.compareTo(a.release));
-        break;
       case SortEnum.releaseOldest:
         filteredProducts.sort((a, b) => a.release.compareTo(b.release));
         break;
@@ -147,6 +146,9 @@ abstract class TabCubit extends Cubit<TabState> {
         break;
       case SortEnum.salesLowest:
         filteredProducts.sort((a, b) => a.sales.compareTo(b.sales));
+        break;
+      default:
+        filteredProducts.sort((a, b) => b.release.compareTo(a.release));
     }
 
     emit(state.copyWith(filteredProductList: filteredProducts));
@@ -166,8 +168,7 @@ abstract class TabCubit extends Cubit<TabState> {
       }
 
       await Firebase().changeProductStatus(product.productID!, status);
-      applyFilters();
-      _fetchProducts();
+      await _fetchProducts();
     } catch (e) {
       print(e);
       emit(state.copyWith(processState: ProcessState.failure));

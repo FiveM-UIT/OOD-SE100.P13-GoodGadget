@@ -78,22 +78,78 @@ class IncomingAddCubit extends Cubit<IncomingAddState> {
     final updatedDetails = List<IncomingInvoiceDetail>.from(state.details)
       ..add(detail);
 
-    // Update product's import price and stock in Firebase
-    _firebase.updateProduct(
-      Product(
-        productID: product.productID!,
-        productName: product.productName,
-        manufacturer: product.manufacturer,
-        importPrice: importPrice,
-        sellingPrice: product.sellingPrice,
-        discount: product.discount,
-        release: product.release,
-        sales: product.sales,
-        stock: product.stock + quantity,
-        status: product.status,
-        category: product.category,
-      ),
-    );
+    // Create a map of product properties
+    final Map<String, dynamic> productProps = {
+      'productID': product.productID!,
+      'productName': product.productName,
+      'manufacturer': product.manufacturer,
+      'importPrice': importPrice,
+      'sellingPrice': product.sellingPrice,
+      'discount': product.discount,
+      'release': product.release,
+      'sales': product.sales,
+      'stock': product.stock + quantity,
+      'status': product.status,
+    };
+
+    // Add specific properties based on product type
+    switch (product.runtimeType) {
+      case RAM:
+        final ram = product as RAM;
+        productProps.addAll({
+          'bus': ram.bus,
+          'capacity': ram.capacity,
+          'ramType': ram.ramType,
+        });
+        break;
+      case CPU:
+        final cpu = product as CPU;
+        productProps.addAll({
+          'family': cpu.family,
+          'core': cpu.core,
+          'thread': cpu.thread,
+          'clockSpeed': cpu.clockSpeed,
+        });
+        break;
+      case GPU:
+        final gpu = product as GPU;
+        productProps.addAll({
+          'series': gpu.series,
+          'capacity': gpu.capacity,
+          'busWidth': gpu.bus,
+          'clockSpeed': gpu.clockSpeed,
+        });
+        break;
+      case Mainboard:
+        final mainboard = product as Mainboard;
+        productProps.addAll({
+          'formFactor': mainboard.formFactor,
+          'series': mainboard.series,
+          'compatibility': mainboard.compatibility,
+        });
+        break;
+      case Drive:
+        final drive = product as Drive;
+        productProps.addAll({
+          'type': drive.type,
+          'capacity': drive.capacity,
+        });
+        break;
+      case PSU:
+        final psu = product as PSU;
+        productProps.addAll({
+          'wattage': psu.wattage,
+          'efficiency': psu.efficiency,
+          'modular': psu.modular,
+        });
+        break;
+    }
+
+    // Create new product instance using factory
+    final updatedProduct = ProductFactory.createProduct(product.category, productProps);
+
+    // Update product in Firebase
+    _firebase.updateProduct(updatedProduct);
 
     emit(state.copyWith(
       details: updatedDetails,

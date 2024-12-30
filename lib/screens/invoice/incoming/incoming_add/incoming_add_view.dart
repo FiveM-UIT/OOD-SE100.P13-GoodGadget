@@ -88,32 +88,77 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Products',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: state.products.length,
-          itemBuilder: (context, index) {
-            final product = state.products[index];
-            return Card(
-              child: ListTile(
-                title: Text(product.productName),
-                subtitle: Text('\$${product.importPrice.toStringAsFixed(2)}'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () => _showAddProductDialog(context, product),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Products',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: () => _showAddProductDialog(context),
+              icon: const Icon(Icons.add),
+              label: const Text('Add Product'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
-            );
-          },
+            ),
+          ],
         ),
+        const SizedBox(height: 16),
+        if (state.details.isEmpty)
+          Center(
+            child: Text(
+              'No products added yet',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+              ),
+            ),
+          )
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: state.details.length,
+            itemBuilder: (context, index) {
+              final detail = state.details[index];
+              final product = state.products.firstWhere(
+                (p) => p.productID == detail.productID,
+              );
+              return Card(
+                child: ListTile(
+                  title: Text(product.productName),
+                  subtitle: Text(
+                    'Quantity: ${detail.quantity} × \$${detail.importPrice.toStringAsFixed(2)} = \$${detail.subtotal.toStringAsFixed(2)}',
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => _showEditQuantityDialog(
+                          context,
+                          index,
+                          detail.quantity,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => cubit.removeDetail(index),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
       ],
     );
   }
@@ -212,37 +257,60 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
     );
   }
 
-  Future<void> _showAddProductDialog(BuildContext context, Product product) async {
+  Future<void> _showAddProductDialog(BuildContext context) async {
+    Product? selectedProduct;
     final quantityController = TextEditingController();
-    final importPriceController = TextEditingController(
-      text: product.importPrice.toString(),
-    );
+    final importPriceController = TextEditingController();
 
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Add ${product.productName}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: importPriceController,
-              decoration: const InputDecoration(
-                labelText: 'Import Price',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: quantityController,
-              decoration: const InputDecoration(
-                labelText: 'Quantity',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-          ],
+        title: const Text('Add Product'),
+        content: BlocBuilder<IncomingAddCubit, IncomingAddState>(
+          builder: (context, state) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<Product>(
+                  value: selectedProduct,
+                  decoration: const InputDecoration(
+                    labelText: 'Select Product',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: state.products.map((product) {
+                    return DropdownMenuItem(
+                      value: product,
+                      child: Text(product.productName),
+                    );
+                  }).toList(),
+                  onChanged: (product) {
+                    selectedProduct = product;
+                    if (product != null) {
+                      importPriceController.text = product.importPrice.toString();
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: importPriceController,
+                  decoration: const InputDecoration(
+                    labelText: 'Import Price',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: quantityController,
+                  decoration: const InputDecoration(
+                    labelText: 'Quantity',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            );
+          },
         ),
         actions: [
           TextButton(
@@ -251,12 +319,14 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
           ),
           TextButton(
             onPressed: () {
-              final importPrice = double.tryParse(importPriceController.text);
-              final quantity = int.tryParse(quantityController.text);
+              if (selectedProduct != null) {
+                final importPrice = double.tryParse(importPriceController.text);
+                final quantity = int.tryParse(quantityController.text);
 
-              if (importPrice != null && quantity != null) {
-                cubit.addDetail(product, importPrice, quantity);
-                Navigator.pop(context);
+                if (importPrice != null && quantity != null) {
+                  cubit.addDetail(selectedProduct!, importPrice, quantity);
+                  Navigator.pop(context);
+                }
               }
             },
             child: const Text('Add'),

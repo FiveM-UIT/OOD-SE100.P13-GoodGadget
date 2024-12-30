@@ -264,74 +264,77 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
 
     return showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Product'),
-        content: BlocBuilder<IncomingAddCubit, IncomingAddState>(
-          builder: (context, state) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<Product>(
-                  value: selectedProduct,
-                  decoration: const InputDecoration(
-                    labelText: 'Select Product',
-                    border: OutlineInputBorder(),
+      builder: (dialogContext) => BlocProvider.value(
+        value: cubit,
+        child: AlertDialog(
+          title: const Text('Add Product'),
+          content: BlocBuilder<IncomingAddCubit, IncomingAddState>(
+            builder: (context, state) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<Product>(
+                    value: selectedProduct,
+                    decoration: const InputDecoration(
+                      labelText: 'Select Product',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: state.products.map((product) {
+                      return DropdownMenuItem(
+                        value: product,
+                        child: Text(product.productName),
+                      );
+                    }).toList(),
+                    onChanged: (product) {
+                      selectedProduct = product;
+                      if (product != null) {
+                        importPriceController.text = product.importPrice.toString();
+                      }
+                    },
                   ),
-                  items: state.products.map((product) {
-                    return DropdownMenuItem(
-                      value: product,
-                      child: Text(product.productName),
-                    );
-                  }).toList(),
-                  onChanged: (product) {
-                    selectedProduct = product;
-                    if (product != null) {
-                      importPriceController.text = product.importPrice.toString();
-                    }
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: importPriceController,
-                  decoration: const InputDecoration(
-                    labelText: 'Import Price',
-                    border: OutlineInputBorder(),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: importPriceController,
+                    decoration: const InputDecoration(
+                      labelText: 'Import Price',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   ),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: quantityController,
-                  decoration: const InputDecoration(
-                    labelText: 'Quantity',
-                    border: OutlineInputBorder(),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: quantityController,
+                    decoration: const InputDecoration(
+                      labelText: 'Quantity',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
                   ),
-                  keyboardType: TextInputType.number,
-                ),
-              ],
-            );
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              if (selectedProduct != null) {
-                final importPrice = double.tryParse(importPriceController.text);
-                final quantity = int.tryParse(quantityController.text);
-
-                if (importPrice != null && quantity != null) {
-                  cubit.addDetail(selectedProduct!, importPrice, quantity);
-                  Navigator.pop(context);
-                }
-              }
+                ],
+              );
             },
-            child: const Text('Add'),
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (selectedProduct != null) {
+                  final importPrice = double.tryParse(importPriceController.text);
+                  final quantity = int.tryParse(quantityController.text);
+
+                  if (importPrice != null && quantity != null) {
+                    cubit.addDetail(selectedProduct!, importPrice, quantity);
+                    Navigator.pop(dialogContext);
+                  }
+                }
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        ),
       ),
     );
   }

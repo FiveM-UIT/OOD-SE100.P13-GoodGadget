@@ -280,18 +280,45 @@ class _SalesAddViewState extends State<_SalesAddView> {
                   itemCount: addresses.length,
                   itemBuilder: (context, index) {
                     final address = addresses[index];
-                    return ListTile(
-                      title: Text(address.receiverName),
-                      subtitle: Text(address.toString()),
-                      trailing: address.isDefault ? Icon(
-                        Icons.check_circle,
-                        color: Theme.of(context).colorScheme.primary,
-                      ) : null,
-                      onTap: () {
-                        _addressController.text = address.toString();
-                        cubit.updateAddress(address.toString());
-                        Navigator.pop(context);
-                      },
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        title: Text(
+                          address.receiverName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(
+                          address.toString(),
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                          ),
+                        ),
+                        trailing: address.isDefault 
+                            ? Icon(
+                                Icons.check_circle,
+                                color: Theme.of(context).colorScheme.primary,
+                              )
+                            : null,
+                        onTap: () {
+                          _addressController.text = address.toString();
+                          cubit.updateAddress(address.toString());
+                          Navigator.pop(context);
+                        },
+                      ),
                     );
                   },
                 ),
@@ -430,10 +457,14 @@ class _SalesAddViewState extends State<_SalesAddView> {
                             TextFormField(
                               controller: _addressController,
                               readOnly: true,
+                              onTap: () => _showAddressBottomSheet(context, state),
                               decoration: InputDecoration(
                                 labelText: 'Địa chỉ giao hàng',
                                 labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
-                                prefixIcon: Icon(Icons.location_on_outlined, color: Colors.white.withOpacity(0.7)),
+                                prefixIcon: Icon(
+                                  Icons.location_on_outlined,
+                                  color: Colors.white.withOpacity(0.7),
+                                ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -448,7 +479,10 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                 filled: true,
                                 fillColor: Theme.of(context).colorScheme.surface,
                                 suffixIcon: IconButton(
-                                  icon: Icon(Icons.edit, color: Colors.white.withOpacity(0.7)),
+                                  icon: Icon(
+                                    Icons.arrow_drop_down_circle_outlined,
+                                    color: Colors.white.withOpacity(0.7),
+                                  ),
                                   onPressed: () => _showAddressBottomSheet(context, state),
                                 ),
                               ),
@@ -566,6 +600,23 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                   initialDate: state.selectedDate,
                                   firstDate: DateTime(2000),
                                   lastDate: DateTime(2100),
+                                  builder: (context, child) {
+                                    return Theme(
+                                      data: Theme.of(context).copyWith(
+                                        colorScheme: const ColorScheme.light(
+                                          primary: Color(0xFF202046),
+                                          onPrimary: Colors.white,
+                                          onSurface: Colors.black,
+                                        ),
+                                        textButtonTheme: TextButtonThemeData(
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: const Color(0xFF202046),
+                                          ),
+                                        ),
+                                      ),
+                                      child: child!,
+                                    );
+                                  },
                                 );
                                 if (date != null) {
                                   cubit.updateDate(date);

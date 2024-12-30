@@ -86,80 +86,28 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
   }
 
   Widget _buildProductsList(IncomingAddState state) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Products',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            ElevatedButton.icon(
-              onPressed: () => _showAddProductDialog(context),
-              icon: const Icon(Icons.add),
-              label: const Text('Add Product'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        if (state.details.isEmpty)
-          Center(
-            child: Text(
-              'No products added yet',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-              ),
-            ),
-          )
-        else
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: state.details.length,
-            itemBuilder: (context, index) {
-              final detail = state.details[index];
-              final product = state.products.firstWhere(
-                (p) => p.productID == detail.productID,
-              );
-              return Card(
-                child: ListTile(
-                  title: Text(product.productName),
-                  subtitle: Text(
-                    'Quantity: ${detail.quantity} × \$${detail.importPrice.toStringAsFixed(2)} = \$${detail.subtotal.toStringAsFixed(2)}',
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () => _showEditQuantityDialog(
-                          context,
-                          index,
-                          detail.quantity,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () => cubit.removeDetail(index),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+        const Text(
+          'Products',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
+        ),
+        ElevatedButton.icon(
+          onPressed: () => _showAddProductDialog(context),
+          icon: const Icon(Icons.add),
+          label: const Text('Add Product'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).primaryColor,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
       ],
     );
   }

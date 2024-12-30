@@ -59,7 +59,7 @@ class _IncomingScreenState extends State<IncomingScreen> {
                         final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const IncomingAddScreen(),
+                            builder: (context) => IncomingAddScreen.newInstance(),
                           ),
                         );
                         

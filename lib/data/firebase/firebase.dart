@@ -1570,4 +1570,57 @@ class Firebase {
     }
   }
 
+  Future<List<Address>> getCustomerAddresses(String customerID) async {
+    try {
+      final QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('addresses')
+          .where('customerID', isEqualTo: customerID)
+          .get();
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return Address(
+          addressID: doc.id,
+          customerID: data['customerID'],
+          receiverName: data['receiverName'],
+          receiverPhone: data['receiverPhone'],
+          province: Database().provinceList.firstWhere(
+            (p) => p.code == data['provinceCode'],
+            orElse: () => Province.nullProvince,
+          ),
+          district: Database().provinceList
+            .firstWhere(
+              (p) => p.code == data['provinceCode'],
+              orElse: () => Province.nullProvince,
+            )
+            .districts
+            ?.firstWhere(
+              (d) => d.code == data['districtCode'],
+              orElse: () => District.nullDistrict,
+            ),
+          ward: Database().provinceList
+            .firstWhere(
+              (p) => p.code == data['provinceCode'],
+              orElse: () => Province.nullProvince,
+            )
+            .districts
+            ?.firstWhere(
+              (d) => d.code == data['districtCode'],
+              orElse: () => District.nullDistrict,
+            )
+            .wards
+            ?.firstWhere(
+              (w) => w.code == data['wardCode'],
+              orElse: () => Ward.nullWard,
+            ),
+          street: data['street'],
+          isDefault: data['isDefault'] ?? false,
+        );
+      }).toList();
+    } catch (e) {
+      print('Error getting customer addresses: $e');
+      rethrow;
+    }
+  }
+
 }

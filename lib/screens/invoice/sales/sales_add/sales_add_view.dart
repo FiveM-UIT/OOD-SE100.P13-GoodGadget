@@ -668,6 +668,11 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                 itemCount: state.invoiceDetails.length,
                                 itemBuilder: (context, index) {
                                   final detail = state.invoiceDetails[index];
+                                  final product = state.products.firstWhere(
+                                    (p) => p.productID == detail.productID,
+                                    orElse: () => null,
+                                  );
+                                  
                                   return Card(
                                     margin: const EdgeInsets.only(bottom: 8),
                                     child: Padding(
@@ -709,11 +714,45 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                                     ),
                                                   ),
                                                   const SizedBox(width: 16),
-                                                  Text(
-                                                    'Quantity: ${detail.quantity}',
-                                                    style: TextStyle(
-                                                      color: Colors.white.withOpacity(0.8),
-                                                    ),
+                                                  Row(
+                                                    children: [
+                                                      IconButton(
+                                                        icon: Icon(
+                                                          Icons.remove_circle_outline,
+                                                          color: detail.quantity > 1 
+                                                              ? Theme.of(context).colorScheme.primary
+                                                              : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                                                        ),
+                                                        onPressed: detail.quantity > 1
+                                                            ? () => cubit.updateDetailQuantity(index, detail.quantity - 1)
+                                                            : null,
+                                                        padding: EdgeInsets.zero,
+                                                        constraints: const BoxConstraints(),
+                                                      ),
+                                                      Padding(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                                                        child: Text(
+                                                          '${detail.quantity}',
+                                                          style: const TextStyle(
+                                                            fontWeight: FontWeight.w500,
+                                                            fontSize: 16,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      IconButton(
+                                                        icon: Icon(
+                                                          Icons.add_circle_outline,
+                                                          color: product != null && detail.quantity < product.stock
+                                                              ? Theme.of(context).colorScheme.primary
+                                                              : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                                                        ),
+                                                        onPressed: product != null && detail.quantity < product.stock
+                                                            ? () => cubit.updateDetailQuantity(index, detail.quantity + 1)
+                                                            : null,
+                                                        padding: EdgeInsets.zero,
+                                                        constraints: const BoxConstraints(),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ],
                                               ),
@@ -726,6 +765,16 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                               ),
                                             ],
                                           ),
+                                          if (product != null) ...[
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'Available stock: ${product.stock}',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white.withOpacity(0.6),
+                                              ),
+                                            ),
+                                          ],
                                         ],
                                       ),
                                     ),

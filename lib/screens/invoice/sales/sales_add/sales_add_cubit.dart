@@ -80,6 +80,19 @@ class SalesAddCubit extends Cubit<SalesAddState> {
     final details = List<SalesInvoiceDetail>.from(state.invoiceDetails);
     final detail = details[index];
     
+    final product = state.products.firstWhere(
+      (p) => p.productID == detail.productID,
+      orElse: () => null,
+    );
+    
+    if (product == null || quantity > product.stock) {
+      emit(state.copyWith(
+        error: 'Not enough stock',
+        selectedCustomer: state.selectedCustomer,
+      ));
+      return;
+    }
+
     details[index] = SalesInvoiceDetail.withQuantity(
       salesInvoiceDetailID: detail.salesInvoiceDetailID,
       salesInvoiceID: detail.salesInvoiceID,
@@ -90,7 +103,10 @@ class SalesAddCubit extends Cubit<SalesAddState> {
       quantity: quantity,
     );
 
-    emit(state.copyWith(invoiceDetails: details));
+    emit(state.copyWith(
+      invoiceDetails: details,
+      selectedCustomer: state.selectedCustomer,
+    ));
   }
 
   void removeDetail(int index) {

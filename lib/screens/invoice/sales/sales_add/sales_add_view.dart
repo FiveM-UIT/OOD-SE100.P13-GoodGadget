@@ -670,7 +670,6 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                   final detail = state.invoiceDetails[index];
                                   final product = state.products.firstWhere(
                                     (p) => p.productID == detail.productID,
-                                    orElse: () => null,
                                   );
                                   
                                   return Card(

@@ -80,33 +80,40 @@ class SalesAddCubit extends Cubit<SalesAddState> {
     final details = List<SalesInvoiceDetail>.from(state.invoiceDetails);
     final detail = details[index];
     
-    final product = state.products.firstWhere(
-      (p) => p.productID == detail.productID,
-      orElse: () => null,
-    );
-    
-    if (product == null || quantity > product.stock) {
+    try {
+      final product = state.products.firstWhere(
+        (p) => p.productID == detail.productID,
+      );
+      
+      if (quantity > product.stock) {
+        emit(state.copyWith(
+          error: 'Not enough stock',
+          selectedCustomer: state.selectedCustomer,
+        ));
+        return;
+      }
+
+      details[index] = SalesInvoiceDetail.withQuantity(
+        salesInvoiceDetailID: detail.salesInvoiceDetailID,
+        salesInvoiceID: detail.salesInvoiceID,
+        productID: detail.productID,
+        productName: detail.productName,
+        category: detail.category,
+        sellingPrice: detail.sellingPrice,
+        quantity: quantity,
+      );
+
       emit(state.copyWith(
-        error: 'Not enough stock',
+        invoiceDetails: details,
         selectedCustomer: state.selectedCustomer,
       ));
-      return;
+    } catch (e) {
+      // Xử lý trường hợp không tìm thấy sản phẩm
+      emit(state.copyWith(
+        error: 'Product not found',
+        selectedCustomer: state.selectedCustomer,
+      ));
     }
-
-    details[index] = SalesInvoiceDetail.withQuantity(
-      salesInvoiceDetailID: detail.salesInvoiceDetailID,
-      salesInvoiceID: detail.salesInvoiceID,
-      productID: detail.productID,
-      productName: detail.productName,
-      category: detail.category,
-      sellingPrice: detail.sellingPrice,
-      quantity: quantity,
-    );
-
-    emit(state.copyWith(
-      invoiceDetails: details,
-      selectedCustomer: state.selectedCustomer,
-    ));
   }
 
   void removeDetail(int index) {

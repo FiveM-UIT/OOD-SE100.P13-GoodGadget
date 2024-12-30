@@ -270,4 +270,62 @@ class ProductArgument {
         throw Exception('Invalid product category');
     }
   }
+
+  ProductArgument fromProduct(Product product) {
+    ProductArgument result = ProductArgument(
+      productID: product.productID,
+      productName: product.productName,
+      manufacturer: product.manufacturer,
+      category: product.category,
+      importPrice: product.importPrice,
+      sellingPrice: product.sellingPrice,
+      discount: product.discount,
+      release: product.release,
+      sales: product.sales,
+      stock: product.stock,
+      status: product.status,
+    );
+    switch (product.category) {
+      case CategoryEnum.ram:
+        return result.copyWith(
+          ramBus: (product as RAM).bus,
+          ramCapacity: (product).capacity,
+          ramType: (product).ramType,
+        );
+      case CategoryEnum.cpu:
+        return result.copyWith(
+          family: (product as CPU).family,
+          core: (product).core,
+          thread: (product).thread,
+          cpuClockSpeed: (product).clockSpeed,
+        );
+      case CategoryEnum.psu:
+        return result.copyWith(
+          wattage: (product as PSU).wattage,
+          efficiency: (product).efficiency,
+          modular: (product).modular,
+        );
+        break;
+      case CategoryEnum.gpu:
+        return result.copyWith(
+          gpuSeries: (product as GPU).series,
+          gpuCapacity: (product).capacity,
+          gpuBus: (product).bus,
+          gpuClockSpeed: (product).clockSpeed,
+        );
+      case CategoryEnum.mainboard:
+        return result.copyWith(
+          formFactor: (product as Mainboard).formFactor,
+          mainboardSeries: (product).series,
+          compatibility: (product).compatibility,
+        );
+      case CategoryEnum.drive:
+        return result.copyWith(
+          driveType: (product as Drive).type,
+          driveCapacity: (product).capacity,
+        );
+      default:
+        throw Exception('Invalid product category');
+    }
+  }
 }

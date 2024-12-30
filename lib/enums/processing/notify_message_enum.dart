@@ -14,6 +14,8 @@ enum NotifyMessage {
   msg12('This email is not registered in the system'),
   msg13('Product added successfully.'),
   msg14('Failed to add product. Please try again.'),
+  msg15('Product updated successfully.'),
+  msg16('Failed to update product. Please try again.'),
   error('An unexpected error occurred. Please try again.'),
   ;
 

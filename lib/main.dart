@@ -65,7 +65,7 @@ class MyApp extends StatelessWidget {
           '/sign-in': (context) => SignInScreen.newInstance(),
           '/sign-up': (context) => SignUpScreen.newInstance(),
           '/forget-password': (context) => ForgetPasswordScreen.newInstance(),
-          '/main': (context) => const MainScreen(),
+          '/main': (context) => MainScreen(),
           '/home': (context) => HomeScreen.newInstance(),
         },
         home: const AuthWrapper(),
@@ -86,7 +86,7 @@ class AuthWrapper extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasData) {
-          return const MainScreen();
+          return MainScreen();
         }
         return SignInScreen.newInstance();
       },

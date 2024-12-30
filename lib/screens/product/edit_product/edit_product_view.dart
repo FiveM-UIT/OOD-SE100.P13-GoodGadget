@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_cubit.dart';
 import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_state.dart';
-import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_view.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_view.dart';
 import 'package:gizmoglobe_client/widgets/dialog/information_dialog.dart';
 import 'package:gizmoglobe_client/widgets/general/app_text_style.dart';
@@ -41,26 +40,28 @@ import '../../../objects/product_related/ram.dart';
 import '../../../widgets/general/field_with_icon.dart';
 import '../../../widgets/general/gradient_dropdown.dart';
 import '../../main/main_screen/main_screen_view.dart';
-import 'add_product_state.dart';
-import 'add_product_cubit.dart';
+import 'edit_product_state.dart';
+import 'edit_product_cubit.dart';
 
 
-class AddProductScreen extends StatefulWidget {
-  const AddProductScreen({super.key});
+class EditProductScreen extends StatefulWidget {
+  final Product product;
 
-  static Widget newInstance() =>
+  const EditProductScreen({super.key, required this.product});
+
+  static Widget newInstance(Product product) =>
       BlocProvider(
-        create: (context) => AddProductCubit(),
-        child: const AddProductScreen(),
+        create: (context) => EditProductCubit(),
+        child: EditProductScreen(product: product),
       );
 
 
   @override
-  State<AddProductScreen> createState() => _AddProductState();
+  State<EditProductScreen> createState() => _EditProductState();
 }
 
-class _AddProductState extends State<AddProductScreen> {
-  AddProductCubit get cubit => context.read<AddProductCubit>();
+class _EditProductState extends State<EditProductScreen> {
+  EditProductCubit get cubit => context.read<EditProductCubit>();
   late TextEditingController productNameController;
   late TextEditingController importPriceController;
   late TextEditingController sellingPriceController;
@@ -75,6 +76,7 @@ class _AddProductState extends State<AddProductScreen> {
   @override
   void initState() {
     super.initState();
+    cubit.initialize(widget.product);
     productNameController = TextEditingController();
     importPriceController = TextEditingController();
     sellingPriceController = TextEditingController();
@@ -85,6 +87,30 @@ class _AddProductState extends State<AddProductScreen> {
     cpuClockSpeedController = TextEditingController();
     psuWattageController = TextEditingController();
     gpuClockSpeedController = TextEditingController();
+    initTextControllers();
+  }
+
+  void initTextControllers() {
+    setProductName(widget.product.productName);
+    setImportPrice(widget.product.importPrice);
+    setSellingPrice(widget.product.sellingPrice);
+    setDiscount(widget.product.discount);
+    setStock(widget.product.stock);
+    switch (widget.product.category) {
+      case CategoryEnum.cpu:
+        setCpuCore((widget.product as CPU).core);
+        setCpuThread((widget.product as CPU).thread);
+        setCpuClockSpeed((widget.product as CPU).clockSpeed);
+        break;
+      case CategoryEnum.psu:
+        setPsuWattage((widget.product as PSU).wattage);
+        break;
+      case CategoryEnum.gpu:
+        setGpuClockSpeed((widget.product as GPU).clockSpeed);
+        break;
+      default:
+        break;
+    }
   }
 
   @override
@@ -97,13 +123,13 @@ class _AddProductState extends State<AddProductScreen> {
           onPressed: () => Navigator.pop(context),
           fillColor: Colors.transparent,
         ),
-        title: const GradientText(text: 'Add Product'),
+        title: const GradientText(text: 'Edit Product'),
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 16),
             child: ElevatedButton.icon(
               onPressed: () {
-                cubit.addProduct();
+                cubit.editProduct();
               },
               icon: const Icon(Icons.save_outlined, size: 20),
               label: const Text('Save'),
@@ -119,7 +145,7 @@ class _AddProductState extends State<AddProductScreen> {
           ),
         ],
       ),
-      body: BlocConsumer<AddProductCubit, AddProductState>(
+      body: BlocConsumer<EditProductCubit, EditProductState>(
         listener: (context, state) {
           if (state.processState == ProcessState.success) {
             showDialog(
@@ -129,12 +155,12 @@ class _AddProductState extends State<AddProductScreen> {
                     title: state.dialogName.toString(),
                     content: state.notifyMessage.toString(),
                     onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
+                      Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
                           builder: (context) => MainScreen(),
                         ),
+                            (Route<dynamic> route) => false,
                       ).then((_) {
                         MainScreen().setIndex(1);
                       });
@@ -374,7 +400,7 @@ class _AddProductState extends State<AddProductScreen> {
                             children: [
                               const Text('Status', style: AppTextStyle.smallText),
                               const SizedBox(height: 8),
-                              BlocBuilder<AddProductCubit, AddProductState>(
+                              BlocBuilder<EditProductCubit, EditProductState>(
                                 builder: (context, state) {
                                   final status = (state.productArgument?.stock ?? 0) > 0
                                       ? ProductStatusEnum.active
@@ -462,7 +488,7 @@ class _AddProductState extends State<AddProductScreen> {
     );
   }
 
-  Widget buildCategorySpecificInputs(CategoryEnum category, AddProductState state, AddProductCubit cubit) {
+  Widget buildCategorySpecificInputs(CategoryEnum category, EditProductState state, EditProductCubit cubit) {
     switch (category) {
       case CategoryEnum.ram:
         return Column(

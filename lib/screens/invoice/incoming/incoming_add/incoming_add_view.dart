@@ -185,25 +185,94 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
               (p) => p.productID == detail.productID,
             );
             return Card(
-              child: ListTile(
-                title: Text(product.productName),
-                subtitle: Text(
-                  'Quantity: ${detail.quantity} × \$${detail.importPrice.toStringAsFixed(2)} = \$${detail.subtotal.toStringAsFixed(2)}',
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () => _showEditQuantityDialog(
-                        context,
-                        index,
-                        detail.quantity,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            product.productName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () => _showEditDetailDialog(
+                            context,
+                            index,
+                            product,
+                            detail,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () => cubit.removeDetail(index),
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => cubit.removeDetail(index),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Import Price: \$${detail.importPrice.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.remove_circle_outline,
+                                color: detail.quantity > 1
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                              ),
+                              onPressed: detail.quantity > 1
+                                  ? () => cubit.updateDetailQuantity(index, detail.quantity - 1)
+                                  : null,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              child: Text(
+                                '${detail.quantity}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.add_circle_outline,
+                                color: Colors.blue,
+                              ),
+                              onPressed: () => cubit.updateDetailQuantity(
+                                index,
+                                detail.quantity + 1,
+                              ),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '\$${detail.subtotal.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -374,6 +443,96 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
             child: const Text('Update'),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _showEditDetailDialog(
+    BuildContext context,
+    int index,
+    Product currentProduct,
+    IncomingInvoiceDetail detail,
+  ) async {
+    Product? selectedProduct = currentProduct;
+    final quantityController = TextEditingController(text: detail.quantity.toString());
+    final importPriceController = TextEditingController(text: detail.importPrice.toString());
+
+    return showDialog(
+      context: context,
+      builder: (dialogContext) => BlocProvider.value(
+        value: cubit,
+        child: AlertDialog(
+          title: const Text('Edit Product Detail'),
+          content: BlocBuilder<IncomingAddCubit, IncomingAddState>(
+            builder: (context, state) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<Product>(
+                    value: selectedProduct,
+                    decoration: const InputDecoration(
+                      labelText: 'Select Product',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: state.products.map((product) {
+                      return DropdownMenuItem(
+                        value: product,
+                        child: Text(product.productName),
+                      );
+                    }).toList(),
+                    onChanged: (product) {
+                      selectedProduct = product;
+                      if (product != null) {
+                        importPriceController.text = product.importPrice.toString();
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: importPriceController,
+                    decoration: const InputDecoration(
+                      labelText: 'Import Price',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: quantityController,
+                    decoration: const InputDecoration(
+                      labelText: 'Quantity',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ],
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (selectedProduct != null) {
+                  final importPrice = double.tryParse(importPriceController.text);
+                  final quantity = int.tryParse(quantityController.text);
+
+                  if (importPrice != null && quantity != null) {
+                    // Remove old detail
+                    cubit.removeDetail(index);
+                    // Add new detail
+                    cubit.addDetail(selectedProduct!, importPrice, quantity);
+                    Navigator.pop(dialogContext);
+                  }
+                }
+              },
+              child: const Text('Update'),
+            ),
+          ],
+        ),
       ),
     );
   }

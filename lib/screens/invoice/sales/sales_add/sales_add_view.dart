@@ -63,132 +63,129 @@ class _SalesAddViewState extends State<_SalesAddView> {
 
   void _showAddProductDialog(BuildContext dialogContext) {
     final _quantityController = TextEditingController(text: '1');
-    Product? selectedProduct;
 
     showDialog(
       context: dialogContext,
       builder: (_) => BlocProvider.value(
         value: BlocProvider.of<SalesAddCubit>(dialogContext),
-        child: StatefulBuilder(
-          builder: (context, setState) {
-            return BlocBuilder<SalesAddCubit, SalesAddState>(
-              builder: (context, state) {
-                return AlertDialog(
-                  title: const Text('Add Product'),
-                  content: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        DropdownButtonFormField<Product>(
-                          decoration: InputDecoration(
-                            labelText: 'Product',
-                            hintText: 'Select product',
-                            labelStyle: const TextStyle(color: Colors.white),
-                            hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.white),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                            ),
-                          ),
-                          value: selectedProduct,
-                          isExpanded: true,
-                          hint: Text(
-                            'Select product',
-                            style: TextStyle(color: Colors.white.withOpacity(0.7)),
-                          ),
-                          items: state.products
-                              .where((product) => product.stock > 0)
-                              .map((product) {
-                            return DropdownMenuItem(
-                              value: product,
-                              child: Text(
-                                '${product.productName} (\$${product.sellingPrice.toStringAsFixed(2)}) - Stock: ${product.stock}',
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            );
-                          }).toList(),
-                          dropdownColor: Theme.of(context).colorScheme.surface,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedProduct = value;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextField(
-                          controller: _quantityController,
-                          decoration: InputDecoration(
-                            labelText: 'Quantity',
-                            hintText: 'Enter quantity',
-                            labelStyle: const TextStyle(color: Colors.white),
-                            hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.white),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                            ),
-                          ),
-                          keyboardType: TextInputType.number,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        if (selectedProduct == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please select a product')),
-                          );
-                          return;
-                        }
-
-                        final quantity = int.tryParse(_quantityController.text) ?? 0;
-                        if (quantity <= 0) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Quantity must be greater than 0')),
-                          );
-                          return;
-                        }
-
-                        if (quantity > selectedProduct!.stock) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Not enough stock')),
-                          );
-                          return;
-                        }
-
-                        context.read<SalesAddCubit>().addInvoiceDetail(
-                          selectedProduct!,
-                          quantity,
-                        );
-                        Navigator.pop(context);
+        child: BlocBuilder<SalesAddCubit, SalesAddState>(
+          builder: (context, state) {
+            return AlertDialog(
+              title: const Text('Add Product'),
+              content: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<Product>(
+                      value: state.selectedModalProduct,
+                      onChanged: (product) {
+                        context.read<SalesAddCubit>().updateSelectedModalProduct(product);
                       },
-                      child: const Text('Add'),
+                      decoration: InputDecoration(
+                        labelText: 'Product',
+                        hintText: 'Select product',
+                        labelStyle: const TextStyle(color: Colors.white),
+                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                        ),
+                      ),
+                      hint: Text(
+                        'Select product',
+                        style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                      ),
+                      items: state.products
+                          .where((product) => product.stock > 0)
+                          .map((product) {
+                        return DropdownMenuItem(
+                          value: product,
+                          child: Text(
+                            '${product.productName} (\$${product.sellingPrice.toStringAsFixed(2)}) - Stock: ${product.stock}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }).toList(),
+                      dropdownColor: Theme.of(context).colorScheme.surface,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _quantityController,
+                      decoration: InputDecoration(
+                        labelText: 'Quantity',
+                        hintText: 'Enter quantity',
+                        labelStyle: const TextStyle(color: Colors.white),
+                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ],
-                );
-              },
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    context.read<SalesAddCubit>().updateSelectedModalProduct(null);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (state.selectedModalProduct == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please select a product')),
+                      );
+                      return;
+                    }
+
+                    final quantity = int.tryParse(_quantityController.text) ?? 0;
+                    if (quantity <= 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Quantity must be greater than 0')),
+                      );
+                      return;
+                    }
+
+                    if (quantity > state.selectedModalProduct!.stock) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Not enough stock')),
+                      );
+                      return;
+                    }
+
+                    context.read<SalesAddCubit>().addInvoiceDetail(
+                      state.selectedModalProduct!,
+                      quantity,
+                    );
+                    context.read<SalesAddCubit>().updateSelectedModalProduct(null);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Add'),
+                ),
+              ],
             );
           },
         ),

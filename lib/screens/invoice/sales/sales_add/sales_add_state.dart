@@ -16,6 +16,7 @@ class SalesAddState extends Equatable {
   final List<Product> products;
   final List<SalesInvoiceDetail> invoiceDetails;
   final DateTime selectedDate;
+  final Product? selectedModalProduct;
 
   SalesAddState({
     this.isLoading = false,
@@ -27,6 +28,7 @@ class SalesAddState extends Equatable {
     this.customers = const [],
     this.products = const [],
     this.invoiceDetails = const [],
+    this.selectedModalProduct,
     DateTime? selectedDate,
   }) : selectedDate = selectedDate ?? DateTime.now();
 
@@ -46,6 +48,7 @@ class SalesAddState extends Equatable {
     products,
     invoiceDetails,
     selectedDate,
+    selectedModalProduct,
   ];
 
   SalesAddState copyWith({
@@ -59,6 +62,7 @@ class SalesAddState extends Equatable {
     List<Product>? products,
     List<SalesInvoiceDetail>? invoiceDetails,
     DateTime? selectedDate,
+    Product? selectedModalProduct,
   }) {
     return SalesAddState(
       isLoading: isLoading ?? this.isLoading,
@@ -71,6 +75,7 @@ class SalesAddState extends Equatable {
       products: products ?? this.products,
       invoiceDetails: invoiceDetails ?? this.invoiceDetails,
       selectedDate: selectedDate ?? this.selectedDate,
+      selectedModalProduct: selectedModalProduct,
     );
   }
 } 

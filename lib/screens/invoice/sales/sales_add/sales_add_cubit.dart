@@ -194,4 +194,11 @@ class SalesAddCubit extends Cubit<SalesAddState> {
       return null;
     }
   }
+
+  void updateSelectedModalProduct(Product? product) {
+    emit(state.copyWith(
+      selectedModalProduct: product,
+      selectedCustomer: state.selectedCustomer,
+    ));
+  }
 } 

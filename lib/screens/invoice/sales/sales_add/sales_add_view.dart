@@ -44,7 +44,20 @@ class _SalesAddViewState extends State<_SalesAddView> {
 
     final invoice = await cubit.createInvoice();
     if (invoice != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tạo hóa đơn thành công'),
+          backgroundColor: Colors.green,
+        ),
+      );
       Navigator.pop(context, invoice);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(state.error ?? 'Có lỗi xảy ra'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 

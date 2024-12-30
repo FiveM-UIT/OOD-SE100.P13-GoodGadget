@@ -101,21 +101,34 @@ class SalesAddCubit extends Cubit<SalesAddState> {
 
   Future<SalesInvoice?> createInvoice() async {
     if (state.selectedCustomer == null) {
-      emit(state.copyWith(error: 'Please select a customer'));
+      emit(state.copyWith(
+        error: 'Please select a customer',
+        selectedCustomer: state.selectedCustomer,
+      ));
       return null;
     }
 
     if (state.address.isEmpty) {
-      emit(state.copyWith(error: 'Please enter delivery address'));
+      emit(state.copyWith(
+        error: 'Please enter delivery address',
+        selectedCustomer: state.selectedCustomer,
+      ));
       return null;
     }
 
     if (state.invoiceDetails.isEmpty) {
-      emit(state.copyWith(error: 'Please add at least one product'));
+      emit(state.copyWith(
+        error: 'Please add at least one product',
+        selectedCustomer: state.selectedCustomer,
+      ));
       return null;
     }
 
-    emit(state.copyWith(isLoading: true, error: null));
+    emit(state.copyWith(
+      isLoading: true,
+      error: null,
+      selectedCustomer: state.selectedCustomer,
+    ));
 
     try {
       final invoice = SalesInvoice(
@@ -133,17 +146,27 @@ class SalesAddCubit extends Cubit<SalesAddState> {
       invoice.salesInvoiceID = invoiceId;
 
       for (var detail in invoice.details) {
-        await _firebase.createSalesInvoiceDetail(
-          detail.copyWith(salesInvoiceID: invoiceId)
+        final updatedDetail = detail.copyWith(salesInvoiceID: invoiceId);
+        await _firebase.createSalesInvoiceDetail(updatedDetail);
+        
+        await _firebase.updateProductStockAndSales(
+          detail.productID,
+          -detail.quantity,
+          detail.quantity,
         );
       }
 
-      emit(state.copyWith(isLoading: false));
+      emit(state.copyWith(
+        isLoading: false,
+        selectedCustomer: state.selectedCustomer,
+      ));
+      
       return invoice;
     } catch (e) {
       emit(state.copyWith(
         isLoading: false,
         error: e.toString(),
+        selectedCustomer: state.selectedCustomer,
       ));
       return null;
     }

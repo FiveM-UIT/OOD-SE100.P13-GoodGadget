@@ -50,6 +50,7 @@ dependencies:
   pie_chart: ^5.4.0
   connectivity_plus: ^5.0.2
   shared_preferences: ^2.3.4
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:

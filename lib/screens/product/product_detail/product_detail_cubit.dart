@@ -116,4 +116,8 @@ class ProductDetailCubit extends Cubit<ProductDetailState> {
       emit(state.copyWith(processState: ProcessState.failure, notifyMessage: NotifyMessage.msg16, dialogName: DialogName.failure));
     }
   }
+
+  void toSuccess() {
+    emit(state.copyWith(processState: ProcessState.success));
+  }
 }

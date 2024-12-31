@@ -172,13 +172,15 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                             return GestureDetector(
                               onTap: () async{
                                 cubit.setSelectedProduct(null);
-                                await Navigator.of(context).push(
+                                ProcessState result = await Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (context) => ProductDetailScreen.newInstance(product),
                                   ),
                                 );
 
-                                await cubit.reloadProducts();
+                                if (result == ProcessState.success) {
+                                  await cubit.reloadProducts();
+                                }
                               },
                               onLongPress: () {
                                 cubit.setSelectedProduct(product);

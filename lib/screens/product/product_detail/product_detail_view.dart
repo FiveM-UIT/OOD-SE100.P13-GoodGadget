@@ -18,24 +18,39 @@ import '../../../objects/product_related/ram.dart';
 import '../../../widgets/dialog/information_dialog.dart';
 
 
-class ProductDetailScreen extends StatelessWidget {
+class ProductDetailScreen extends StatefulWidget {
   final Product product;
   const ProductDetailScreen({super.key, required this.product});
 
-  static Widget newInstance(Product product) => BlocProvider(
+  static Widget newInstance(Product product) =>
+      BlocProvider(
         create: (context) => ProductDetailCubit(product),
         child: ProductDetailScreen(product: product),
       );
+
+  @override
+  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+}
+
+class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  ProductDetailCubit get cubit => context.read<ProductDetailCubit>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        leading: GradientIconButton(
-          icon: Icons.chevron_left,
-          onPressed: () => Navigator.pop(context),
-          fillColor: Colors.transparent,
+        leading: BlocBuilder<ProductDetailCubit, ProductDetailState>(
+          builder: (context, state) => GradientIconButton(
+            icon: Icons.chevron_left,
+            onPressed: () => {
+              if (widget.product != state.product) {
+                cubit.toSuccess(),
+              },
+              Navigator.pop(context, state.processState)
+            },
+            fillColor: Colors.transparent,
+          ),
         ),
         actions: [
           IconButton(
@@ -96,25 +111,25 @@ class ProductDetailScreen extends StatelessWidget {
                       _buildInfoRow(
                         icon: Icons.inventory_2,
                         title: 'Product',
-                        value: product.productName,
+                        value: state.product.productName,
                       ),
                       
                       _buildInfoRow(
                         icon: Icons.category,
                         title: 'Category',
-                        value: product.category.toString().split('.').last,
+                        value: state.product.category.toString().split('.').last,
                       ),
                       
                       _buildInfoRow(
                         icon: Icons.business,
                         title: 'Manufacturer',
-                        value: product.manufacturer.manufacturerName,
+                        value: state.product.manufacturer.manufacturerName,
                       ),
                       
                       // Thêm thông tin về giá và discount
                       _buildPriceSection(
-                        sellingPrice: product.sellingPrice,
-                        discount: product.discount,
+                        sellingPrice: state.product.sellingPrice,
+                        discount: state.product.discount,
                       ),
                       
                       SizedBox(height: 24),
@@ -131,18 +146,18 @@ class ProductDetailScreen extends StatelessWidget {
                       
                       Row(
                         children: [
-                          _buildStatusChip(product.status),
+                          _buildStatusChip(state.product.status),
                           const SizedBox(width: 16),
                           Icon(
-                            product.stock > 0 ? Icons.check_circle : Icons.error,
-                            color: product.stock > 0 ? Colors.green : Colors.red,
+                            state.product.stock > 0 ? Icons.check_circle : Icons.error,
+                            color: state.product.stock > 0 ? Colors.green : Colors.red,
                             size: 16,
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Stock: ${product.stock}',
+                            'Stock: ${state.product.stock}',
                             style: TextStyle(
-                              color: product.stock > 0 ? Colors.green : Colors.red,
+                              color: state.product.stock > 0 ? Colors.green : Colors.red,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -153,7 +168,7 @@ class ProductDetailScreen extends StatelessWidget {
                       _buildInfoRow(
                         icon: Icons.calendar_today,
                         title: 'Release Date',
-                        value: DateFormat('dd/MM/yyyy').format(product.release),
+                        value: DateFormat('dd/MM/yyyy').format(state.product.release),
                       ),
                       const SizedBox(height: 24),
                       
@@ -167,7 +182,7 @@ class ProductDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       
-                      ..._buildProductSpecificDetails(context, product, state.technicalSpecs),
+                      ..._buildProductSpecificDetails(context, state.product, state.technicalSpecs),
 
                       const SizedBox(height: 16),
                       BlocConsumer<ProductDetailCubit, ProductDetailState>(
@@ -204,7 +219,7 @@ class ProductDetailScreen extends StatelessWidget {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => EditProductScreen.newInstance(product),
+                                      builder: (context) => EditProductScreen.newInstance(state.product),
                                     ),
                                   );
                                 },
@@ -226,8 +241,8 @@ class ProductDetailScreen extends StatelessWidget {
                             Expanded(
                               child: ElevatedButton.icon(
                                 onPressed: () {
-                                  context.read<ProductDetailCubit>().toLoading();
-                                  context.read<ProductDetailCubit>().changeProductStatus();
+                                  cubit.toLoading();
+                                  cubit.changeProductStatus();
                                 },
                                 icon: const Icon(
                                   Icons.delete,

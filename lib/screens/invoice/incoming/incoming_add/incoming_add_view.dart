@@ -4,7 +4,9 @@ import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/incoming_invoice_detail.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_button.dart';
+import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
 import '../../../../enums/invoice_related/payment_status.dart';
+import '../../../../widgets/general/gradient_icon_button.dart';
 import 'incoming_add_cubit.dart';
 import 'incoming_add_state.dart';
 
@@ -37,7 +39,14 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('New Incoming Invoice'),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: GradientIconButton(
+              icon: Icons.chevron_left,
+              onPressed: () => Navigator.pop(context),
+              fillColor: Colors.transparent,
+            ),
+            title: GradientText(text: 'New Incoming Invoice'),
           ),
           body: state.isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -69,9 +78,11 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
 
   Widget _buildManufacturerDropdown(IncomingAddState state) {
     return DropdownButtonFormField<Manufacturer>(
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         labelText: 'Select Manufacturer',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
+        labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
+        floatingLabelStyle: TextStyle(color: Theme.of(context).primaryColor),
       ),
       value: state.selectedManufacturer,
       items: state.manufacturers.map((manufacturer) {
@@ -101,7 +112,7 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
         ),
         ElevatedButton.icon(
           onPressed: () => _showAddProductDialog(context),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add, color: Colors.white,),
           label: const Text('Add Product'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).primaryColor,
@@ -155,73 +166,107 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.edit),
+                          color: Colors.white,
                           onPressed: () => _showEditDetailDialog(
                             context,
                             index,
                             product,
                             detail,
                           ),
+                          constraints: const BoxConstraints(
+                            minWidth: 40,
+                            minHeight: 40,
+                          ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete),
+                          color: Colors.red,
                           onPressed: () => cubit.removeDetail(index),
+                          constraints: const BoxConstraints(
+                            minWidth: 40,
+                            minHeight: 40,
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Import Price: \$${detail.importPrice.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            'Import Price: \$${detail.importPrice.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.8),
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: Icon(
-                                Icons.remove_circle_outline,
-                                color: detail.quantity > 1
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-                              ),
-                              onPressed: detail.quantity > 1
-                                  ? () => cubit.updateDetailQuantity(index, detail.quantity - 1)
-                                  : null,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Text(
-                                '${detail.quantity}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 16,
+                        Expanded(
+                          flex: 2,
+                          child: Container(
+                            constraints: const BoxConstraints(minWidth: 120),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 32,
+                                  child: IconButton(
+                                    icon: Icon(
+                                      Icons.remove_circle_outline,
+                                      color: detail.quantity > 1
+                                          ? Theme.of(context).colorScheme.primary
+                                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                                      size: 20,
+                                    ),
+                                    onPressed: detail.quantity > 1
+                                        ? () => cubit.updateDetailQuantity(index, detail.quantity - 1)
+                                        : null,
+                                    padding: EdgeInsets.zero,
+                                  ),
                                 ),
-                              ),
+                                SizedBox(
+                                  width: 48,
+                                  child: Text(
+                                    '${detail.quantity}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 32,
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      Icons.add_circle_outline,
+                                      color: Colors.blue,
+                                      size: 20,
+                                    ),
+                                    onPressed: () => cubit.updateDetailQuantity(
+                                      index,
+                                      detail.quantity + 1,
+                                    ),
+                                    padding: EdgeInsets.zero,
+                                  ),
+                                ),
+                              ],
                             ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.add_circle_outline,
-                                color: Colors.blue,
-                              ),
-                              onPressed: () => cubit.updateDetailQuantity(
-                                index,
-                                detail.quantity + 1,
-                              ),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                            ),
-                          ],
+                          ),
                         ),
-                        Text(
-                          '\$${detail.subtotal.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                        Expanded(
+                          flex: 1,
+                          child: Text(
+                            '\$${detail.subtotal.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.end,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -261,9 +306,15 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
 
   Widget _buildPaymentStatusDropdown(IncomingAddState state) {
     return DropdownButtonFormField<PaymentStatus>(
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         labelText: 'Payment Status',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
+        labelStyle: TextStyle(
+          color: Colors.white.withOpacity(0.8),
+        ),
+        floatingLabelStyle: TextStyle(
+          color: Theme.of(context).primaryColor,
+        ),
       ),
       value: state.paymentStatus,
       items: PaymentStatus.values.map((status) {
@@ -304,62 +355,83 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
     final quantityController = TextEditingController();
     final importPriceController = TextEditingController();
 
+    final inputDecoration = InputDecoration(
+      border: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white.withOpacity(0.7)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white.withOpacity(0.7)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Theme.of(context).primaryColor),
+      ),
+      labelStyle: TextStyle(color: Theme.of(context).primaryColor),
+      floatingLabelStyle: TextStyle(color: Theme.of(context).primaryColor),
+      hintStyle: TextStyle(color: Colors.grey[400]),
+      fillColor: Theme.of(context).cardColor,
+      filled: true,
+    );
+
     return showDialog(
       context: context,
       builder: (dialogContext) => BlocProvider.value(
         value: cubit,
         child: AlertDialog(
-          title: const Text('Add Product'),
+          title: GradientText(text: 'Add Product'),
           content: BlocBuilder<IncomingAddCubit, IncomingAddState>(
             builder: (context, state) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButtonFormField<Product>(
-                    value: selectedProduct,
-                    decoration: const InputDecoration(
-                      labelText: 'Select Product',
-                      border: OutlineInputBorder(),
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<Product>(
+                      value: selectedProduct,
+                      decoration: inputDecoration.copyWith(labelText: 'Select Product'),
+                      dropdownColor: Theme.of(context).cardColor,
+                      style: const TextStyle(color: Colors.white),
+                      items: state.products.map((product) {
+                        return DropdownMenuItem(
+                          value: product,
+                          child: Text(
+                            product.productName,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }).toList(),
+                      isExpanded: true,
+                      onChanged: (product) {
+                        selectedProduct = product;
+                        if (product != null) {
+                          importPriceController.text = product.importPrice.toString();
+                        }
+                      },
                     ),
-                    items: state.products.map((product) {
-                      return DropdownMenuItem(
-                        value: product,
-                        child: Text(product.productName),
-                      );
-                    }).toList(),
-                    onChanged: (product) {
-                      selectedProduct = product;
-                      if (product != null) {
-                        importPriceController.text = product.importPrice.toString();
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: importPriceController,
-                    decoration: const InputDecoration(
-                      labelText: 'Import Price',
-                      border: OutlineInputBorder(),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: importPriceController,
+                      decoration: inputDecoration.copyWith(labelText: 'Import Price'),
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     ),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: quantityController,
-                    decoration: const InputDecoration(
-                      labelText: 'Quantity',
-                      border: OutlineInputBorder(),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: quantityController,
+                      decoration: inputDecoration.copyWith(labelText: 'Quantity'),
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: TextInputType.number,
                     ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -373,7 +445,10 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
                   }
                 }
               },
-              child: const Text('Add'),
+              child: Text(
+                'Add',
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
             ),
           ],
         ),
@@ -430,6 +505,23 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
     final quantityController = TextEditingController(text: detail.quantity.toString());
     final importPriceController = TextEditingController(text: detail.importPrice.toString());
 
+    final inputDecoration = InputDecoration(
+      border: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white.withOpacity(0.7)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white.withOpacity(0.7)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Theme.of(context).primaryColor),
+      ),
+      labelStyle: TextStyle(color: Theme.of(context).primaryColor),
+      floatingLabelStyle: TextStyle(color: Theme.of(context).primaryColor),
+      hintStyle: TextStyle(color: Colors.grey[400]),
+      fillColor: Theme.of(context).cardColor,
+      filled: true,
+    );
+
     return showDialog(
       context: context,
       builder: (dialogContext) => BlocProvider.value(
@@ -438,54 +530,58 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
           title: const Text('Edit Product Detail'),
           content: BlocBuilder<IncomingAddCubit, IncomingAddState>(
             builder: (context, state) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButtonFormField<Product>(
-                    value: selectedProduct,
-                    decoration: const InputDecoration(
-                      labelText: 'Select Product',
-                      border: OutlineInputBorder(),
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<Product>(
+                      value: selectedProduct,
+                      decoration: inputDecoration.copyWith(labelText: 'Select Product'),
+                      dropdownColor: Theme.of(context).cardColor,
+                      style: const TextStyle(color: Colors.white),
+                      items: state.products.map((product) {
+                        return DropdownMenuItem(
+                          value: product,
+                          child: Text(
+                            product.productName,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }).toList(),
+                      isExpanded: true,
+                      onChanged: (product) {
+                        selectedProduct = product;
+                        if (product != null) {
+                          importPriceController.text = product.importPrice.toString();
+                        }
+                      },
                     ),
-                    items: state.products.map((product) {
-                      return DropdownMenuItem(
-                        value: product,
-                        child: Text(product.productName),
-                      );
-                    }).toList(),
-                    onChanged: (product) {
-                      selectedProduct = product;
-                      if (product != null) {
-                        importPriceController.text = product.importPrice.toString();
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: importPriceController,
-                    decoration: const InputDecoration(
-                      labelText: 'Import Price',
-                      border: OutlineInputBorder(),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: importPriceController,
+                      decoration: inputDecoration.copyWith(labelText: 'Import Price'),
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     ),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: quantityController,
-                    decoration: const InputDecoration(
-                      labelText: 'Quantity',
-                      border: OutlineInputBorder(),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: quantityController,
+                      decoration: inputDecoration.copyWith(labelText: 'Quantity'),
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: TextInputType.number,
                     ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -494,15 +590,16 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
                   final quantity = int.tryParse(quantityController.text);
 
                   if (importPrice != null && quantity != null) {
-                    // Remove old detail
                     cubit.removeDetail(index);
-                    // Add new detail
                     cubit.addDetail(selectedProduct!, importPrice, quantity);
                     Navigator.pop(dialogContext);
                   }
                 }
               },
-              child: const Text('Update'),
+              child: Text(
+                'Update',
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
             ),
           ],
         ),

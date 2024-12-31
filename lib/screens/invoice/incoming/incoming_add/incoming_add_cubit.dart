@@ -74,16 +74,35 @@ class IncomingAddCubit extends Cubit<IncomingAddState> {
       return;
     }
 
-    final detail = IncomingInvoiceDetail(
-      incomingInvoiceID: '',
-      productID: product.productID!,
-      importPrice: importPrice,
-      quantity: quantity,
-      subtotal: importPrice * quantity,
+    // Kiểm tra xem sản phẩm đã tồn tại trong details chưa
+    final existingDetailIndex = state.details.indexWhere(
+      (detail) => detail.productID == product.productID,
     );
 
-    final updatedDetails = List<IncomingInvoiceDetail>.from(state.details)
-      ..add(detail);
+    final List<IncomingInvoiceDetail> updatedDetails = List.from(state.details);
+
+    if (existingDetailIndex != -1) {
+      // Nếu sản phẩm đã tồn tại, cập nhật số lượng và subtotal
+      final existingDetail = state.details[existingDetailIndex];
+      final updatedDetail = IncomingInvoiceDetail(
+        incomingInvoiceID: existingDetail.incomingInvoiceID,
+        productID: product.productID!,
+        importPrice: importPrice, // Sử dụng giá import mới nhất
+        quantity: existingDetail.quantity + quantity,
+        subtotal: importPrice * (existingDetail.quantity + quantity),
+      );
+      updatedDetails[existingDetailIndex] = updatedDetail;
+    } else {
+      // Nếu sản phẩm chưa tồn tại, thêm mới
+      final detail = IncomingInvoiceDetail(
+        incomingInvoiceID: '',
+        productID: product.productID!,
+        importPrice: importPrice,
+        quantity: quantity,
+        subtotal: importPrice * quantity,
+      );
+      updatedDetails.add(detail);
+    }
 
     emit(state.copyWith(
       details: updatedDetails,

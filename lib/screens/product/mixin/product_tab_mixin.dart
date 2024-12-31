@@ -38,7 +38,8 @@ mixin TabMixin<T extends StatefulWidget> on State<T> {
       }
 
       if (state.initialProducts != initialProducts) {
-        tabCubit.updateProduct(state.initialProducts!);
+        initialProducts = state.initialProducts;
+        tabCubit.updateProduct(initialProducts);
       }
     });
   }

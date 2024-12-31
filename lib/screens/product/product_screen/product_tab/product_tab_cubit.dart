@@ -22,9 +22,9 @@ import 'product_tab_state.dart';
 abstract class TabCubit extends Cubit<TabState> {
   TabCubit() : super(const TabState());
 
-  void initialize(FilterArgument filter, {String? searchText, List<Product>? initialProducts}) {
+  void initialize(FilterArgument filter, {String? searchText, required List<Product> initialProducts}) {
     emit(state.copyWith(
-      productList: initialProducts!.isEmpty ? Database().productList : initialProducts,
+      productList: initialProducts.isEmpty ? Database().productList : initialProducts,
       filteredProductList: initialProducts.isEmpty ? Database().productList : initialProducts,
       searchText: searchText ?? '',
     ));

@@ -8,13 +8,7 @@ import 'package:intl/intl.dart';
 
 import '../../../enums/processing/process_state_enum.dart';
 import '../../../enums/product_related/product_status_enum.dart';
-import '../../../objects/product_related/cpu.dart';
-import '../../../objects/product_related/drive.dart';
-import '../../../objects/product_related/gpu.dart';
-import '../../../objects/product_related/mainboard.dart';
 import '../../../objects/product_related/product.dart';
-import '../../../objects/product_related/psu.dart';
-import '../../../objects/product_related/ram.dart';
 import '../../../widgets/dialog/information_dialog.dart';
 
 
@@ -215,13 +209,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           children: [
                             Expanded(
                               child: ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
+                                onPressed: () async {
+                                  ProcessState processState =  await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => EditProductScreen.newInstance(state.product),
                                     ),
                                   );
+
+                                  if (processState == ProcessState.success) {
+                                    cubit.toSuccess();
+                                  }
                                 },
                                 icon: const Icon(
                                   Icons.edit,

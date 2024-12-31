@@ -12,6 +12,16 @@ class IncomingDetailCubit extends Cubit<IncomingDetailState> {
 
   IncomingDetailCubit(this.invoice) : super(IncomingDetailState(invoice: invoice)) {
     loadDetails();
+    _loadUserRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    try {
+      final userRole = await _firebase.getUserRole();
+      emit(state.copyWith(userRole: userRole));
+    } catch (e) {
+      emit(state.copyWith(errorMessage: 'Error loading user role: $e'));
+    }
   }
 
   Future<void> loadDetails() async {

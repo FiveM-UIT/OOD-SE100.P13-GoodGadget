@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/warranty_status.dart';
+import 'package:gizmoglobe_client/screens/invoice/warranty/permissions/warranty_invoice_permissions.dart';
 import 'package:gizmoglobe_client/screens/invoice/warranty/warranty_add/warranty_add_view.dart';
 import 'package:gizmoglobe_client/screens/invoice/warranty/warranty_detail/warranty_detail_view.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
@@ -49,7 +50,14 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
                         onChanged: (value) {
                           cubit.searchInvoices(value);
                         },
+                        prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    GradientIconButton(
+                      icon: Icons.filter_list,
+                      iconSize: 32,
+                      onPressed: _showFilterDialog,
                     ),
                     const SizedBox(width: 8),
                     GradientIconButton(
@@ -124,7 +132,7 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
                                                   title: const Text('View'),
                                                   onTap: () => _handleViewFromMenu(context, invoice),
                                                 ),
-                                                if (invoice.status != WarrantyStatus.completed)
+                                                if (WarrantyInvoicePermissions.canEditStatus(state.userRole, invoice))
                                                   ListTile(
                                                     dense: true,
                                                     leading: const Icon(
@@ -291,5 +299,83 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
     Navigator.pop(contextDialog);  // Close menu first
     cubit.setSelectedIndex(null);
     await _navigateToDetail(invoice);
+  }
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 300),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.filter_list,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Sort By',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  ListTile(
+                    title: const Text(
+                      'Date (Newest First)',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.calendar_today,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    selected: cubit.state.sortField == SortField.date && 
+                             cubit.state.sortOrder == SortOrder.descending,
+                    selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    onTap: () {
+                      cubit.sortInvoices(SortField.date, SortOrder.descending);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: const Text(
+                      'Date (Oldest First)',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.calendar_today,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    selected: cubit.state.sortField == SortField.date && 
+                             cubit.state.sortOrder == SortOrder.ascending,
+                    selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    onTap: () {
+                      cubit.sortInvoices(SortField.date, SortOrder.ascending);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

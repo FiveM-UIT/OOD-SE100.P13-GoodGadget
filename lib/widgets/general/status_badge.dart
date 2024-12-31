@@ -14,13 +14,13 @@ class StatusBadge extends StatelessWidget {
     IconData icon;
     String text = status.toString();
 
-    if (text.toLowerCase().contains('cancelled') || text.toLowerCase().contains('unpaid')) {
+    if (text.toLowerCase().contains('cancelled') || text.toLowerCase().contains('unpaid') || text.toLowerCase().contains('denied') || text.toLowerCase().contains('inactive')) {
       color = Colors.red;
       icon = Icons.cancel;
-    } else if (text.toLowerCase().contains('pending') || text.toLowerCase().contains('preparing') || text.toLowerCase().contains('shipping')) {
+    } else if (text.toLowerCase().contains('pending') || text.toLowerCase().contains('preparing') || text.toLowerCase().contains('shipping') || text.toLowerCase().contains('processing')) {
       color = Colors.orange;
       icon = Icons.pending;
-    } else if (text.toLowerCase().contains('paid') || text.toLowerCase().contains('completed')) {
+    } else if (text.toLowerCase().contains('paid') || text.toLowerCase().contains('completed') || text.toLowerCase().contains('active')) {
       color = Colors.green;
       icon = Icons.check_circle;
     } else {

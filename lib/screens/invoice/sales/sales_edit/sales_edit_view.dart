@@ -8,6 +8,8 @@ import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
 import 'package:intl/intl.dart';
 import '../../../../enums/product_related/category_enum.dart';
 import '../../../../objects/invoice_related/sales_invoice_detail.dart';
+import '../../../../widgets/general/status_badge.dart';
+import '../permissions/sales_invoice_permissions.dart';
 import 'sales_edit_cubit.dart';
 import 'sales_edit_state.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -402,34 +404,8 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  state.selectedPaymentStatus == PaymentStatus.paid
-                      ? Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.1),
-                            border: Border.all(color: Colors.green),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Paid',
-                                style: TextStyle(
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : _buildStatusDropdown<PaymentStatus>(
+                  SalesInvoicePermissions.canEditPaymentStatus(state.userRole, state.invoice)
+                      ? _buildStatusDropdown<PaymentStatus>(
                           value: state.selectedPaymentStatus,
                           items: PaymentStatus.values,
                           onChanged: (status) {
@@ -437,7 +413,8 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                               context.read<SalesEditCubit>().updatePaymentStatus(status);
                             }
                           },
-                        ),
+                        )
+                      : StatusBadge(status: state.selectedPaymentStatus),
 
                   const SizedBox(height: 24),
                   const Text(
@@ -448,15 +425,17 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  _buildStatusDropdown<SalesStatus>(
-                    value: state.selectedSalesStatus,
-                    items: SalesStatus.values,
-                    onChanged: (status) {
-                      if (status != null) {
-                        context.read<SalesEditCubit>().updateSalesStatus(status);
-                      }
-                    },
-                  ),
+                  SalesInvoicePermissions.canEditSalesStatus(state.userRole, state.invoice)
+                      ? _buildStatusDropdown<SalesStatus>(
+                          value: state.selectedSalesStatus,
+                          items: SalesStatus.values,
+                          onChanged: (status) {
+                            if (status != null) {
+                              context.read<SalesEditCubit>().updateSalesStatus(status);
+                            }
+                          },
+                        )
+                      : StatusBadge(status: state.selectedSalesStatus),
 
                   const SizedBox(height: 16),
                   const Text(

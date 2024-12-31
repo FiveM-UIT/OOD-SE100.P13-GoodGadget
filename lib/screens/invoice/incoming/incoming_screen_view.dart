@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
 import 'package:gizmoglobe_client/screens/invoice/incoming/incoming_add/incoming_add_view.dart';
+import 'package:gizmoglobe_client/screens/invoice/incoming/permissions/incoming_invoice_permissions.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'package:intl/intl.dart';
@@ -53,9 +54,17 @@ class _IncomingScreenState extends State<IncomingScreen> {
                         onChanged: (value) {
                           cubit.searchInvoices(value);
                         },
+                        prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
                       ),
                     ),
                     const SizedBox(width: 8),
+                    GradientIconButton(
+                      icon: Icons.filter_list,
+                      iconSize: 32,
+                      onPressed: _showFilterDialog,
+                    ),
+                    if (state.userRole == 'admin')
+                      const SizedBox(width: 8),
                     if (state.userRole == 'admin')
                       GradientIconButton(
                         icon: Icons.add,
@@ -158,15 +167,15 @@ class _IncomingScreenState extends State<IncomingScreen> {
                                                   title: const Text('View'),
                                                   onTap: () => _handleViewInvoice(context, invoice),
                                                 ),
-                                                if (state.userRole == 'admin' && invoice.status == PaymentStatus.unpaid)
+                                                if (IncomingInvoicePermissions.canEditPaymentStatus(state.userRole, invoice))
                                                   ListTile(
                                                     dense: true,
                                                     leading: const Icon(
-                                                      Icons.check_circle_outline,
+                                                      Icons.edit_outlined,
                                                       size: 20,
                                                       color: Colors.white,
                                                     ),
-                                                    title: const Text('Mark as Paid'),
+                                                    title: const Text('Edit Payment'),
                                                     onTap: () => _handleEditInvoice(context, invoice),
                                                   ),
                                               ],
@@ -364,5 +373,117 @@ class _IncomingScreenState extends State<IncomingScreen> {
     if (confirmed == true && mounted) {
       await cubit.quickUpdatePaymentStatus(invoice.incomingInvoiceID!, PaymentStatus.paid);
     }
+  }
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 300),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.filter_list,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Sort By',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  ListTile(
+                    title: const Text(
+                      'Date (Newest First)',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.calendar_today,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    selected: cubit.state.sortField == SortField.date && 
+                             cubit.state.sortOrder == SortOrder.descending,
+                    selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    onTap: () {
+                      cubit.sortInvoices(SortField.date, SortOrder.descending);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: const Text(
+                      'Date (Oldest First)',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.calendar_today,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    selected: cubit.state.sortField == SortField.date && 
+                             cubit.state.sortOrder == SortOrder.ascending,
+                    selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    onTap: () {
+                      cubit.sortInvoices(SortField.date, SortOrder.ascending);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: const Text(
+                      'Price (Highest First)',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.attach_money,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    selected: cubit.state.sortField == SortField.totalPrice && 
+                             cubit.state.sortOrder == SortOrder.descending,
+                    selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    onTap: () {
+                      cubit.sortInvoices(SortField.totalPrice, SortOrder.descending);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: const Text(
+                      'Price (Lowest First)',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.attach_money,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    selected: cubit.state.sortField == SortField.totalPrice && 
+                             cubit.state.sortOrder == SortOrder.ascending,
+                    selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    onTap: () {
+                      cubit.sortInvoices(SortField.totalPrice, SortOrder.ascending);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import '../../../../enums/product_related/category_enum.dart';
 import 'warranty_detail_cubit.dart';
 import 'warranty_detail_state.dart';
+import '../permissions/warranty_invoice_permissions.dart';
+import '../../../../enums/invoice_related/warranty_status.dart';
 
 class WarrantyDetailView extends StatelessWidget {
   final WarrantyInvoice invoice;
@@ -32,6 +34,8 @@ class _WarrantyDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<WarrantyDetailCubit, WarrantyDetailState>(
       builder: (context, state) {
+        final cubit = context.read<WarrantyDetailCubit>();
+        
         return Scaffold(
           backgroundColor: Theme.of(context).colorScheme.surface,
           appBar: AppBar(
@@ -193,6 +197,105 @@ class _WarrantyDetailView extends StatelessWidget {
                                 );
                               },
                             ),
+                            if (WarrantyInvoicePermissions.canEditStatus(state.userRole, state.invoice)) ...[
+                              const SizedBox(height: 32),
+                              SizedBox(
+                                width: double.infinity,
+                                child: TextButton.icon(
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    textStyle: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext dialogContext) {
+                                        WarrantyStatus? selectedStatus = state.invoice.status;
+
+                                        return StatefulBuilder(
+                                          builder: (context, setState) {
+                                            return AlertDialog(
+                                              title: const Text('Update Warranty Status'),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  DropdownButton<WarrantyStatus>(
+                                                    value: selectedStatus,
+                                                    isExpanded: true,
+                                                    items: WarrantyStatus.values.map((status) {
+                                                      return DropdownMenuItem(
+                                                        value: status,
+                                                        child: Text(
+                                                          status.toString().split('.').last,
+                                                          style: TextStyle(
+                                                            fontWeight: status == state.invoice.status ? 
+                                                              FontWeight.bold : FontWeight.normal,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }).toList(),
+                                                    onChanged: (WarrantyStatus? newStatus) {
+                                                      if (newStatus != null) {
+                                                        setState(() {
+                                                          selectedStatus = newStatus;
+                                                        });
+                                                      }
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(dialogContext),
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: selectedStatus == state.invoice.status ? null : () async {
+                                                    final confirmed = await showDialog<bool>(
+                                                      context: dialogContext,
+                                                      builder: (BuildContext confirmContext) {
+                                                        return AlertDialog(
+                                                          title: const Text('Confirm Status Update'),
+                                                          content: Text(
+                                                            'Are you sure you want to change the status to ${selectedStatus.toString().split('.').last}?'
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () => Navigator.pop(confirmContext, false),
+                                                              child: const Text('Cancel'),
+                                                            ),
+                                                            TextButton(
+                                                              onPressed: () => Navigator.pop(confirmContext, true),
+                                                              child: const Text('Confirm'),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
+                                                    );
+
+                                                    if (confirmed == true) {
+                                                      Navigator.pop(dialogContext);
+                                                      cubit.updateWarrantyStatus(selectedStatus!);
+                                                    }
+                                                  },
+                                                  child: const Text('Save'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                    );
+                                  },
+                                  icon: const Icon(Icons.edit),
+                                  label: const Text('Update Status'),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
                           ],
                         ),
                       ),

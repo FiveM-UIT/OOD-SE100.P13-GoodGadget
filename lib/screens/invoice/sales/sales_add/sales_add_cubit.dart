@@ -56,10 +56,6 @@ class SalesAddCubit extends Cubit<SalesAddState> {
     emit(state.copyWith(salesStatus: status));
   }
 
-  void updateDate(DateTime date) {
-    emit(state.copyWith(selectedDate: date));
-  }
-
   void addInvoiceDetail(Product product, int quantity) {
     final detail = SalesInvoiceDetail.withQuantity(
       productID: product.productID!,
@@ -158,7 +154,7 @@ class SalesAddCubit extends Cubit<SalesAddState> {
         customerID: state.selectedCustomer!.customerID!,
         customerName: state.selectedCustomer!.customerName,
         address: state.address,
-        date: state.selectedDate,
+        date: DateTime.now(),
         paymentStatus: state.paymentStatus,
         salesStatus: state.salesStatus,
         totalPrice: state.totalPrice,

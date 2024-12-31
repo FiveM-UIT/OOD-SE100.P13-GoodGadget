@@ -26,6 +26,7 @@ import '../../enums/invoice_related/sales_status.dart';
 import '../../enums/product_related/category_enum.dart';
 import '../../enums/product_related/product_status_enum.dart';
 import '../../enums/stakeholders/employee_role.dart';
+import '../../enums/stakeholders/manufacturer_status.dart';
 import '../../objects/address_related/address.dart';
 import '../../objects/address_related/district.dart';
 import '../../objects/address_related/province.dart';
@@ -626,61 +627,35 @@ class Firebase {
   // Manufacturer-related functions
   Future<List<Manufacturer>> getManufacturers() async {
     try {
-      final QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('manufacturers')
-          .get();
-
-      return snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        return Manufacturer(
-          manufacturerID: data['manufacturerID'] ?? '',
-          manufacturerName: data['manufacturerName'] ?? '',
-        );
-      }).toList();
+      final snapshot = await _firestore.collection('manufacturers').get();
+      return snapshot.docs
+          .map((doc) => _mapManufacturerFromJson(
+                doc.data(),
+                doc.id,
+              ))
+          .toList();
     } catch (e) {
-      print('Error getting manufacturers list: $e');
+      print('Error getting manufacturers: $e');
       rethrow;
     }
   }
 
   Stream<List<Manufacturer>> manufacturersStream() {
-    return FirebaseFirestore.instance
+    return _firestore
         .collection('manufacturers')
         .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        return Manufacturer(
-          manufacturerID: data['manufacturerID'] ?? '',
-          manufacturerName: data['manufacturerName'] ?? '',
-        );
-      }).toList();
-    });
+        .map((snapshot) => snapshot.docs
+            .map((doc) => _mapManufacturerFromJson(
+                  doc.data(),
+                  doc.id,
+                ))
+            .toList());
   }
 
   Future<void> updateManufacturer(Manufacturer manufacturer) async {
     try {
-      if (manufacturer.manufacturerID == null) {
-        throw Exception('Manufacturer ID cannot be null');
-      }
-
-      // Find document by manufacturerID field
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('manufacturers')
-          .where('manufacturerID', isEqualTo: manufacturer.manufacturerID)
-          .get();
-
-      if (querySnapshot.docs.isEmpty) {
-        throw Exception('Manufacturer not found');
-      }
-
-      await FirebaseFirestore.instance
-          .collection('manufacturers')
-          .doc(querySnapshot.docs.first.id)
-          .update({
-        'manufacturerID': manufacturer.manufacturerID,
-        'manufacturerName': manufacturer.manufacturerName,
-      });
+      final doc = _firestore.collection('manufacturers').doc(manufacturer.manufacturerID);
+      await doc.update(_mapManufacturerToJson(manufacturer));
     } catch (e) {
       print('Error updating manufacturer: $e');
       rethrow;
@@ -724,15 +699,10 @@ class Firebase {
 
   Future<void> createManufacturer(Manufacturer manufacturer) async {
     try {
-      // Let Firestore generate the document ID
-      await FirebaseFirestore.instance
-          .collection('manufacturers')
-          .add({
-        'manufacturerID': manufacturer.manufacturerID,
-        'manufacturerName': manufacturer.manufacturerName,
-      });
+      final doc = _firestore.collection('manufacturers').doc(manufacturer.manufacturerID);
+      await doc.set(_mapManufacturerToJson(manufacturer));
     } catch (e) {
-      print('Error creating new manufacturer: $e');
+      print('Error creating manufacturer: $e');
       rethrow;
     }
   }
@@ -750,6 +720,7 @@ class Firebase {
       return Manufacturer(
         manufacturerID: data['manufacturerID'] ?? '',
         manufacturerName: data['manufacturerName'] ?? '',
+        status: _mapManufacturerStatus(data['status'] as String? ?? 'active'),
       );
     } catch (e) {
       print('Error finding manufacturer by ID: $e');
@@ -1069,22 +1040,24 @@ class Firebase {
 
   Future<List<SalesInvoice>> getSalesInvoices() async {
     try {
-      final QuerySnapshot snapshot = await FirebaseFirestore.instance
+      final QuerySnapshot snapshot = await _firestore
           .collection('sales_invoices')
+          .orderBy('date', descending: true)
           .get();
 
       return snapshot.docs.map((doc) {
         return SalesInvoice.fromMap(doc.id, doc.data() as Map<String, dynamic>);
       }).toList();
     } catch (e) {
-      print('Error getting sales invoices: $e');
+      print('Error loading sales invoices: $e');
       rethrow;
     }
   }
 
   Stream<List<SalesInvoice>> salesInvoicesStream() {
-    return FirebaseFirestore.instance
+    return _firestore
         .collection('sales_invoices')
+        .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -1640,6 +1613,7 @@ class Firebase {
   Stream<List<IncomingInvoice>> incomingInvoicesStream() {
     return _firestore
         .collection('incoming_invoices')
+        .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -1652,6 +1626,7 @@ class Firebase {
     try {
       final QuerySnapshot snapshot = await _firestore
           .collection('incoming_invoices')
+          .orderBy('date', descending: true)
           .get();
 
       return snapshot.docs.map((doc) {
@@ -1875,6 +1850,7 @@ class Firebase {
           .where('customerID', isEqualTo: customerId)
           .where('paymentStatus', isEqualTo: PaymentStatus.paid.toString())
           .where('salesStatus', isEqualTo: SalesStatus.completed.toString())
+          .orderBy('date', descending: true)
           .get();
 
       return Future.wait(snapshot.docs.map((doc) async {
@@ -2035,5 +2011,66 @@ class Firebase {
       print('Error creating warranty invoice detail: $e');
       rethrow;
     }
+  }
+
+  Future<void> updateManufacturerAndProducts(Manufacturer manufacturer) async {
+    try {
+      // Start a batch write
+      final batch = _firestore.batch();
+
+      // Update manufacturer
+      final manufacturerDoc = _firestore.collection('manufacturers').doc(manufacturer.manufacturerID);
+      batch.update(manufacturerDoc, _mapManufacturerToJson(manufacturer));
+
+      // Get all products from this manufacturer
+      final productsSnapshot = await _firestore
+          .collection('products')
+          .where('manufacturerID', isEqualTo: manufacturer.manufacturerID)
+          .get();
+
+      // Update each product's status based on manufacturer status
+      final newProductStatus = manufacturer.status == ManufacturerStatus.active
+          ? ProductStatusEnum.active
+          : ProductStatusEnum.discontinued;
+
+      for (var doc in productsSnapshot.docs) {
+        final productDoc = _firestore.collection('products').doc(doc.id);
+        batch.update(productDoc, {
+          'status': newProductStatus.getName(),
+        });
+      }
+
+      // Commit all changes
+      await batch.commit();
+    } catch (e) {
+      print('Error updating manufacturer and products: $e');
+      rethrow;
+    }
+  }
+}
+
+Manufacturer _mapManufacturerFromJson(Map<String, dynamic> json, String id) {
+  return Manufacturer(
+    manufacturerID: id,
+    manufacturerName: json['manufacturerName'] as String,
+    status: _mapManufacturerStatus(json['status'] as String? ?? 'active'),
+  );
+}
+
+Map<String, dynamic> _mapManufacturerToJson(Manufacturer manufacturer) {
+  return {
+    'manufacturerName': manufacturer.manufacturerName,
+    'status': manufacturer.status.toString().split('.').last,
+  };
+}
+
+ManufacturerStatus _mapManufacturerStatus(String status) {
+  switch (status.toLowerCase()) {
+    case 'active':
+      return ManufacturerStatus.active;
+    case 'inactive':
+      return ManufacturerStatus.inactive;
+    default:
+      return ManufacturerStatus.active;
   }
 }

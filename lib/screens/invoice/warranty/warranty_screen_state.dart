@@ -1,12 +1,23 @@
 import 'package:equatable/equatable.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/warranty_invoice.dart';
 
+enum SortField {
+  date,
+}
+
+enum SortOrder {
+  ascending,
+  descending,
+}
+
 class WarrantyScreenState extends Equatable {
   final List<WarrantyInvoice> invoices;
   final bool isLoading;
   final String searchQuery;
   final int? selectedIndex;
   final String? userRole;
+  final SortField? sortField;
+  final SortOrder sortOrder;
 
   const WarrantyScreenState({
     this.invoices = const [],
@@ -14,6 +25,8 @@ class WarrantyScreenState extends Equatable {
     this.searchQuery = '',
     this.selectedIndex,
     this.userRole,
+    this.sortField,
+    this.sortOrder = SortOrder.descending,
   });
 
   WarrantyScreenState copyWith({
@@ -22,6 +35,8 @@ class WarrantyScreenState extends Equatable {
     String? searchQuery,
     int? selectedIndex,
     String? userRole,
+    SortField? sortField,
+    SortOrder? sortOrder,
   }) {
     return WarrantyScreenState(
       invoices: invoices ?? this.invoices,
@@ -29,9 +44,19 @@ class WarrantyScreenState extends Equatable {
       searchQuery: searchQuery ?? this.searchQuery,
       selectedIndex: selectedIndex,
       userRole: userRole ?? this.userRole,
+      sortField: sortField ?? this.sortField,
+      sortOrder: sortOrder ?? this.sortOrder,
     );
   }
 
   @override
-  List<Object?> get props => [invoices, isLoading, searchQuery, selectedIndex, userRole];
+  List<Object?> get props => [
+    invoices, 
+    isLoading, 
+    searchQuery, 
+    selectedIndex, 
+    userRole,
+    sortField,
+    sortOrder,
+  ];
 }

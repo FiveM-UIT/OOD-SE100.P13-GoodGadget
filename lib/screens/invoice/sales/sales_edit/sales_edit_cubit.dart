@@ -4,6 +4,7 @@ import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/payment_status.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/sales_status.dart';
 import '../../../../objects/invoice_related/sales_invoice_detail.dart';
+import '../permissions/sales_invoice_permissions.dart';
 import 'sales_edit_state.dart';
 
 class SalesEditCubit extends Cubit<SalesEditState> {
@@ -14,15 +15,22 @@ class SalesEditCubit extends Cubit<SalesEditState> {
           invoice: invoice,
           selectedPaymentStatus: invoice.paymentStatus,
           selectedSalesStatus: invoice.salesStatus,
-        ));
+        )) {
+    _loadUserRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    final userRole = await _firebase.getUserRole();
+    emit(state.copyWith(userRole: userRole));
+  }
 
   void updatePaymentStatus(PaymentStatus status) {
-    if (state.selectedPaymentStatus == PaymentStatus.paid) return;
-    
+    if (!SalesInvoicePermissions.canEditPaymentStatus(state.userRole, state.invoice)) return;
     emit(state.copyWith(selectedPaymentStatus: status));
   }
 
   void updateSalesStatus(SalesStatus status) {
+    if (!SalesInvoicePermissions.canEditSalesStatus(state.userRole, state.invoice)) return;
     emit(state.copyWith(selectedSalesStatus: status));
   }
 

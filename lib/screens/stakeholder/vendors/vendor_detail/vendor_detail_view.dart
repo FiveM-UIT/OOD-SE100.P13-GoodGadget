@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
+import '../../../../enums/stakeholders/manufacturer_status.dart';
 import 'vendor_detail_cubit.dart';
 import 'vendor_detail_state.dart';
 import '../vendor_edit/vendor_edit_view.dart';
+import 'package:gizmoglobe_client/screens/stakeholder/vendors/permissions/vendor_permissions.dart';
 
 class VendorDetailScreen extends StatefulWidget {
   final Manufacturer manufacturer;
+  final bool readOnly;
 
   const VendorDetailScreen({
     super.key,
     required this.manufacturer,
+    this.readOnly = false,
   });
 
   @override
@@ -83,6 +87,7 @@ class _VendorDetailScreenState extends State<VendorDetailScreen> {
                           ),
                           const SizedBox(height: 16),
                           _buildInfoRow('Name', state.manufacturer.manufacturerName),
+                          _buildInfoRow('Status', state.manufacturer.status.getName()),
                         ],
                       ),
                     ),
@@ -100,77 +105,101 @@ class _VendorDetailScreenState extends State<VendorDetailScreen> {
                       ),
                     ],
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () async {
-                            final updatedManufacturer = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => VendorEditScreen(
-                                  manufacturer: state.manufacturer,
+                  child: (widget.readOnly || !VendorPermissions.canManageVendors(state.userRole)) 
+                    ? null 
+                    : Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              final updatedManufacturer = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => VendorEditScreen(
+                                    manufacturer: state.manufacturer,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
 
-                            if (updatedManufacturer != null) {
+                              if (updatedManufacturer != null) {
+                                final cubit = context.read<VendorDetailCubit>();
+                                cubit.updateManufacturer(updatedManufacturer);
+                              }
+                            },
+                            icon: const Icon(Icons.edit, color: Colors.white),
+                            label: const Text('Edit', style: TextStyle(color: Colors.white)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
                               final cubit = context.read<VendorDetailCubit>();
-                              cubit.updateManufacturer(updatedManufacturer);
-                            }
-                          },
-                          icon: const Icon(Icons.edit, color: Colors.white),
-                          label: const Text('Edit', style: TextStyle(color: Colors.white)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            final cubit = context.read<VendorDetailCubit>();
-                            showDialog(
-                              context: context,
-                              builder: (dialogContext) => AlertDialog(
-                                title: const Text('Delete Manufacturer'),
-                                content: const Text(
-                                  'Are you sure you want to delete this manufacturer?',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(dialogContext),
-                                    child: const Text('Cancel'),
+                              showDialog(
+                                context: context,
+                                builder: (dialogContext) => AlertDialog(
+                                  title: Text(
+                                    state.manufacturer.status == ManufacturerStatus.active 
+                                      ? 'Deactivate Manufacturer' 
+                                      : 'Activate Manufacturer'
                                   ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      Navigator.pop(dialogContext);
-                                      await cubit.deleteManufacturer();
-                                      if (mounted) {
-                                        Navigator.pop(context);
-                                      }
-                                    },
-                                    child: const Text(
-                                      'Delete',
-                                      style: TextStyle(color: Colors.red),
+                                  content: Text(
+                                    'Are you sure you want to ${state.manufacturer.status == ManufacturerStatus.active ? "deactivate" : "activate"} this manufacturer?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(dialogContext),
+                                      child: const Text('Cancel'),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.delete, color: Colors.white),
-                          label: const Text('Delete', style: TextStyle(color: Colors.white)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                    TextButton(
+                                      onPressed: () async {
+                                        Navigator.pop(dialogContext);
+                                        await cubit.toggleManufacturerStatus();
+                                        if (mounted) {
+                                          Navigator.pop(context);
+                                        }
+                                      },
+                                      child: Text(
+                                        state.manufacturer.status == ManufacturerStatus.active 
+                                          ? 'Deactivate' 
+                                          : 'Activate',
+                                        style: TextStyle(
+                                          color: state.manufacturer.status == ManufacturerStatus.active
+                                            ? Colors.red
+                                            : Colors.green,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            icon: Icon(
+                              state.manufacturer.status == ManufacturerStatus.active 
+                                ? Icons.block 
+                                : Icons.check_circle,
+                              color: Colors.white
+                            ),
+                            label: Text(
+                              state.manufacturer.status == ManufacturerStatus.active 
+                                ? 'Deactivate' 
+                                : 'Activate',
+                              style: const TextStyle(color: Colors.white)
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: state.manufacturer.status == ManufacturerStatus.active 
+                                ? Colors.red 
+                                : Colors.green,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                 ),
               ],
             ),

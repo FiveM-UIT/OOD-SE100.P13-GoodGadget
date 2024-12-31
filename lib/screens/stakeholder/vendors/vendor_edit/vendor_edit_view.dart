@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gizmoglobe_client/objects/manufacturer.dart';
 
+import '../../../../enums/stakeholders/manufacturer_status.dart';
+
 class VendorEditScreen extends StatefulWidget {
   final Manufacturer manufacturer;
 
@@ -13,11 +15,13 @@ class VendorEditScreen extends StatefulWidget {
 class _VendorEditScreenState extends State<VendorEditScreen> {
   final _formKey = GlobalKey<FormState>();
   late String manufacturerName;
+  late ManufacturerStatus status;
 
   @override
   void initState() {
     super.initState();
     manufacturerName = widget.manufacturer.manufacturerName;
+    status = widget.manufacturer.status;
   }
 
   @override
@@ -48,6 +52,27 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<ManufacturerStatus>(
+                value: status,
+                decoration: const InputDecoration(
+                  labelText: 'Status',
+                  border: OutlineInputBorder(),
+                ),
+                items: ManufacturerStatus.values.map((status) {
+                  return DropdownMenuItem(
+                    value: status,
+                    child: Text(status.getName()),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      status = newValue;
+                    });
+                  }
+                },
+              ),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -57,6 +82,7 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                       final updatedManufacturer = Manufacturer(
                         manufacturerID: widget.manufacturer.manufacturerID,
                         manufacturerName: manufacturerName,
+                        status: status,
                       );
                       Navigator.pop(context, updatedManufacturer);
                     }

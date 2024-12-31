@@ -11,6 +11,7 @@ import '../../../data/firebase/firebase.dart';
 import 'sales_screen_cubit.dart';
 import 'sales_screen_state.dart';
 import 'package:gizmoglobe_client/widgets/general/status_badge.dart';
+import 'permissions/sales_invoice_permissions.dart';
 
 class SalesScreen extends StatefulWidget {
   const SalesScreen({super.key});
@@ -127,6 +128,118 @@ class _SalesScreenState extends State<SalesScreen> {
     }
   }
 
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 300),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.filter_list,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Sort By',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  ListTile(
+                    title: const Text(
+                      'Date (Newest First)',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.calendar_today,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    selected: cubit.state.sortField == SortField.date && 
+                             cubit.state.sortOrder == SortOrder.descending,
+                    selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    onTap: () {
+                      cubit.sortInvoices(SortField.date, SortOrder.descending);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: const Text(
+                      'Date (Oldest First)',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.calendar_today,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    selected: cubit.state.sortField == SortField.date && 
+                             cubit.state.sortOrder == SortOrder.ascending,
+                    selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    onTap: () {
+                      cubit.sortInvoices(SortField.date, SortOrder.ascending);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: const Text(
+                      'Price (Highest First)',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.attach_money,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    selected: cubit.state.sortField == SortField.totalPrice && 
+                             cubit.state.sortOrder == SortOrder.descending,
+                    selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    onTap: () {
+                      cubit.sortInvoices(SortField.totalPrice, SortOrder.descending);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: const Text(
+                      'Price (Lowest First)',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.attach_money,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    selected: cubit.state.sortField == SortField.totalPrice && 
+                             cubit.state.sortOrder == SortOrder.ascending,
+                    selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    onTap: () {
+                      cubit.sortInvoices(SortField.totalPrice, SortOrder.ascending);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SalesScreenCubit, SalesScreenState>(
@@ -151,26 +264,35 @@ class _SalesScreenState extends State<SalesScreen> {
                         onChanged: (value) {
                           cubit.searchInvoices(value);
                         },
+                        prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
                       ),
                     ),
                     const SizedBox(width: 8),
                     GradientIconButton(
-                      icon: Icons.add,
+                      icon: Icons.filter_list,
                       iconSize: 32,
-                      onPressed: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SalesAddScreen(),
-                          ),
-                        );
-                        
-                        // Refresh list if new invoice was created
-                        if (result != null && mounted) {
-                          context.read<SalesScreenCubit>().loadInvoices();
-                        }
-                      },
-                    )
+                      onPressed: _showFilterDialog,
+                    ),
+                    if (state.userRole == 'admin')
+                      const SizedBox(width: 8),
+                    if (state.userRole == 'admin')
+                      GradientIconButton(
+                        icon: Icons.add,
+                        iconSize: 32,
+                        onPressed: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SalesAddScreen(),
+                            ),
+                          );
+                          
+                          // Refresh list if new invoice was created
+                          if (result != null && mounted) {
+                            context.read<SalesScreenCubit>().loadInvoices();
+                          }
+                        },
+                      )
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -262,7 +384,7 @@ class _SalesScreenState extends State<SalesScreen> {
                                                   title: const Text('View'),
                                                   onTap: () => _handleViewInvoice(context, invoice),
                                                 ),
-                                                if (state.userRole == 'admin')
+                                                if (SalesInvoicePermissions.canEditInvoice(state.userRole, invoice))
                                                   ListTile(
                                                     dense: true,
                                                     leading: const Icon(

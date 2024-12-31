@@ -66,8 +66,7 @@ class WarrantyScreenCubit extends Cubit<WarrantyScreenState> {
     }
   }
 
-  void searchInvoices(String query) {
-    if (_isClosed) return;
+  void searchInvoices(String query) {    
     emit(state.copyWith(searchQuery: query));
     
     if (query.isEmpty) {
@@ -76,7 +75,9 @@ class WarrantyScreenCubit extends Cubit<WarrantyScreenState> {
     }
 
     final filteredInvoices = state.invoices.where((invoice) {
-      return invoice.customerName?.toLowerCase().contains(query.toLowerCase()) ?? false;
+      final matchesName = invoice.customerName?.toLowerCase().contains(query.toLowerCase()) ?? false;
+      final matchesId = invoice.warrantyInvoiceID?.toLowerCase().contains(query.toLowerCase()) ?? false;
+      return matchesName || matchesId;
     }).toList();
 
     emit(state.copyWith(invoices: filteredInvoices));
@@ -107,5 +108,30 @@ class WarrantyScreenCubit extends Cubit<WarrantyScreenState> {
     } catch (e) {
       print('Error updating warranty status: $e');
     }
+  }
+
+  void sortInvoices(SortField field, [SortOrder? order]) {
+    if (_isClosed) return;
+    
+    final currentOrder = order ?? 
+      (state.sortField == field ? 
+        (state.sortOrder == SortOrder.ascending ? SortOrder.descending : SortOrder.ascending)
+        : SortOrder.descending);
+
+    final sortedInvoices = List<WarrantyInvoice>.from(state.invoices);
+
+    switch (field) {
+      case SortField.date:
+        sortedInvoices.sort((a, b) => currentOrder == SortOrder.ascending
+            ? a.date.compareTo(b.date)
+            : b.date.compareTo(a.date));
+        break;
+    }
+
+    emit(state.copyWith(
+      invoices: sortedInvoices,
+      sortField: field,
+      sortOrder: currentOrder,
+    ));
   }
 }

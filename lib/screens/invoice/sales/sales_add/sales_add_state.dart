@@ -15,7 +15,6 @@ class SalesAddState extends Equatable {
   final List<Customer> customers;
   final List<Product> products;
   final List<SalesInvoiceDetail> invoiceDetails;
-  final DateTime selectedDate;
   final Product? selectedModalProduct;
 
   SalesAddState({
@@ -29,8 +28,7 @@ class SalesAddState extends Equatable {
     this.products = const [],
     this.invoiceDetails = const [],
     this.selectedModalProduct,
-    DateTime? selectedDate,
-  }) : selectedDate = selectedDate ?? DateTime.now();
+  });
 
   double get totalPrice => invoiceDetails.fold(
     0, (sum, detail) => sum + detail.subtotal
@@ -47,7 +45,6 @@ class SalesAddState extends Equatable {
     customers,
     products,
     invoiceDetails,
-    selectedDate,
     selectedModalProduct,
   ];
 
@@ -61,7 +58,6 @@ class SalesAddState extends Equatable {
     List<Customer>? customers,
     List<Product>? products,
     List<SalesInvoiceDetail>? invoiceDetails,
-    DateTime? selectedDate,
     Product? selectedModalProduct,
   }) {
     return SalesAddState(
@@ -74,7 +70,6 @@ class SalesAddState extends Equatable {
       customers: customers ?? this.customers,
       products: products ?? this.products,
       invoiceDetails: invoiceDetails ?? this.invoiceDetails,
-      selectedDate: selectedDate ?? this.selectedDate,
       selectedModalProduct: selectedModalProduct,
     );
   }

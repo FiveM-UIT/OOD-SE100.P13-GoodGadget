@@ -572,58 +572,6 @@ class _SalesAddViewState extends State<_SalesAddView> {
                               ],
                             ),
                             const SizedBox(height: 16),
-                            TextFormField(
-                              readOnly: true,
-                              decoration: InputDecoration(
-                                labelText: 'Invoice Date',
-                                labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
-                                prefixIcon: Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7)),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(color: Colors.white),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                                ),
-                                filled: true,
-                                fillColor: Theme.of(context).colorScheme.surface,
-                              ),
-                              style: const TextStyle(color: Colors.white),
-                              controller: TextEditingController(
-                                text: DateFormat('dd/MM/yyyy').format(state.selectedDate),
-                              ),
-                              onTap: () async {
-                                final date = await showDatePicker(
-                                  context: context,
-                                  initialDate: state.selectedDate,
-                                  firstDate: DateTime(2000),
-                                  lastDate: DateTime(2100),
-                                  builder: (context, child) {
-                                    return Theme(
-                                      data: Theme.of(context).copyWith(
-                                        colorScheme: const ColorScheme.light(
-                                          primary: Color(0xFF202046),
-                                          onPrimary: Colors.white,
-                                          onSurface: Colors.black,
-                                        ),
-                                        textButtonTheme: TextButtonThemeData(
-                                          style: TextButton.styleFrom(
-                                            foregroundColor: const Color(0xFF202046),
-                                          ),
-                                        ),
-                                      ),
-                                      child: child!,
-                                    );
-                                  },
-                                );
-                                if (date != null) {
-                                  cubit.updateDate(date);
-                                }
-                              },
-                            ),
-                            const SizedBox(height: 16),
                             Card(
                               elevation: 4,
                               shape: RoundedRectangleBorder(

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'incoming_detail_cubit.dart';
 import 'incoming_detail_state.dart';
 import 'package:gizmoglobe_client/widgets/general/status_badge.dart';
+import '../permissions/incoming_invoice_permissions.dart';
 
 class IncomingDetailScreen extends StatefulWidget {
   final IncomingInvoice invoice;
@@ -46,18 +47,63 @@ class _IncomingDetailScreenState extends State<IncomingDetailScreen> {
           body: state.isLoading
               ? const Center(child: CircularProgressIndicator())
               : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildInvoiceHeader(state),
-                      const SizedBox(height: 24),
-                      _buildDetailsList(state),
-                      const SizedBox(height: 24),
-                      _buildTotalSection(state),
-                    ],
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInvoiceHeader(state),
+                const SizedBox(height: 24),
+                _buildDetailsList(state),
+                const SizedBox(height: 24),
+                _buildTotalSection(state),
+                if (IncomingInvoicePermissions.canEditPaymentStatus(
+                    state.userRole, state.invoice)) ...[
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        textStyle: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Confirm Payment'),
+                              content: const Text('Mark this invoice as paid?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+                                    await cubit.updatePaymentStatus(
+                                        PaymentStatus.paid);
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Confirm'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      icon: const Icon(Icons.check_circle_outline),
+                      label: const Text('Mark as Paid'),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                ],
+              ],
+            ),
+          ),
         );
       },
     );
@@ -79,7 +125,11 @@ class _IncomingDetailScreenState extends State<IncomingDetailScreen> {
                     Text(
                       'Manufacturer',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        color: Theme
+                            .of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.6),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -98,7 +148,11 @@ class _IncomingDetailScreenState extends State<IncomingDetailScreen> {
                     Text(
                       'Date',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        color: Theme
+                            .of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.6),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -175,15 +229,24 @@ class _IncomingDetailScreenState extends State<IncomingDetailScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Import Price: \$${detail.importPrice.toStringAsFixed(2)}',
+                          'Import Price: \$${detail.importPrice.toStringAsFixed(
+                              2)}',
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                            color: Theme
+                                .of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.6),
                           ),
                         ),
                         Text(
                           'Quantity: ${detail.quantity}',
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                            color: Theme
+                                .of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.6),
                           ),
                         ),
                         Text(
@@ -231,16 +294,5 @@ class _IncomingDetailScreenState extends State<IncomingDetailScreen> {
         ),
       ),
     );
-  }
-
-  Color _getStatusColor(PaymentStatus status) {
-    switch (status) {
-      case PaymentStatus.paid:
-        return Colors.green;
-      case PaymentStatus.unpaid:
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
   }
 }

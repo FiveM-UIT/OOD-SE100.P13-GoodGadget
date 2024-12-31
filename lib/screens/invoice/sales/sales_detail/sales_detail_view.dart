@@ -3,12 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'package:intl/intl.dart';
+import '../../../../enums/invoice_related/payment_status.dart';
+import '../../../../enums/invoice_related/sales_status.dart';
 import 'sales_detail_cubit.dart';
 import 'sales_detail_state.dart';
 import '../sales_edit/sales_edit_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../enums/product_related/category_enum.dart';
 import 'package:gizmoglobe_client/widgets/general/status_badge.dart';
+import '../permissions/sales_invoice_permissions.dart';
 
 class SalesDetailScreen extends StatefulWidget {
   final SalesInvoice invoice;
@@ -118,7 +121,7 @@ class _SalesDetailScreenState extends State<SalesDetailScreen> {
                 fillColor: Colors.transparent,
               ),
               actions: [
-                if (state.userRole == 'admin')
+                if (SalesInvoicePermissions.canEditInvoice(state.userRole, state.invoice))
                   IconButton(
                     icon: const Icon(Icons.edit),
                     onPressed: () async {
@@ -355,37 +358,38 @@ class _SalesDetailScreenState extends State<SalesDetailScreen> {
                   ),
                   child: Row(
                     children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () async {
-                            final updatedInvoice = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SalesEditScreen(
-                                  invoice: state.invoice,
+                      if (SalesInvoicePermissions.canEditInvoice(state.userRole, state.invoice))
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              final updatedInvoice = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SalesEditScreen(
+                                    invoice: state.invoice,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
 
-                            if (updatedInvoice != null) {
-                              final cubit = context.read<SalesDetailCubit>();
-                              cubit.updateSalesInvoice(updatedInvoice);
-                            }
-                          },
-                          icon: const Icon(
-                            Icons.edit,
-                            color: Colors.white,
-                          ),
-                          label: const Text(
-                            'Edit',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                              if (updatedInvoice != null) {
+                                final cubit = context.read<SalesDetailCubit>();
+                                cubit.updateSalesInvoice(updatedInvoice);
+                              }
+                            },
+                            icon: const Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Edit',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),

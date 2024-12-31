@@ -9,6 +9,7 @@ class IncomingDetailState extends Equatable {
   final Manufacturer? manufacturer;
   final Map<String, Product> products;
   final String? errorMessage;
+  final String? userRole;
 
   const IncomingDetailState({
     this.isLoading = false,
@@ -16,6 +17,7 @@ class IncomingDetailState extends Equatable {
     this.manufacturer,
     this.products = const {},
     this.errorMessage,
+    this.userRole,
   });
 
   IncomingDetailState copyWith({
@@ -24,6 +26,7 @@ class IncomingDetailState extends Equatable {
     Manufacturer? manufacturer,
     Map<String, Product>? products,
     String? errorMessage,
+    String? userRole,
   }) {
     return IncomingDetailState(
       isLoading: isLoading ?? this.isLoading,
@@ -31,6 +34,7 @@ class IncomingDetailState extends Equatable {
       manufacturer: manufacturer ?? this.manufacturer,
       products: products ?? this.products,
       errorMessage: errorMessage,
+      userRole: userRole ?? this.userRole,
     );
   }
 
@@ -41,5 +45,6 @@ class IncomingDetailState extends Equatable {
         manufacturer,
         products,
         errorMessage,
+        userRole,
       ];
 }

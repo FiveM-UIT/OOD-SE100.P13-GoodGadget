@@ -182,8 +182,10 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                                   await cubit.reloadProducts();
                                 }
                               },
-                              onLongPress: () {
+                              onLongPress: () async {
                                 cubit.setSelectedProduct(product);
+                                final bool isAdmin = await Database().isUserAdmin();
+                                
                                 showDialog(
                                   context: context,
                                   barrierDismissible: true,
@@ -229,49 +231,51 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                                                 );
                                               },
                                             ),
-                                            ListTile(
-                                              dense: true,
-                                              leading: const Icon(
-                                                Icons.edit_outlined,
-                                                size: 20,
-                                                color: Colors.white,
-                                              ),
-                                              title: const Text('Edit'),
-                                              onTap: () async {
-                                                Navigator.pop(context);
-                                                cubit.setSelectedProduct(null);
-                                                ProcessState processState = await Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) => EditProductScreen.newInstance(product),
-                                                  ),
-                                                );
+                                            if (isAdmin) ...[
+                                              ListTile(
+                                                dense: true,
+                                                leading: const Icon(
+                                                  Icons.edit_outlined,
+                                                  size: 20,
+                                                  color: Colors.white,
+                                                ),
+                                                title: const Text('Edit'),
+                                                onTap: () async {
+                                                  Navigator.pop(context);
+                                                  cubit.setSelectedProduct(null);
+                                                  ProcessState processState = await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) => EditProductScreen.newInstance(product),
+                                                    ),
+                                                  );
 
-                                                if (processState == ProcessState.success) {
-                                                  await cubit.reloadProducts();
-                                                }
-                                              },
-                                            ),
-                                            ListTile(
-                                              dense: true,
-                                              leading: Icon(
-                                                product.status == ProductStatusEnum.discontinued
-                                                    ? Icons.check_circle_outline
-                                                    : Icons.cancel_outlined,
-                                                size: 20,
-                                                color: Colors.white,
+                                                  if (processState == ProcessState.success) {
+                                                    await cubit.reloadProducts();
+                                                  }
+                                                },
                                               ),
-                                              title: product.status == ProductStatusEnum.discontinued
-                                                  ? const Text('Activate', style: TextStyle())
-                                                  : const Text('Discontinue', style: TextStyle()),
-                                              onTap: () async {
-                                                Navigator.pop(context);
-                                                cubit.toLoading();
-                                                cubit.setSelectedProduct(null);
+                                              ListTile(
+                                                dense: true,
+                                                leading: Icon(
+                                                  product.status == ProductStatusEnum.discontinued
+                                                      ? Icons.check_circle_outline
+                                                      : Icons.cancel_outlined,
+                                                  size: 20,
+                                                  color: Colors.white,
+                                                ),
+                                                title: product.status == ProductStatusEnum.discontinued
+                                                    ? const Text('Activate', style: TextStyle())
+                                                    : const Text('Discontinue', style: TextStyle()),
+                                                onTap: () async {
+                                                  Navigator.pop(context);
+                                                  cubit.toLoading();
+                                                  cubit.setSelectedProduct(null);
 
-                                                await cubit.changeStatus(product);
-                                              },
-                                            ),
+                                                  await cubit.changeStatus(product);
+                                                },
+                                              ),
+                                            ],
                                           ],
                                         ),
                                       ),

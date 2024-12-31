@@ -1387,4 +1387,22 @@ class Database {
   void updateProductList (List<Product> productList) {
     this.productList = productList;
   }
+
+  Future<bool> isUserAdmin() async {
+    try {
+      final User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        
+        return userDoc['role'] == 'admin';
+      }
+      return false;
+    } catch (e) {
+      print('Error checking admin status: $e');
+      return false;
+    }
+  }
 }

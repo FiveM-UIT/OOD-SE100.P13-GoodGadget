@@ -4,11 +4,17 @@ import 'package:gizmoglobe_client/objects/employee.dart';
 
 import '../../../../widgets/general/gradient_icon_button.dart';
 import '../../../../widgets/general/gradient_text.dart';
+import '../../../../screens/stakeholder/employees/permissions/employee_permissions.dart';
 
 class EmployeeEditScreen extends StatefulWidget {
   final Employee employee;
+  final String? userRole;
 
-  const EmployeeEditScreen({super.key, required this.employee});
+  const EmployeeEditScreen({
+    super.key, 
+    required this.employee,
+    required this.userRole,
+  });
 
   @override
   State<EmployeeEditScreen> createState() => _EmployeeEditScreenState();
@@ -113,25 +119,29 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
                     ),
                   ),
                   border: OutlineInputBorder(),
+                  enabled: EmployeePermissions.canEditEmployeeRole(widget.userRole, widget.employee),
                 ),
-                items: RoleEnum.values.where((role) => role != RoleEnum.owner).map((RoleEnum roleEnum) {
-                  return DropdownMenuItem<RoleEnum>(
-                    value: roleEnum,
+                items: RoleEnum.values.where((role) => role != RoleEnum.owner).map((role) {
+                  return DropdownMenuItem(
+                    value: role,
                     child: Text(
-                      roleEnum.toString().split('.').last,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      role.toString().split('.').last,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontStyle: EmployeePermissions.canEditEmployeeRole(widget.userRole, widget.employee)
+                          ? FontStyle.normal 
+                          : FontStyle.italic,
                       ),
                     ),
                   );
                 }).toList(),
-                onChanged: (RoleEnum? newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      role = newValue;
-                    });
-                  }
-                },
+                onChanged: EmployeePermissions.canEditEmployeeRole(widget.userRole, widget.employee)
+                  ? (RoleEnum? value) {
+                      if (value != null) {
+                        setState(() => role = value);
+                      }
+                    }
+                  : null,
                 validator: (value) {
                   if (value == null) {
                     return 'Please select a role';

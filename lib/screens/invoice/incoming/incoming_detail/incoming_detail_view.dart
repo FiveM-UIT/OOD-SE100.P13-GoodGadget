@@ -9,6 +9,8 @@ import 'incoming_detail_cubit.dart';
 import 'incoming_detail_state.dart';
 import 'package:gizmoglobe_client/widgets/general/status_badge.dart';
 import '../permissions/incoming_invoice_permissions.dart';
+import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_cubit.dart';
+import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_view.dart';
 
 class IncomingDetailScreen extends StatefulWidget {
   final IncomingInvoice invoice;
@@ -219,53 +221,48 @@ class _IncomingDetailScreenState extends State<IncomingDetailScreen> {
             final product = state.products[detail.productID];
 
             return Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product?.productName ?? 'Unknown Product',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+              child: ListTile(
+                onTap: () async {
+                  final product = await context.read<IncomingDetailCubit>().getProduct(detail.productID);
+                  if (product != null && context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BlocProvider(
+                          create: (context) => ProductDetailCubit(product),
+                          child: ProductDetailScreen(
+                            product: product,
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Import Price: \$${detail.importPrice.toStringAsFixed(
-                              2)}',
-                          style: TextStyle(
-                            color: Theme
-                                .of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.6),
-                          ),
-                        ),
-                        Text(
-                          'Quantity: ${detail.quantity}',
-                          style: TextStyle(
-                            color: Theme
-                                .of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.6),
-                          ),
-                        ),
-                        Text(
-                          '\$${detail.subtotal.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    );
+                  }
+                },
+                title: Text(
+                  product?.productName ?? 'Product #${detail.productID}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: Text(
+                  'Import Price: \$${detail.importPrice.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    color: Theme
+                        .of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
+                  ),
+                ),
+                trailing: Text(
+                  'Quantity: ${detail.quantity}',
+                  style: TextStyle(
+                    color: Theme
+                        .of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
+                  ),
                 ),
               ),
             );

@@ -1806,7 +1806,7 @@ class Firebase {
 
   Future<Product?> getProduct(String productId) async {
     try {
-      print('Getting product: $productId'); // Add logging
+      print('Getting product: $productId');
       
       final doc = await _firestore
           .collection('products')
@@ -1818,24 +1818,142 @@ class Firebase {
         return null;
       }
 
-      final data = doc.data()!;
+      final data = Map<String, dynamic>.from(doc.data()!);
       data['productID'] = doc.id;
       
+      // Convert Timestamp to DateTime
+      if (data['release'] is Timestamp) {
+        data['release'] = (data['release'] as Timestamp).toDate();
+      }
+      
+      // Get manufacturer data
+      final manufacturerDoc = await _firestore
+          .collection('manufacturers')
+          .doc(data['manufacturerID'] as String)
+          .get();
+
+      if (!manufacturerDoc.exists) {
+        print('Manufacturer not found for product $productId');
+        return null;
+      }
+
+      // Add manufacturer to product data
+      data['manufacturer'] = _mapManufacturerFromJson(
+        manufacturerDoc.data()!,
+        manufacturerDoc.id,
+      );
+      
       final categoryStr = (data['category'] as String).toLowerCase();
-      print('Product category: $categoryStr'); // Add logging
+      print('Product category: $categoryStr');
       
       CategoryEnum? category;
       try {
         category = CategoryEnum.values.firstWhere(
           (e) => e.getName().toLowerCase() == categoryStr,
         );
+
+        // Convert enums based on category
+        if (category == CategoryEnum.drive) {
+          // Convert drive-specific enums
+          data['type'] = DriveType.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['type'] as String).toLowerCase(),
+            orElse: () => DriveType.hdd,
+          );
+          
+          data['capacity'] = DriveCapacity.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['capacity'] as String).toLowerCase(),
+            orElse: () => DriveCapacity.gb256,
+          );
+        }
+
+        if (category == CategoryEnum.ram) {
+          // Convert RAM-specific enums
+          data['bus'] = RAMBus.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['bus'] as String).toLowerCase(),
+            orElse: () => RAMBus.mhz3200,
+          );
+
+          data['capacity'] = RAMCapacity.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['capacity'] as String).toLowerCase(),
+            orElse: () => RAMCapacity.gb8,
+          );
+
+          data['ramType'] = RAMType.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['ramType'] as String).toLowerCase(),
+            orElse: () => RAMType.ddr4,
+          );
+        }
+
+        if (category == CategoryEnum.cpu) {
+          // Convert CPU-specific enums
+          data['family'] = CPUFamily.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['family'] as String).toLowerCase(),
+            orElse: () => CPUFamily.corei3Ultra3,
+          );
+        }
+
+        if (category == CategoryEnum.gpu) {
+          // Convert GPU-specific enums
+          data['series'] = GPUSeries.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['series'] as String).toLowerCase(),
+            orElse: () => GPUSeries.rtx,
+          );
+
+          data['capacity'] = GPUCapacity.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['capacity'] as String).toLowerCase(),
+            orElse: () => GPUCapacity.gb4,
+          );
+
+          data['busWidth'] = GPUBus.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['busWidth'] as String).toLowerCase(),
+            orElse: () => GPUBus.bit128,
+          );
+        }
+
+        if (category == CategoryEnum.mainboard) {
+          // Convert mainboard-specific enums
+          data['formFactor'] = MainboardFormFactor.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['formFactor'] as String).toLowerCase(),
+            orElse: () => MainboardFormFactor.atx,
+          );
+
+          data['series'] = MainboardSeries.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['series'] as String).toLowerCase(),
+            orElse: () => MainboardSeries.h,
+          );
+
+          data['compatibility'] = MainboardCompatibility.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['compatibility'] as String).toLowerCase(),
+            orElse: () => MainboardCompatibility.intel,
+          );
+        }
+
+        if (category == CategoryEnum.psu) {
+          // Convert PSU-specific enums
+          data['efficiency'] = PSUEfficiency.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['efficiency'] as String).toLowerCase(),
+            orElse: () => PSUEfficiency.bronze,
+          );
+
+          data['modular'] = PSUModular.values.firstWhere(
+            (e) => e.getName().toLowerCase() == (data['modular'] as String).toLowerCase(),
+            orElse: () => PSUModular.nonModular,
+          );
+        }
+
+        // Convert common enums
+        data['status'] = ProductStatusEnum.values.firstWhere(
+          (e) => e.getName().toLowerCase() == (data['status'] as String).toLowerCase(),
+          orElse: () => ProductStatusEnum.active,
+        );
+
       } catch (e) {
         print('Invalid category for product $productId: $categoryStr');
         return null;
       }
 
       final product = ProductFactory.createProduct(category, data);
-      print('Created product: ${product?.productName}'); // Add logging
+      print('Created product: ${product.productName}');
       return product;
     } catch (e) {
       print('Error getting product $productId: $e');

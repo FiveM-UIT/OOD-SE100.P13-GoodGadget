@@ -116,6 +116,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                                 MaterialPageRoute(
                                   builder: (context) => EmployeeEditScreen(
                                     employee: state.employee,
+                                    userRole: state.userRole,
                                   ),
                                 ),
                               );

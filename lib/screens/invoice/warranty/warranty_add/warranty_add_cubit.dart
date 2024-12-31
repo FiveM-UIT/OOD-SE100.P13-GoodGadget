@@ -197,7 +197,7 @@ class WarrantyAddCubit extends Cubit<WarrantyAddState> {
       final warrantyInvoice = WarrantyInvoice(
         warrantyInvoiceID: '',
         salesInvoiceID: state.selectedSalesInvoiceId!,
-        customerName: selectedCustomer.customerName ?? 'Unknown Customer',
+        customerName: selectedCustomer.customerName,
         customerID: selectedCustomer.customerID ?? '',
         date: DateTime.now(),
         status: WarrantyStatus.pending,

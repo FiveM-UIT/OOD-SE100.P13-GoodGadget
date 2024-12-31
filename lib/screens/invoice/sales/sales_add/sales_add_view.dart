@@ -762,11 +762,11 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                                       IconButton(
                                                         icon: Icon(
                                                           Icons.add_circle_outline,
-                                                          color: product != null && detail.quantity < product.stock
+                                                          color: detail.quantity < product.stock
                                                               ? Theme.of(context).colorScheme.primary
                                                               : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
                                                         ),
-                                                        onPressed: product != null && detail.quantity < product.stock
+                                                        onPressed: detail.quantity < product.stock
                                                             ? () => cubit.updateDetailQuantity(index, detail.quantity + 1)
                                                             : null,
                                                         padding: EdgeInsets.zero,

@@ -9,6 +9,8 @@ import 'warranty_detail_cubit.dart';
 import 'warranty_detail_state.dart';
 import '../permissions/warranty_invoice_permissions.dart';
 import '../../../../enums/invoice_related/warranty_status.dart';
+import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_cubit.dart';
+import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_view.dart';
 
 class WarrantyDetailView extends StatelessWidget {
   final WarrantyInvoice invoice;
@@ -164,6 +166,22 @@ class _WarrantyDetailView extends StatelessWidget {
                                 final product = state.products[detail.productID];
                                 return Card(
                                   child: ListTile(
+                                    onTap: () async {
+                                      final product = await context.read<WarrantyDetailCubit>().getProduct(detail.productID);
+                                      if (product != null && context.mounted) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => BlocProvider(
+                                              create: (context) => ProductDetailCubit(product),
+                                              child: ProductDetailScreen(
+                                                product: product,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
                                     title: Text(
                                       product?.productName ?? 'Product #${detail.productID}',
                                       style: const TextStyle(
@@ -171,7 +189,7 @@ class _WarrantyDetailView extends StatelessWidget {
                                       ),
                                     ),
                                     subtitle: Text(
-                                      product?.category?.toString() ?? 'Unknown Category',
+                                      product?.category.toString() ?? 'Unknown Category',
                                       style: TextStyle(
                                         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                       ),

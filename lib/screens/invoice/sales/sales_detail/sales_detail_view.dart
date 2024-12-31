@@ -5,6 +5,7 @@ import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'package:intl/intl.dart';
 import '../../../../enums/invoice_related/payment_status.dart';
 import '../../../../enums/invoice_related/sales_status.dart';
+import '../../../product/product_detail/product_detail_cubit.dart';
 import 'sales_detail_cubit.dart';
 import 'sales_detail_state.dart';
 import '../sales_edit/sales_edit_view.dart';
@@ -12,6 +13,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../enums/product_related/category_enum.dart';
 import 'package:gizmoglobe_client/widgets/general/status_badge.dart';
 import '../permissions/sales_invoice_permissions.dart';
+import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_view.dart';
 
 class SalesDetailScreen extends StatefulWidget {
   final SalesInvoice invoice;
@@ -248,10 +250,23 @@ class _SalesDetailScreenState extends State<SalesDetailScreen> {
                             itemCount: state.invoice.details.length,
                             itemBuilder: (context, index) {
                               final detail = state.invoice.details[index];
-                              return GestureDetector(
-                                onTap: () {
-                                  // TODO: Navigate to product detail screen
-                                  print('Navigate to product ${detail.productID}');
+                              return InkWell(
+                                onTap: () async {
+                                  // Get product details and navigate
+                                  final product = await context.read<SalesDetailCubit>().getProduct(detail.productID);
+                                  if (product != null && context.mounted) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BlocProvider(
+                                          create: (context) => ProductDetailCubit(product),
+                                          child: ProductDetailScreen(
+                                            product: product,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
                                 },
                                 child: Container(
                                   margin: const EdgeInsets.only(bottom: 8),

@@ -79,6 +79,15 @@ class WarrantyDetailCubit extends Cubit<WarrantyDetailState> {
     ));
   }
 
+  Future<Product?> getProduct(String productId) async {
+    try {
+      return await _firebase.getProduct(productId);
+    } catch (e) {
+      print('Error loading product: $e');
+      return null;
+    }
+  }
+
   @override
   Future<void> close() {
     _isClosed = true;

@@ -6,6 +6,8 @@ import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_state.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_tab/product_tab_view.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
+import '../../../data/database/database.dart';
+import '../../../enums/processing/process_state_enum.dart';
 import '../../../enums/product_related/category_enum.dart';
 import '../../../objects/product_related/product.dart';
 import '../../../widgets/general/gradient_dropdown.dart';
@@ -85,13 +87,17 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
             ),
             actions: [
               ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  ProcessState result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => AddProductScreen.newInstance(),
                     ),
                   );
+
+                  if (result == ProcessState.success) {
+                    cubit.initialize(Database().productList);
+                  }
                 },
                 icon: const Icon(Icons.add, color: Colors.white),
                 label: const Text('Add', style: TextStyle(color: Colors.white)),

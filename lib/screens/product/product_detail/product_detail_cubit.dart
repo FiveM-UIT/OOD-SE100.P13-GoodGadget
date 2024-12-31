@@ -120,4 +120,8 @@ class ProductDetailCubit extends Cubit<ProductDetailState> {
   void toSuccess() {
     emit(state.copyWith(processState: ProcessState.success));
   }
+
+  void toIdle() {
+    emit(state.copyWith(processState: ProcessState.idle));
+  }
 }

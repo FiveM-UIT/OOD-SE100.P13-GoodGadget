@@ -180,7 +180,7 @@ class _EditProductState extends State<EditProductScreen> {
               );
             }
           }
-          cubit.toIdle();
+          cubit.toSuccess();
         },
         builder: (context, state) {
           return SingleChildScrollView(

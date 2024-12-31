@@ -29,8 +29,8 @@ class EditProductCubit extends Cubit<EditProductState> {
     emit(state.copyWith(productArgument: productArgument));
   }
 
-  void toIdle() {
-    emit(state.copyWith(processState: ProcessState.idle));
+  void toSuccess() {
+    emit(state.copyWith(processState: ProcessState.success));
   }
 
   Future<void> editProduct() async {

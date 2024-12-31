@@ -71,6 +71,11 @@ abstract class TabCubit extends Cubit<TabState> {
     applyFilters();
   }
 
+  void updateProduct(List<Product> products) {
+    emit(state.copyWith(productList: products));
+    applyFilters();
+  }
+
   void setSelectedProduct(Product? product) {
     emit(state.copyWith(selectedProduct: product));
   }

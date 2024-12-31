@@ -194,9 +194,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     InformationDialog(
                                       title: state.dialogName.toString(),
                                       content: state.notifyMessage.toString(),
-                                      onPressed: () {
-
-                                      },
+                                      onPressed: () {},
                                     )
                             );
                           } else if (state.processState == ProcessState.failure) {
@@ -206,7 +204,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     InformationDialog(
                                       title: state.dialogName.toString(),
                                       content: state.notifyMessage.toString(),
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        cubit.toIdle();
+                                      },
                                     )
                             );
                           }

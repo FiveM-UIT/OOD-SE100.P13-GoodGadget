@@ -129,15 +129,7 @@ class _AddProductState extends State<AddProductScreen> {
                     title: state.dialogName.toString(),
                     content: state.notifyMessage.toString(),
                     onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MainScreen(),
-                        ),
-                      ).then((_) {
-                        MainScreen().setIndex(1);
-                      });
+                      Navigator.pop(context, state.processState);
                     },
                   ),
             );
@@ -149,12 +141,13 @@ class _AddProductState extends State<AddProductScreen> {
                     InformationDialog(
                       title: state.dialogName.toString(),
                       content: state.notifyMessage.toString(),
-                      onPressed: () {},
+                      onPressed: () {
+                        cubit.toIdle();
+                      },
                     ),
               );
             }
           }
-          cubit.toIdle();
         },
         builder: (context, state) {
           return SingleChildScrollView(

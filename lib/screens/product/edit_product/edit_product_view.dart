@@ -148,9 +148,10 @@ class _EditProductState extends State<EditProductScreen> {
                     content: state.notifyMessage.toString(),
                     onPressed: () {
                       if (state.productArgument?.buildProduct() != widget.product) {
-                        cubit.toSuccess();
+                        Navigator.pop(context, ProcessState.success);
+                      } else {
+                        Navigator.pop(context, state.processState);
                       }
-                      Navigator.pop(context, state.processState);
                     },
                   ),
             );
@@ -162,12 +163,13 @@ class _EditProductState extends State<EditProductScreen> {
                     InformationDialog(
                       title: state.dialogName.toString(),
                       content: state.notifyMessage.toString(),
-                      onPressed: () {},
+                      onPressed: (){
+                        cubit.toIdle();
+                      },
                     ),
               );
             }
           }
-          cubit.toSuccess();
         },
         builder: (context, state) {
           return SingleChildScrollView(

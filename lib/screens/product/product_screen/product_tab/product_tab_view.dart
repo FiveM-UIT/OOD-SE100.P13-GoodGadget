@@ -240,12 +240,16 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                                               onTap: () async {
                                                 Navigator.pop(context);
                                                 cubit.setSelectedProduct(null);
-                                                Navigator.push(
+                                                ProcessState processState = await Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) => EditProductScreen.newInstance(product),
                                                   ),
                                                 );
+
+                                                if (processState == ProcessState.success) {
+                                                  await cubit.reloadProducts();
+                                                }
                                               },
                                             ),
                                             ListTile(

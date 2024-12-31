@@ -39,9 +39,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             icon: Icons.chevron_left,
             onPressed: () => {
               if (widget.product != state.product) {
-                cubit.toSuccess(),
-              },
-              Navigator.pop(context, state.processState)
+                Navigator.pop(context, ProcessState.success)
+              } else {
+                Navigator.pop(context, state.processState)
+              }
             },
             fillColor: Colors.transparent,
           ),
@@ -218,7 +219,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   );
 
                                   if (processState == ProcessState.success) {
-                                    cubit.toSuccess();
+                                    cubit.updateProduct();
                                   }
                                 },
                                 icon: const Icon(
@@ -242,8 +243,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   cubit.toLoading();
                                   cubit.changeProductStatus();
                                 },
-                                icon: const Icon(
-                                  Icons.delete,
+                                icon: Icon(
+                                  state.product.status == ProductStatusEnum.discontinued
+                                      ? Icons.refresh
+                                      : Icons.cancel,
                                   color: Colors.white,
                                 ),
                                 label: Text(
@@ -253,7 +256,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   style: const TextStyle(color: Colors.white),
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: state.product.status == ProductStatusEnum.discontinued
+                                      ? Colors.blue
+                                      : Colors.red,
                                   padding: const EdgeInsets.symmetric(vertical: 12),
                                 ),
                               ),

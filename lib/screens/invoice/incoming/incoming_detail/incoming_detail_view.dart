@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/payment_status.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/incoming_invoice.dart';
+import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
 import 'package:intl/intl.dart';
+import '../../../../widgets/general/gradient_icon_button.dart';
 import 'incoming_detail_cubit.dart';
 import 'incoming_detail_state.dart';
 import 'package:gizmoglobe_client/widgets/general/status_badge.dart';
@@ -42,7 +44,12 @@ class _IncomingDetailScreenState extends State<IncomingDetailScreen> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('Invoice #${widget.invoice.incomingInvoiceID}'),
+            leading: GradientIconButton(
+              icon: Icons.chevron_left,
+              onPressed: () => Navigator.pop(context),
+              fillColor: Colors.transparent,
+            ),
+            title: GradientText(text: 'Invoice #${widget.invoice.incomingInvoiceID}')
           ),
           body: state.isLoading
               ? const Center(child: CircularProgressIndicator())

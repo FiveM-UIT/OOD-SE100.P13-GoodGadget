@@ -6,6 +6,8 @@ import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'package:intl/intl.dart';
 
+import '../../../enums/processing/process_state_enum.dart';
+import '../../../enums/product_related/product_status_enum.dart';
 import '../../../objects/product_related/cpu.dart';
 import '../../../objects/product_related/drive.dart';
 import '../../../objects/product_related/gpu.dart';
@@ -13,6 +15,7 @@ import '../../../objects/product_related/mainboard.dart';
 import '../../../objects/product_related/product.dart';
 import '../../../objects/product_related/psu.dart';
 import '../../../objects/product_related/ram.dart';
+import '../../../widgets/dialog/information_dialog.dart';
 
 
 class ProductDetailScreen extends StatelessWidget {
@@ -167,80 +170,83 @@ class ProductDetailScreen extends StatelessWidget {
                       ..._buildProductSpecificDetails(context, product, state.technicalSpecs),
 
                       const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => EditProductScreen.newInstance(product),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.edit,
-                                color: Colors.white,
-                              ),
-                              label: const Text(
-                                'Edit',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                // showDialog(
-                                //   context: context,
-                                //   builder: (dialogContext) => AlertDialog(
-                                //     title: const Text('Delete Customer'),
-                                //     content: const Text(
-                                //       'Are you sure you want to delete this customer?',
-                                //     ),
-                                //     actions: [
-                                //       TextButton(
-                                //         onPressed: () => Navigator.pop(dialogContext),
-                                //         child: const Text('Cancel'),
-                                //       ),
-                                //       TextButton(
-                                //         onPressed: () async {
-                                //           Navigator.pop(dialogContext); // Close dialog
-                                //           await cubit.deleteCustomer();
-                                //           if (mounted) {
-                                //             Navigator.pop(context); // Return to list
-                                //           }
-                                //         },
-                                //         child: const Text(
-                                //           'Delete',
-                                //           style: TextStyle(color: Colors.red),
-                                //         ),
-                                //       ),
-                                //     ],
-                                //   ),
-                                // );
-                              },
-                              icon: const Icon(
-                                Icons.delete,
-                                color: Colors.white,
-                              ),
-                              label: const Text(
-                                'Discontinue',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                      BlocConsumer<ProductDetailCubit, ProductDetailState>(
+                        listener: (context, state) {
+                          if (state.processState == ProcessState.success) {
+                            showDialog(
+                                context: context,
+                                builder:  (context) =>
+                                    InformationDialog(
+                                      title: state.dialogName.toString(),
+                                      content: state.notifyMessage.toString(),
+                                      onPressed: () {
+
+                                      },
+                                    )
+                            );
+                          } else if (state.processState == ProcessState.failure) {
+                            showDialog(
+                                context: context,
+                                builder:  (context) =>
+                                    InformationDialog(
+                                      title: state.dialogName.toString(),
+                                      content: state.notifyMessage.toString(),
+                                      onPressed: () {},
+                                    )
+                            );
+                          }
+                        },
+                        builder: (context, state) => Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EditProductScreen.newInstance(product),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                ),
+                                label: const Text(
+                                  'Edit',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  context.read<ProductDetailCubit>().toLoading();
+                                  context.read<ProductDetailCubit>().changeProductStatus();
+                                },
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.white,
+                                ),
+                                label: Text(
+                                  state.product.status == ProductStatusEnum.discontinued
+                                      ? 'Re-activate'
+                                      : 'Discontinue',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

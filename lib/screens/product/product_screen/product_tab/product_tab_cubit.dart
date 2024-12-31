@@ -28,6 +28,7 @@ abstract class TabCubit extends Cubit<TabState> {
       filteredProductList: initialProducts.isEmpty ? Database().productList : initialProducts,
       searchText: searchText ?? '',
     ));
+
     emit(state.copyWith(
       manufacturerList: getManufacturerList(),
       filterArgument: filter.copyWith(manufacturerList: getManufacturerList()
@@ -38,23 +39,17 @@ abstract class TabCubit extends Cubit<TabState> {
 
   Future<void> _fetchProducts() async {
     try {
-      emit(state.copyWith(processState: ProcessState.loading));
       List<Product> products = await Firebase().getProducts();
       Database().updateProductList(products);
-      emit(state.copyWith(productList: Database().productList, processState: ProcessState.success, filteredProductList: Database().productList));
-      applyFilters();
+
+      emit(state.copyWith(productList: Database().productList, filteredProductList: Database().productList));
     } catch (e) {
       print(e);
-      emit(state.copyWith(processState: ProcessState.failure));
     }
   }
 
-  void updateFilter({
-    FilterArgument? filter,
-  }) {
-    emit(state.copyWith(
-      filterArgument: filter,
-    ));
+  void updateFilter({FilterArgument? filter}) {
+    emit(state.copyWith(filterArgument: filter));
   }
 
   void toLoading() {
@@ -168,11 +163,21 @@ abstract class TabCubit extends Cubit<TabState> {
       }
 
       await Firebase().changeProductStatus(product.productID!, status);
-      await _fetchProducts();
+      await reloadProducts();
+
+      emit(state.copyWith(processState: ProcessState.success));
+      applyFilters();
     } catch (e) {
       print(e);
       emit(state.copyWith(processState: ProcessState.failure));
     }
+  }
+
+  Future<void> reloadProducts() async {
+    await _fetchProducts();
+    emit(state.copyWith(manufacturerList: getManufacturerList()));
+    applyFilters();
+    emit(state.copyWith(processState: ProcessState.idle));
   }
 
   int getIndex();

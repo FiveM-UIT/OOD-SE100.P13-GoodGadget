@@ -22,9 +22,9 @@ import 'product_tab_state.dart';
 abstract class TabCubit extends Cubit<TabState> {
   TabCubit() : super(const TabState());
 
-  void initialize(FilterArgument filter, {String? searchText, List<Product>? initialProducts}) {
+  void initialize(FilterArgument filter, {String? searchText, required List<Product> initialProducts}) {
     emit(state.copyWith(
-      productList: initialProducts!.isEmpty ? Database().productList : initialProducts,
+      productList: initialProducts.isEmpty ? Database().productList : initialProducts,
       filteredProductList: initialProducts.isEmpty ? Database().productList : initialProducts,
       searchText: searchText ?? '',
     ));
@@ -68,6 +68,11 @@ abstract class TabCubit extends Cubit<TabState> {
 
   void updateSortOption(SortEnum selectedOption) {
     emit(state.copyWith(selectedSortOption: selectedOption));
+    applyFilters();
+  }
+
+  void updateProduct(List<Product> products) {
+    emit(state.copyWith(productList: products));
     applyFilters();
   }
 
@@ -200,9 +205,9 @@ abstract class TabCubit extends Cubit<TabState> {
 
       case CategoryEnum.cpu:
         product as CPU;
-        final matchesCpuCore = matchesMinMax(product.core?.toDouble() ?? 0, state.filterArgument.minCpuCore, state.filterArgument.maxCpuCore);
-        final matchesCpuThread = matchesMinMax(product.thread?.toDouble() ?? 0, state.filterArgument.minCpuThread, state.filterArgument.maxCpuThread);
-        final matchesCpuClockSpeed = matchesMinMax(product.clockSpeed?.toDouble() ?? 0, state.filterArgument.minCpuClockSpeed, state.filterArgument.maxCpuClockSpeed);
+        final matchesCpuCore = matchesMinMax(product.core.toDouble(), state.filterArgument.minCpuCore, state.filterArgument.maxCpuCore);
+        final matchesCpuThread = matchesMinMax(product.thread.toDouble(), state.filterArgument.minCpuThread, state.filterArgument.maxCpuThread);
+        final matchesCpuClockSpeed = matchesMinMax(product.clockSpeed.toDouble(), state.filterArgument.minCpuClockSpeed, state.filterArgument.maxCpuClockSpeed);
         return filterArgument.cpuFamilyList.contains(product.family) &&
             matchesCpuCore &&
             matchesCpuThread &&
@@ -210,7 +215,7 @@ abstract class TabCubit extends Cubit<TabState> {
 
       case CategoryEnum.gpu:
         product as GPU;
-        final matchesGpuClockSpeed = matchesMinMax(product.clockSpeed ?? 0, state.filterArgument.minGpuClockSpeed, state.filterArgument.maxGpuClockSpeed);
+        final matchesGpuClockSpeed = matchesMinMax(product.clockSpeed, state.filterArgument.minGpuClockSpeed, state.filterArgument.maxGpuClockSpeed);
         return filterArgument.gpuBusList.contains(product.bus) &&
             filterArgument.gpuCapacityList.contains(product.capacity) &&
             filterArgument.gpuSeriesList.contains(product.series) &&
@@ -229,7 +234,7 @@ abstract class TabCubit extends Cubit<TabState> {
 
       case CategoryEnum.psu:
         product as PSU;
-        final matchesPsuWattage = matchesMinMax(product.wattage?.toDouble() ?? 0, state.filterArgument.minPsuWattage, state.filterArgument.maxPsuWattage);
+        final matchesPsuWattage = matchesMinMax(product.wattage.toDouble(), state.filterArgument.minPsuWattage, state.filterArgument.maxPsuWattage);
         return filterArgument.psuModularList.contains(product.modular) &&
             filterArgument.psuEfficiencyList.contains(product.efficiency) &&
             matchesPsuWattage;

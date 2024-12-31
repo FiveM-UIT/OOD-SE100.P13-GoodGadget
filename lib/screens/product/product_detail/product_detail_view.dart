@@ -8,13 +8,7 @@ import 'package:intl/intl.dart';
 
 import '../../../enums/processing/process_state_enum.dart';
 import '../../../enums/product_related/product_status_enum.dart';
-import '../../../objects/product_related/cpu.dart';
-import '../../../objects/product_related/drive.dart';
-import '../../../objects/product_related/gpu.dart';
-import '../../../objects/product_related/mainboard.dart';
 import '../../../objects/product_related/product.dart';
-import '../../../objects/product_related/psu.dart';
-import '../../../objects/product_related/ram.dart';
 import '../../../widgets/dialog/information_dialog.dart';
 
 
@@ -45,9 +39,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             icon: Icons.chevron_left,
             onPressed: () => {
               if (widget.product != state.product) {
-                cubit.toSuccess(),
-              },
-              Navigator.pop(context, state.processState)
+                Navigator.pop(context, ProcessState.success)
+              } else {
+                Navigator.pop(context, state.processState)
+              }
             },
             fillColor: Colors.transparent,
           ),
@@ -194,9 +189,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     InformationDialog(
                                       title: state.dialogName.toString(),
                                       content: state.notifyMessage.toString(),
-                                      onPressed: () {
-
-                                      },
+                                      onPressed: () {},
                                     )
                             );
                           } else if (state.processState == ProcessState.failure) {
@@ -206,7 +199,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     InformationDialog(
                                       title: state.dialogName.toString(),
                                       content: state.notifyMessage.toString(),
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        cubit.toIdle();
+                                      },
                                     )
                             );
                           }
@@ -215,13 +210,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           children: [
                             Expanded(
                               child: ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
+                                onPressed: () async {
+                                  ProcessState processState =  await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => EditProductScreen.newInstance(state.product),
                                     ),
                                   );
+
+                                  if (processState == ProcessState.success) {
+                                    cubit.updateProduct();
+                                  }
                                 },
                                 icon: const Icon(
                                   Icons.edit,
@@ -244,8 +243,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   cubit.toLoading();
                                   cubit.changeProductStatus();
                                 },
-                                icon: const Icon(
-                                  Icons.delete,
+                                icon: Icon(
+                                  state.product.status == ProductStatusEnum.discontinued
+                                      ? Icons.refresh
+                                      : Icons.cancel,
                                   color: Colors.white,
                                 ),
                                 label: Text(
@@ -255,7 +256,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   style: const TextStyle(color: Colors.white),
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: state.product.status == ProductStatusEnum.discontinued
+                                      ? Colors.blue
+                                      : Colors.red,
                                   padding: const EdgeInsets.symmetric(vertical: 12),
                                 ),
                               ),

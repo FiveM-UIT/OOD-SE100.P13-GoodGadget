@@ -19,18 +19,30 @@ class SalesAddCubit extends Cubit<SalesAddState> {
   Future<void> _loadCustomers() async {
     try {
       final customers = await _firebase.getCustomers();
-      emit(state.copyWith(customers: customers));
+      emit(state.copyWith(
+        customers: customers,
+        selectedCustomer: state.selectedCustomer,
+      ));
     } catch (e) {
-      emit(state.copyWith(error: e.toString()));
+      emit(state.copyWith(
+        error: e.toString(),
+        selectedCustomer: state.selectedCustomer,
+      ));
     }
   }
 
   Future<void> _loadProducts() async {
     try {
       final products = await _firebase.getProducts();
-      emit(state.copyWith(products: products));
+      emit(state.copyWith(
+        products: products,
+        selectedCustomer: state.selectedCustomer,
+      ));
     } catch (e) {
-      emit(state.copyWith(error: e.toString()));
+      emit(state.copyWith(
+        error: e.toString(),
+        selectedCustomer: state.selectedCustomer,
+      ));
     }
   }
 
@@ -69,7 +81,11 @@ class SalesAddCubit extends Cubit<SalesAddState> {
     final details = List<SalesInvoiceDetail>.from(state.invoiceDetails)
       ..add(detail);
 
-    emit(state.copyWith(invoiceDetails: details));
+    emit(state.copyWith(
+      invoiceDetails: details,
+      selectedCustomer: state.selectedCustomer,
+      address: state.address,
+    ));
   }
 
   void updateDetailQuantity(int index, int quantity) {
@@ -85,6 +101,7 @@ class SalesAddCubit extends Cubit<SalesAddState> {
         emit(state.copyWith(
           error: 'Not enough stock',
           selectedCustomer: state.selectedCustomer,
+          address: state.address,
         ));
         return;
       }
@@ -102,12 +119,13 @@ class SalesAddCubit extends Cubit<SalesAddState> {
       emit(state.copyWith(
         invoiceDetails: details,
         selectedCustomer: state.selectedCustomer,
+        address: state.address,
       ));
     } catch (e) {
-      // Xử lý trường hợp không tìm thấy sản phẩm
       emit(state.copyWith(
         error: 'Product not found',
         selectedCustomer: state.selectedCustomer,
+        address: state.address,
       ));
     }
   }
@@ -115,7 +133,11 @@ class SalesAddCubit extends Cubit<SalesAddState> {
   void removeDetail(int index) {
     final details = List<SalesInvoiceDetail>.from(state.invoiceDetails)
       ..removeAt(index);
-    emit(state.copyWith(invoiceDetails: details));
+    emit(state.copyWith(
+      invoiceDetails: details,
+      selectedCustomer: state.selectedCustomer,
+      address: state.address,
+    ));
   }
 
   Future<SalesInvoice?> createInvoice() async {
@@ -195,6 +217,7 @@ class SalesAddCubit extends Cubit<SalesAddState> {
     emit(state.copyWith(
       selectedModalProduct: product,
       selectedCustomer: state.selectedCustomer,
+      address: state.address,
     ));
   }
 } 

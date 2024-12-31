@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/employee.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
+import '../permissions/employee_permissions.dart';
 import 'employee_detail_cubit.dart';
 import 'employee_detail_state.dart';
 import '../employee_edit/employee_edit_view.dart';
 
 class EmployeeDetailScreen extends StatefulWidget {
   final Employee employee;
+  final bool readOnly;
 
   const EmployeeDetailScreen({
     super.key,
     required this.employee,
+    this.readOnly = false,
   });
 
   @override
@@ -102,86 +105,84 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                       ),
                     ],
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                  child: !widget.readOnly ? Row(
                     children: [
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () async {
-                                final updatedEmployee = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => EmployeeEditScreen(
-                                      employee: state.employee,
-                                    ),
+                      if (EmployeePermissions.canEditEmployee(state.userRole, state.employee))
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              final updatedEmployee = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EmployeeEditScreen(
+                                    employee: state.employee,
                                   ),
-                                );
+                                ),
+                              );
 
-                                if (updatedEmployee != null) {
-                                  final cubit = context.read<EmployeeDetailCubit>();
-                                  cubit.updateEmployee(updatedEmployee);
-                                }
-                              },
-                              icon: const Icon(Icons.edit, color: Colors.white),
-                              label: const Text('Edit', style: TextStyle(color: Colors.white)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
+                              if (updatedEmployee != null) {
                                 final cubit = context.read<EmployeeDetailCubit>();
-                                showDialog(
-                                  context: context,
-                                  builder: (dialogContext) => AlertDialog(
-                                    title: const Text('Delete Employee'),
-                                    content: const Text(
-                                      'Are you sure you want to delete this employee?',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(dialogContext),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () async {
-                                          Navigator.pop(dialogContext);
-                                          await cubit.deleteEmployee();
-                                          if (mounted) {
-                                            Navigator.pop(context);
-                                          }
-                                        },
-                                        child: const Text(
-                                          'Delete',
-                                          style: TextStyle(color: Colors.red),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              icon: const Icon(Icons.delete, color: Colors.white),
-                              label: const Text(
-                                'Delete',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                              ),
+                                cubit.updateEmployee(updatedEmployee);
+                              }
+                            },
+                            icon: const Icon(Icons.edit, color: Colors.white),
+                            label: const Text('Edit', style: TextStyle(color: Colors.white)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      if (EmployeePermissions.canEditEmployee(state.userRole, state.employee) && 
+                          EmployeePermissions.canDeleteEmployee(state.userRole, state.employee))
+                        const SizedBox(width: 16),
+                      if (EmployeePermissions.canDeleteEmployee(state.userRole, state.employee))
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              final cubit = context.read<EmployeeDetailCubit>();
+                              showDialog(
+                                context: context,
+                                builder: (dialogContext) => AlertDialog(
+                                  title: const Text('Delete Employee'),
+                                  content: const Text(
+                                    'Are you sure you want to delete this employee?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(dialogContext),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        Navigator.pop(dialogContext);
+                                        await cubit.deleteEmployee();
+                                        if (mounted) {
+                                          Navigator.pop(context);
+                                        }
+                                      },
+                                      child: const Text(
+                                        'Delete',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.delete, color: Colors.white),
+                            label: const Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                          ),
+                        ),
                     ],
-                  ),
+                  ) : null,
                 ),
               ],
             ),

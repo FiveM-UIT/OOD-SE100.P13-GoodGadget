@@ -9,6 +9,7 @@ import 'employees_screen_state.dart';
 import 'employee_detail/employee_detail_view.dart';
 import 'employee_edit/employee_edit_view.dart';
 import 'package:gizmoglobe_client/enums/stakeholders/employee_role.dart';
+import 'permissions/employee_permissions.dart';
 
 class EmployeesScreen extends StatefulWidget {
   const EmployeesScreen({super.key});
@@ -463,12 +464,14 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       iconSize: 32,
                       onPressed: _showFilterDialog,
                     ),
-                    const SizedBox(width: 8),
-                    GradientIconButton(
-                      icon: Icons.person_add,
-                      iconSize: 32,
-                      onPressed: _showAddEmployeeDialog,
-                    )
+                    if (EmployeePermissions.canAddEmployees(state.userRole)) ...[
+                      const SizedBox(width: 8),
+                      GradientIconButton(
+                        icon: Icons.person_add,
+                        iconSize: 32,
+                        onPressed: _showAddEmployeeDialog,
+                      ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -538,81 +541,86 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                                                 MaterialPageRoute(
                                                   builder: (context) => EmployeeDetailScreen(
                                                     employee: employee,
+                                                    readOnly: !EmployeePermissions.canEditEmployee(state.userRole, employee),
                                                   ),
                                                 ),
                                               );
                                             },
                                           ),
-                                          ListTile(
-                                            dense: true,
-                                            leading: const Icon(
-                                              Icons.edit_outlined,
-                                              size: 20,
-                                              color: Colors.white,
-                                            ),
-                                            title: const Text('Edit'),
-                                            onTap: () async {
-                                              Navigator.pop(context);
-                                              cubit.setSelectedIndex(null);
-                                              final updatedEmployee = await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => EmployeeEditScreen(
-                                                    employee: employee,
+                                          if (EmployeePermissions.canEditEmployee(state.userRole, employee)) ...[
+                                            ListTile(
+                                              dense: true,
+                                              leading: const Icon(
+                                                Icons.edit_outlined,
+                                                size: 20,
+                                                color: Colors.white,
+                                              ),
+                                              title: const Text('Edit'),
+                                              onTap: () async {
+                                                Navigator.pop(context);
+                                                cubit.setSelectedIndex(null);
+                                                final updatedEmployee = await Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => EmployeeEditScreen(
+                                                      employee: employee,
+                                                    ),
                                                   ),
-                                                ),
-                                              );
-                                              
-                                              if (updatedEmployee != null) {
-                                                await cubit.updateEmployee(updatedEmployee);
-                                              }
-                                            },
-                                          ),
-                                          ListTile(
-                                            dense: true,
-                                            leading: Icon(
-                                              Icons.delete_outlined,
-                                              size: 20,
-                                              color: Theme.of(context).colorScheme.error,
+                                                );
+                                                
+                                                if (updatedEmployee != null) {
+                                                  await cubit.updateEmployee(updatedEmployee);
+                                                }
+                                              },
                                             ),
-                                            title: Text(
-                                              'Delete',
-                                              style: TextStyle(
+                                          ],
+                                          if (EmployeePermissions.canDeleteEmployee(state.userRole, employee)) ...[
+                                            ListTile(
+                                              dense: true,
+                                              leading: Icon(
+                                                Icons.delete_outlined,
+                                                size: 20,
                                                 color: Theme.of(context).colorScheme.error,
                                               ),
-                                            ),
-                                            onTap: () {
-                                              Navigator.pop(context);
-                                              cubit.setSelectedIndex(null);
-                                              showDialog(
-                                                context: context,
-                                                builder: (BuildContext context) {
-                                                  return AlertDialog(
-                                                    title: const Text('Delete Employee'),
-                                                    content: Text('Are you sure you want to delete ${employee.employeeName}?'),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed: () => Navigator.pop(context),
-                                                        child: const Text('Cancel'),
-                                                      ),
-                                                      TextButton(
-                                                        onPressed: () async {
-                                                          Navigator.pop(context);
-                                                          await cubit.deleteEmployee(employee.employeeID!);
-                                                        },
-                                                        child: Text(
-                                                          'Delete',
-                                                          style: TextStyle(
-                                                            color: Theme.of(context).colorScheme.error,
+                                              title: Text(
+                                                'Delete',
+                                                style: TextStyle(
+                                                  color: Theme.of(context).colorScheme.error,
+                                                ),
+                                              ),
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                                cubit.setSelectedIndex(null);
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: const Text('Delete Employee'),
+                                                      content: Text('Are you sure you want to delete ${employee.employeeName}?'),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () => Navigator.pop(context),
+                                                          child: const Text('Cancel'),
+                                                        ),
+                                                        TextButton(
+                                                          onPressed: () async {
+                                                            Navigator.pop(context);
+                                                            await cubit.deleteEmployee(employee.employeeID!);
+                                                          },
+                                                          child: Text(
+                                                            'Delete',
+                                                            style: TextStyle(
+                                                              color: Theme.of(context).colorScheme.error,
+                                                            ),
                                                           ),
                                                         ),
-                                                      ),
-                                                    ],
-                                                  );
-                                                },
-                                              );
-                                            },
-                                          ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          ],
                                         ],
                                       ),
                                     ),

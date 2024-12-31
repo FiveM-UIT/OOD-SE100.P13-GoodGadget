@@ -9,19 +9,27 @@ import '../../../../widgets/general/gradient_checkbox.dart';
 import 'customer_detail_cubit.dart';
 import 'customer_detail_state.dart';
 import '../customer_edit/customer_edit_view.dart';
+import 'package:gizmoglobe_client/screens/stakeholder/customers/permissions/customer_permissions.dart';
 
 class CustomerDetailScreen extends StatefulWidget {
   final Customer customer;
+  final bool readOnly;
 
-  static Widget newInstance({required customer}) =>
-      BlocProvider(
+  static Widget newInstance({
+    required Customer customer,
+    bool readOnly = false,
+  }) => BlocProvider(
         create: (context) => CustomerDetailCubit(customer),
-        child: CustomerDetailScreen(customer: customer),
+        child: CustomerDetailScreen(
+          customer: customer,
+          readOnly: readOnly,
+        ),
       );
 
   const CustomerDetailScreen({
     super.key,
     required this.customer,
+    this.readOnly = false,
   });
 
   @override
@@ -354,88 +362,90 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                       ),
                     ],
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () async {
-                            final updatedCustomer = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CustomerEditScreen(
-                                  customer: state.customer,
-                                ),
-                              ),
-                            );
-
-                            if (updatedCustomer != null) {
-                              // Update the customer in Firebase
-                              cubit.updateCustomer(updatedCustomer);
-                            }
-                          },
-                          icon: const Icon(
-                              Icons.edit,
-                              color: Colors.white,
-                          ),
-                          label: const Text(
-                              'Edit',
-                              style: TextStyle(color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (dialogContext) => AlertDialog(
-                                title: const Text('Delete Customer'),
-                                content: const Text(
-                                  'Are you sure you want to delete this customer?',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(dialogContext),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      Navigator.pop(dialogContext); // Close dialog
-                                      await cubit.deleteCustomer();
-                                      if (mounted) {
-                                        Navigator.pop(context); // Return to list
-                                      }
-                                    },
-                                    child: const Text(
-                                      'Delete',
-                                      style: TextStyle(color: Colors.red),
+                  child: CustomerPermissions.canEditCustomers(state.userRole)
+                    ? Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                final updatedCustomer = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CustomerEditScreen(
+                                      customer: state.customer,
                                     ),
                                   ),
-                                ],
+                                );
+
+                                if (updatedCustomer != null) {
+                                  // Update the customer in Firebase
+                                  cubit.updateCustomer(updatedCustomer);
+                                }
+                              },
+                              icon: const Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
                               ),
-                            );
-                          },
-                          icon: const Icon(
-                              Icons.delete,
-                              color: Colors.white,
+                              label: const Text(
+                                  'Edit',
+                                  style: TextStyle(color: Colors.white),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
                           ),
-                          label: const Text(
-                              'Delete',
-                              style: TextStyle(color: Colors.white),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (dialogContext) => AlertDialog(
+                                    title: const Text('Delete Customer'),
+                                    content: const Text(
+                                      'Are you sure you want to delete this customer?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(dialogContext),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          Navigator.pop(dialogContext); // Close dialog
+                                          await cubit.deleteCustomer();
+                                          if (mounted) {
+                                            Navigator.pop(context); // Return to list
+                                          }
+                                        },
+                                        child: const Text(
+                                          'Delete',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.white,
+                              ),
+                              label: const Text(
+                                  'Delete',
+                                  style: TextStyle(color: Colors.white),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        ],
+                      )
+                    : null,
                 ),
               ],
             ),

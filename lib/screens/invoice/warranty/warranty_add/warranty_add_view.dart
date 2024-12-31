@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/warranty_invoice.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
+import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
+import '../../../../widgets/general/gradient_icon_button.dart';
 import 'warranty_add_cubit.dart';
 import 'warranty_add_state.dart';
 
@@ -29,7 +31,14 @@ class _WarrantyAddViewState extends State<WarrantyAddView> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Create Warranty Invoice'),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: GradientIconButton(
+              icon: Icons.chevron_left,
+              onPressed: () => Navigator.pop(context),
+              fillColor: Colors.transparent,
+            ),
+            title: GradientText(text: 'Create Warranty Invoice'),
             actions: [
               IconButton(
                 icon: const Icon(Icons.save),

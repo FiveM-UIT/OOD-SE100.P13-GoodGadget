@@ -54,7 +54,7 @@ class ProductDetailScreen extends StatelessWidget {
         title: BlocBuilder<ProductDetailCubit, ProductDetailState>(
           builder: (context, state) => Text(
             state.product.productName,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
         ),
       ),

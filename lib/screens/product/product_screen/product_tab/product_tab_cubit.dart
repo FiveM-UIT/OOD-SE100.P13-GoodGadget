@@ -174,6 +174,7 @@ abstract class TabCubit extends Cubit<TabState> {
   }
 
   Future<void> reloadProducts() async {
+    toLoading();
     await _fetchProducts();
     emit(state.copyWith(manufacturerList: getManufacturerList()));
     applyFilters();

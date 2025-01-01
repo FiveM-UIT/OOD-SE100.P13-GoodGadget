@@ -416,8 +416,6 @@ class _HomeScreen extends State<HomeScreen> {
       );
     }).toList();
   }
-
-
 }
 
 String getCategoryName(String key) {

@@ -332,7 +332,7 @@ class _WarrantyAddViewState extends State<WarrantyAddView> {
                                                     borderRadius: BorderRadius.circular(12),
                                                   ),
                                                   child: Text(
-                                                    'Category: ${product?.category.getName() ?? 'Unknown'}',
+                                                    'Category: ${product?.category.toString() ?? 'Unknown'}',
                                                     style: TextStyle(
                                                       color: Theme.of(context).primaryColor,
                                                       fontWeight: FontWeight.w500,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
+import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
 import '../../../../enums/stakeholders/manufacturer_status.dart';
 import 'vendor_detail_cubit.dart';
 import 'vendor_detail_state.dart';
@@ -41,6 +42,7 @@ class _VendorDetailScreenState extends State<VendorDetailScreen> {
                 },
                 fillColor: Theme.of(context).colorScheme.surface,
               ),
+              title: GradientText(text: 'Manufacturer Detail'),
             ),
             body: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/customer.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
+import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
 import '../../../../widgets/general/address_picker.dart';
 import '../../../../widgets/general/field_with_icon.dart';
 import '../../../../widgets/general/gradient_checkbox.dart';
@@ -321,6 +322,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                 },
                 fillColor: Theme.of(context).colorScheme.surface,
               ),
+              title: GradientText(text: 'Customer Detail'),
             ),
             body: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -273,9 +273,8 @@ class _SalesScreenState extends State<SalesScreen> {
                       iconSize: 32,
                       onPressed: _showFilterDialog,
                     ),
-                    if (state.userRole == 'admin')
+                    if (state.userRole != 'employee')
                       const SizedBox(width: 8),
-                    if (state.userRole == 'admin')
                       GradientIconButton(
                         icon: Icons.add,
                         iconSize: 32,

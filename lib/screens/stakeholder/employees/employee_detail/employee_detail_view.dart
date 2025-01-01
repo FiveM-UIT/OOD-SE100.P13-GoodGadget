@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/employee.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
+import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
 import '../permissions/employee_permissions.dart';
 import 'employee_detail_cubit.dart';
 import 'employee_detail_state.dart';
@@ -38,14 +39,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                 onPressed: () => Navigator.pop(context),
                 fillColor: Theme.of(context).colorScheme.surface,
               ),
-              title: Text(
-                'Employee Details',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              centerTitle: true,
+              title: GradientText(text: 'Employee Detail'),
             ),
             body: Column(
               children: [

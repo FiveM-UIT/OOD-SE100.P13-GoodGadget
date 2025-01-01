@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/incoming_invoice_detail.dart';
-import 'package:gizmoglobe_client/widgets/general/gradient_button.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
 import '../../../../enums/invoice_related/payment_status.dart';
 import '../../../../widgets/general/gradient_icon_button.dart';
@@ -456,44 +455,6 @@ class _IncomingAddScreenState extends State<IncomingAddScreen> {
     );
   }
 
-  Future<void> _showEditQuantityDialog(
-    BuildContext context,
-    int index,
-    int currentQuantity,
-  ) async {
-    final controller = TextEditingController(text: currentQuantity.toString());
-
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Quantity'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'New Quantity',
-            border: OutlineInputBorder(),
-          ),
-          keyboardType: TextInputType.number,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              final newQuantity = int.tryParse(controller.text);
-              if (newQuantity != null) {
-                cubit.updateDetailQuantity(index, newQuantity);
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Update'),
-          ),
-        ],
-      ),
-    );
-  }
 
   Future<void> _showEditDetailDialog(
     BuildContext context,

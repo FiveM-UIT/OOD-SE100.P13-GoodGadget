@@ -229,17 +229,14 @@ class Database {
             },
           );
         } catch (e) {
-          print('Error processing product ${doc.id}: $e');
           return Future.error('Error processing product ${doc.id}: $e');
         }
       }));
-      print('Số lượng products trong list: ${productList.length}');
 
       await fetchAddress();
       customerList = await Firebase().getCustomers();
 
     } catch (e) {
-      print('Error fetching data: $e');
     }
   }
 
@@ -1416,7 +1413,6 @@ class Database {
       }
       return false;
     } catch (e) {
-      print('Error checking admin status: $e');
       return false;
     }
   }

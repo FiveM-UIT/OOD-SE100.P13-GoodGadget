@@ -722,57 +722,56 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                             ],
                                           ),
                                           const SizedBox(height: 8),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          Wrap(
+                                            spacing: 16,
+                                            runSpacing: 8,
+                                            crossAxisAlignment: WrapCrossAlignment.center,
                                             children: [
+                                              Text(
+                                                'Price: \$${detail.sellingPrice.toStringAsFixed(2)}',
+                                                style: TextStyle(
+                                                  color: Colors.white.withOpacity(0.8),
+                                                ),
+                                              ),
                                               Row(
+                                                mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  Text(
-                                                    'Price: \$${detail.sellingPrice.toStringAsFixed(2)}',
-                                                    style: TextStyle(
-                                                      color: Colors.white.withOpacity(0.8),
+                                                  IconButton(
+                                                    icon: Icon(
+                                                      Icons.remove_circle_outline,
+                                                      color: detail.quantity > 1 
+                                                          ? Theme.of(context).colorScheme.primary
+                                                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                                                    ),
+                                                    onPressed: detail.quantity > 1
+                                                        ? () => cubit.updateDetailQuantity(index, detail.quantity - 1)
+                                                        : null,
+                                                    padding: EdgeInsets.zero,
+                                                    constraints: const BoxConstraints(),
+                                                  ),
+                                                  Container(
+                                                    constraints: const BoxConstraints(minWidth: 40),
+                                                    child: Text(
+                                                      '${detail.quantity}',
+                                                      style: const TextStyle(
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: 16,
+                                                      ),
+                                                      textAlign: TextAlign.center,
                                                     ),
                                                   ),
-                                                  const SizedBox(width: 16),
-                                                  Row(
-                                                    children: [
-                                                      IconButton(
-                                                        icon: Icon(
-                                                          Icons.remove_circle_outline,
-                                                          color: detail.quantity > 1 
-                                                              ? Theme.of(context).colorScheme.primary
-                                                              : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-                                                        ),
-                                                        onPressed: detail.quantity > 1
-                                                            ? () => cubit.updateDetailQuantity(index, detail.quantity - 1)
-                                                            : null,
-                                                        padding: EdgeInsets.zero,
-                                                        constraints: const BoxConstraints(),
-                                                      ),
-                                                      Padding(
-                                                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                                                        child: Text(
-                                                          '${detail.quantity}',
-                                                          style: const TextStyle(
-                                                            fontWeight: FontWeight.w500,
-                                                            fontSize: 16,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      IconButton(
-                                                        icon: Icon(
-                                                          Icons.add_circle_outline,
-                                                          color: detail.quantity < product.stock
-                                                              ? Theme.of(context).colorScheme.primary
-                                                              : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-                                                        ),
-                                                        onPressed: detail.quantity < product.stock
-                                                            ? () => cubit.updateDetailQuantity(index, detail.quantity + 1)
-                                                            : null,
-                                                        padding: EdgeInsets.zero,
-                                                        constraints: const BoxConstraints(),
-                                                      ),
-                                                    ],
+                                                  IconButton(
+                                                    icon: Icon(
+                                                      Icons.add_circle_outline,
+                                                      color: detail.quantity < product.stock
+                                                          ? Theme.of(context).colorScheme.primary
+                                                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                                                    ),
+                                                    onPressed: detail.quantity < product.stock
+                                                        ? () => cubit.updateDetailQuantity(index, detail.quantity + 1)
+                                                        : null,
+                                                    padding: EdgeInsets.zero,
+                                                    constraints: const BoxConstraints(),
                                                   ),
                                                 ],
                                               ),

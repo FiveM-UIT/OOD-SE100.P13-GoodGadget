@@ -183,21 +183,26 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
+            flex: 2,
             child: Text(
               label,
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.end,
               style: const TextStyle(
                 color: Colors.grey,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
+          const SizedBox(width: 16),
           Expanded(
+            flex: 3,
             child: Text(
               value,
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.start,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,

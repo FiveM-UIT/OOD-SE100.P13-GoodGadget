@@ -8,7 +8,9 @@ import '../../../data/database/database.dart';
 import '../../../enums/processing/process_state_enum.dart';
 import '../../../enums/product_related/category_enum.dart';
 import '../../../objects/product_related/product.dart';
+import '../../../widgets/general/gradient_icon_button.dart';
 import '../add_product/add_product_view.dart';
+import 'package:gizmoglobe_client/enums/stakeholders/employee_role.dart';
 
 class ProductScreen extends StatefulWidget {
   final List<Product>? initialProducts;
@@ -83,30 +85,33 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
               },
             ),
             actions: [
-              ElevatedButton.icon(
-                onPressed: () async {
-                  ProcessState result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddProductScreen.newInstance(),
-                    ),
-                  );
+              FutureBuilder<bool>(
+                future: Database().isUserAdmin(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data == true) {
+                    return Container(
+                      margin: const EdgeInsets.only(right: 16),
+                      child: GradientIconButton(
+                        icon: Icons.add,
+                        iconSize: 32,
+                        onPressed: () async {
+                          ProcessState result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AddProductScreen.newInstance(),
+                            ),
+                          );
 
-                  if (result == ProcessState.success) {
-                    cubit.initialize(Database().productList);
+                          if (result == ProcessState.success) {
+                            cubit.initialize(Database().productList);
+                          }
+                        },
+                      ),
+                    );
                   }
+                  return Container();
                 },
-                icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text('Add', style: TextStyle(color: Colors.white)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.onPrimary,
-                  padding: const EdgeInsets.fromLTRB(8, 4, 12, 4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                ),
               ),
-              const SizedBox(width: 8),
             ],
             bottom: TabBar(
               controller: tabController,

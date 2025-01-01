@@ -194,6 +194,14 @@ class _WarrantyAddViewState extends State<WarrantyAddView> {
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(color: Colors.white),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                                  ),
                                   filled: true,
                                   fillColor: Theme.of(context).colorScheme.surface,
                                 ),
@@ -317,13 +325,69 @@ class _WarrantyAddViewState extends State<WarrantyAddView> {
                                             Text(
                                               'Price: \$${detail.sellingPrice.toStringAsFixed(2)}',
                                             ),
-                                            Text(
-                                              'Available: ${detail.quantity}',
-                                              style: const TextStyle(
-                                                color: Colors.blue,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                              ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  'Available: ${detail.quantity}',
+                                                  style: const TextStyle(
+                                                    color: Colors.blue,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                                const Spacer(),
+                                                if (isSelected) ...[
+                                                  IconButton(
+                                                    icon: Icon(
+                                                      Icons.remove_circle_outline,
+                                                      color: state.productQuantities[detail.productID] == 1
+                                                          ? Colors.grey
+                                                          : Theme.of(context).primaryColor,
+                                                    ),
+                                                    onPressed: state.productQuantities[detail.productID] == 1
+                                                        ? null
+                                                        : () => cubit.decrementProductQuantity(detail.productID),
+                                                    constraints: const BoxConstraints(
+                                                      minWidth: 40,
+                                                      minHeight: 40,
+                                                    ),
+                                                    padding: EdgeInsets.zero,
+                                                  ),
+                                                  Container(
+                                                    width: 40,
+                                                    decoration: BoxDecoration(
+                                                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
+                                                    padding: const EdgeInsets.symmetric(vertical: 4),
+                                                    child: Text(
+                                                      '${state.productQuantities[detail.productID] ?? 1}',
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.bold,
+                                                        fontSize: 16,
+                                                        color: Theme.of(context).primaryColor,
+                                                      ),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ),
+                                                  IconButton(
+                                                    icon: Icon(
+                                                      Icons.add_circle_outline,
+                                                      color: (state.productQuantities[detail.productID] ?? 1) >= detail.quantity
+                                                          ? Colors.grey
+                                                          : Theme.of(context).primaryColor,
+                                                    ),
+                                                    onPressed: (state.productQuantities[detail.productID] ?? 1) >= detail.quantity
+                                                        ? null
+                                                        : () => cubit.incrementProductQuantity(detail.productID),
+                                                    constraints: const BoxConstraints(
+                                                      minWidth: 40,
+                                                      minHeight: 40,
+                                                    ),
+                                                    padding: EdgeInsets.zero,
+                                                  ),
+                                                ],
+                                              ],
                                             ),
                                           ],
                                         ),

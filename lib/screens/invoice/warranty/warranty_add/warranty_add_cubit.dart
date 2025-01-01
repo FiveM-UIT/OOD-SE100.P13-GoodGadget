@@ -272,4 +272,16 @@ class WarrantyAddCubit extends Cubit<WarrantyAddState> {
       return null;
     }
   }
+
+  void incrementProductQuantity(String productId) {
+    final currentQuantity = state.productQuantities[productId] ?? 1;
+    updateDetailQuantity(productId, currentQuantity + 1);
+  }
+
+  void decrementProductQuantity(String productId) {
+    final currentQuantity = state.productQuantities[productId] ?? 1;
+    if (currentQuantity > 1) {
+      updateDetailQuantity(productId, currentQuantity - 1);
+    }
+  }
 }

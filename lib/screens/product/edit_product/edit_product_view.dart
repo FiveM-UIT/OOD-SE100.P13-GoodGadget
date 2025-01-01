@@ -109,6 +109,7 @@ class _EditProductState extends State<EditProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: GradientIconButton(
           icon: Icons.chevron_left,
@@ -117,42 +118,25 @@ class _EditProductState extends State<EditProductScreen> {
         ),
         title: const GradientText(text: 'Edit Product'),
         actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
             child: BlocBuilder<EditProductCubit, EditProductState>(
-              buildWhen: (previous, current) => previous.processState != current.processState,
+              buildWhen: (previous, current) => 
+                previous.processState != current.processState,
               builder: (context, state) {
-                return ElevatedButton.icon(
-                  onPressed: state.processState == ProcessState.loading 
-                      ? null 
-                      : () => cubit.editProduct(),
-                  icon: state.processState == ProcessState.loading
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
-                        )
-                      : const Icon(Icons.save_outlined, size: 20),
-                  label: Text(
-                    state.processState == ProcessState.loading ? 'Saving...' : 'Save',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF202046),
-                    disabledBackgroundColor: const Color(0xFF202046).withOpacity(0.6),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                );
+                return state.processState == ProcessState.loading
+                    ? const Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : GradientIconButton(
+                        icon: Icons.check,
+                        onPressed: () => cubit.editProduct(),
+                        fillColor: Colors.transparent,
+                      );
               },
             ),
           ),

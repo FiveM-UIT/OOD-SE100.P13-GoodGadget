@@ -73,227 +73,254 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ),
       body: BlocBuilder<ProductDetailCubit, ProductDetailState>(
         builder: (context, state) {
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Product Image Section - smaller size
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.25,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                  ),
-                  child: Image.network(
-                    'https://ramleather.vn/wp-content/uploads/2022/07/woocommerce-placeholder-200x200-1.jpg',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                
-                // Product Info Section
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Basic Information Section
-                      Text(
-                        'Basic Information',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue[300],
-                        ),
+          return Stack(
+            children: [
+              // Main content in SingleChildScrollView
+              SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Product Image Section - smaller size
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.25,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
                       ),
-                      SizedBox(height: 16),
-                      
-                      _buildInfoRow(
-                        icon: Icons.inventory_2,
-                        title: 'Product',
-                        value: state.product.productName,
+                      child: Image.network(
+                        'https://ramleather.vn/wp-content/uploads/2022/07/woocommerce-placeholder-200x200-1.jpg',
+                        fit: BoxFit.contain,
                       ),
-                      
-                      _buildInfoRow(
-                        icon: Icons.category,
-                        title: 'Category',
-                        value: state.product.category.toString().split('.').last,
-                      ),
-                      
-                      _buildInfoRow(
-                        icon: Icons.business,
-                        title: 'Manufacturer',
-                        value: state.product.manufacturer.manufacturerName,
-                      ),
-                      
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          children: [
-                            Icon(Icons.circle, size: 20, color: Colors.grey[500]),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Status: ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                              ),
-                            ),
-                            StatusBadge(status: state.product.status),
-                          ],
-                        ),
-                      ),
-                      
-                      // Thêm thông tin về giá và discount
-                      _buildPriceSection(
-                        sellingPrice: state.product.sellingPrice,
-                        discount: state.product.discount,
-                      ),
-                      
-                      SizedBox(height: 24),
-                      
-                      // Status Information Section
-                      Text(
-                        'Status Information',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue[300],
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      
-                      Row(
+                    ),
+                    
+                    // Product Info Section
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          StatusBadge(status: state.product.status),
-                          const SizedBox(width: 16),
-                          Icon(
-                            state.product.stock > 0 ? Icons.check_circle : Icons.error,
-                            color: state.product.stock > 0 ? Colors.green : Colors.red,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
+                          // Basic Information Section
                           Text(
-                            'Stock: ${state.product.stock}',
-                            style: TextStyle(
-                              color: state.product.stock > 0 ? Colors.green : Colors.red,
-                              fontWeight: FontWeight.w500,
+                            'Basic Information',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[300],
                             ),
                           ),
+                          SizedBox(height: 16),
+                          
+                          _buildInfoRow(
+                            icon: Icons.inventory_2,
+                            title: 'Product',
+                            value: state.product.productName,
+                          ),
+                          
+                          _buildInfoRow(
+                            icon: Icons.category,
+                            title: 'Category',
+                            value: state.product.category.toString().split('.').last,
+                          ),
+                          
+                          _buildInfoRow(
+                            icon: Icons.business,
+                            title: 'Manufacturer',
+                            value: state.product.manufacturer.manufacturerName,
+                          ),
+                          
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Row(
+                              children: [
+                                Icon(Icons.circle, size: 20, color: Colors.grey[500]),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Status: ',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                StatusBadge(status: state.product.status),
+                              ],
+                            ),
+                          ),
+                          
+                          // Thêm thông tin về giá và discount
+                          _buildPriceSection(
+                            sellingPrice: state.product.sellingPrice,
+                            discount: state.product.discount,
+                          ),
+                          
+                          SizedBox(height: 24),
+                          
+                          // Status Information Section
+                          Text(
+                            'Status Information',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[300],
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          
+                          Row(
+                            children: [
+                              StatusBadge(status: state.product.status),
+                              const SizedBox(width: 16),
+                              Icon(
+                                state.product.stock > 0 ? Icons.check_circle : Icons.error,
+                                color: state.product.stock > 0 ? Colors.green : Colors.red,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Stock: ${state.product.stock}',
+                                style: TextStyle(
+                                  color: state.product.stock > 0 ? Colors.green : Colors.red,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+
+                          _buildInfoRow(
+                            icon: Icons.calendar_today,
+                            title: 'Release Date',
+                            value: DateFormat('dd/MM/yyyy').format(state.product.release),
+                          ),
+                          const SizedBox(height: 24),
+                          
+                          // Technical Specifications Section
+                          Text(
+                            'Technical Specifications',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[300],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          
+                          ..._buildProductSpecificDetails(context, state.product, state.technicalSpecs),
+
+                          const SizedBox(height: 16),
+                          // Add padding at bottom to prevent content from being hidden behind buttons
+                          const SizedBox(height: 80), // Height for the bottom buttons
                         ],
                       ),
-                      const SizedBox(height: 8),
+                    ),
+                  ],
+                ),
+              ),
 
-                      _buildInfoRow(
-                        icon: Icons.calendar_today,
-                        title: 'Release Date',
-                        value: DateFormat('dd/MM/yyyy').format(state.product.release),
-                      ),
-                      const SizedBox(height: 24),
-                      
-                      // Technical Specifications Section
-                      Text(
-                        'Technical Specifications',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue[300],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      
-                      ..._buildProductSpecificDetails(context, state.product, state.technicalSpecs),
-
-                      const SizedBox(height: 16),
-                      BlocConsumer<ProductDetailCubit, ProductDetailState>(
-                        listener: (context, state) {
-                          if (state.processState == ProcessState.success) {
-                            showDialog(
-                                context: context,
-                                builder:  (context) =>
-                                    InformationDialog(
-                                      title: state.dialogName.toString(),
-                                      content: state.notifyMessage.toString(),
-                                      onPressed: () {},
-                                    )
-                            );
-                          } else if (state.processState == ProcessState.failure) {
-                            showDialog(
-                                context: context,
-                                builder:  (context) =>
-                                    InformationDialog(
-                                      title: state.dialogName.toString(),
-                                      content: state.notifyMessage.toString(),
-                                      onPressed: () {
-                                        cubit.toIdle();
-                                      },
-                                    )
-                            );
-                          }
-                        },
-                        builder: (context, state) => FutureBuilder<bool>(
-                          future: Database().isUserAdmin(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData && snapshot.data == true) {
-                              return Row(
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton.icon(
-                                      onPressed: () async {
-                                        ProcessState processState = await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => EditProductScreen.newInstance(state.product),
-                                          ),
-                                        );
-
-                                        if (processState == ProcessState.success) {
-                                          cubit.updateProduct();
-                                        }
-                                      },
-                                      icon: const Icon(Icons.edit, color: Colors.white),
-                                      label: const Text('Edit', style: TextStyle(color: Colors.white)),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.green,
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: ElevatedButton.icon(
-                                      onPressed: () {
-                                        cubit.toLoading();
-                                        cubit.changeProductStatus();
-                                      },
-                                      icon: Icon(
-                                        state.product.status == ProductStatusEnum.discontinued
-                                            ? Icons.refresh
-                                            : Icons.cancel,
-                                        color: Colors.white,
-                                      ),
-                                      label: Text(
-                                        state.product.status == ProductStatusEnum.discontinued
-                                            ? 'Re-activate'
-                                            : 'Discontinue',
-                                        style: const TextStyle(color: Colors.white),
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: state.product.status == ProductStatusEnum.discontinued
-                                            ? Colors.blue
-                                            : Colors.red,
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }
-                            return Container();
-                          },
-                        ),
+              // Sticky footer with buttons
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, -4),
                       ),
                     ],
                   ),
+                  child: BlocConsumer<ProductDetailCubit, ProductDetailState>(
+                    listener: (context, state) {
+                      if (state.processState == ProcessState.success) {
+                        showDialog(
+                            context: context,
+                            builder:  (context) =>
+                                InformationDialog(
+                                  title: state.dialogName.toString(),
+                                  content: state.notifyMessage.toString(),
+                                  onPressed: () {},
+                                )
+                        );
+                      } else if (state.processState == ProcessState.failure) {
+                        showDialog(
+                            context: context,
+                            builder:  (context) =>
+                                InformationDialog(
+                                  title: state.dialogName.toString(),
+                                  content: state.notifyMessage.toString(),
+                                  onPressed: () {
+                                    cubit.toIdle();
+                                  },
+                                )
+                        );
+                      }
+                    },
+                    builder: (context, state) => FutureBuilder<bool>(
+                      future: Database().isUserAdmin(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data == true) {
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () async {
+                                    ProcessState processState = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditProductScreen.newInstance(state.product),
+                                      ),
+                                    );
+
+                                    if (processState == ProcessState.success) {
+                                      cubit.updateProduct();
+                                    }
+                                  },
+                                  icon: const Icon(Icons.edit, color: Colors.white),
+                                  label: const Text('Edit', style: TextStyle(color: Colors.white)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    cubit.toLoading();
+                                    cubit.changeProductStatus();
+                                  },
+                                  icon: Icon(
+                                    state.product.status == ProductStatusEnum.discontinued
+                                        ? Icons.refresh
+                                        : Icons.cancel,
+                                    color: Colors.white,
+                                  ),
+                                  label: Text(
+                                    state.product.status == ProductStatusEnum.discontinued
+                                        ? 'Re-activate'
+                                        : 'Discontinue',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: state.product.status == ProductStatusEnum.discontinued
+                                        ? Colors.blue
+                                        : Colors.red,
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                        return Container();
+                      },
+                    ),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),

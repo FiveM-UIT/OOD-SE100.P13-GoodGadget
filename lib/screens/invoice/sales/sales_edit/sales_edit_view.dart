@@ -72,7 +72,7 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Chọn địa chỉ',
+                    'Enter Address',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -88,7 +88,7 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
               if (addresses.isEmpty)
                 const Padding(
                   padding: EdgeInsets.all(16.0),
-                  child: Text('Không có địa chỉ nào'),
+                  child: Text('No address found'),
                 )
               else
                 ListView.builder(
@@ -96,19 +96,46 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                   itemCount: addresses.length,
                   itemBuilder: (context, index) {
                     final address = addresses[index];
-                    return ListTile(
-                      title: Text(address.receiverName),
-                      subtitle: Text(address.toString()),
-                      trailing: address.isDefault ? Icon(
-                        Icons.check_circle,
-                        color: Theme.of(context).colorScheme.primary,
-                      ) : null,
-                      onTap: () {
-                        setState(() {
-                          widget.invoice.address = address.toString();
-                        });
-                        Navigator.pop(context);
-                      },
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        title: Text(
+                          address.receiverName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(
+                          address.toString(),
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                          ),
+                        ),
+                        trailing: address.isDefault
+                            ? Icon(
+                                Icons.check_circle,
+                                color: Theme.of(context).colorScheme.primary,
+                              )
+                            : null,
+                        onTap: () {
+                          setState(() {
+                            widget.invoice.address = address.toString();
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
                     );
                   },
                 ),
@@ -121,7 +148,7 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Lỗi khi tải địa chỉ: $e'),
+            content: Text('Error: $e'),
             backgroundColor: Colors.red,
           ),
         );

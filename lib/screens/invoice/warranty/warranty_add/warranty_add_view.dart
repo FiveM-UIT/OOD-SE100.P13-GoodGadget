@@ -188,32 +188,33 @@ class _WarrantyAddViewState extends State<WarrantyAddView> {
                               const SizedBox(height: 16),
                               // Sales Invoice Selection
                               DropdownButtonFormField<String>(
-                                value: state.selectedSalesInvoiceId,
                                 decoration: InputDecoration(
-                                  labelText: 'Select Sales Invoice',
+                                  labelText: 'Sales Invoice',
                                   labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
-                                  prefixIcon: Icon(Icons.receipt_outlined, color: Colors.white.withOpacity(0.7)),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(color: Colors.white),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                                  ),
+                                  filled: true,
+                                  fillColor: Theme.of(context).colorScheme.surface,
                                 ),
+                                style: const TextStyle(color: Colors.white),
+                                dropdownColor: Theme.of(context).colorScheme.surface,
                                 items: state.customerInvoices.map((invoice) {
-                                  return DropdownMenuItem(
-                                    value: invoice.salesInvoiceID,
-                                    child: Text('Invoice #${invoice.salesInvoiceID}'),
+                                  return DropdownMenuItem<String>(
+                                    value: invoice.salesInvoiceID!,
+                                    child: Text(
+                                      '${invoice.salesInvoiceID} - ${invoice.customerName}',
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
                                   );
                                 }).toList(),
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    cubit.selectSalesInvoice(value);
+                                onChanged: (String? invoiceId) {
+                                  if (invoiceId != null) {
+                                    final selectedInvoice = state.customerInvoices.firstWhere(
+                                      (invoice) => invoice.salesInvoiceID == invoiceId,
+                                      orElse: () => state.customerInvoices.first,
+                                    );
+                                    cubit.selectSalesInvoice(selectedInvoice);
                                   }
                                 },
                                 validator: (value) {
@@ -222,6 +223,9 @@ class _WarrantyAddViewState extends State<WarrantyAddView> {
                                   }
                                   return null;
                                 },
+                                value: state.customerInvoices.any(
+                                  (invoice) => invoice.salesInvoiceID == state.selectedSalesInvoiceId
+                                ) ? state.selectedSalesInvoiceId : null,
                               ),
                               const SizedBox(height: 16),
                               // Reason Input
@@ -253,7 +257,7 @@ class _WarrantyAddViewState extends State<WarrantyAddView> {
                       const SizedBox(height: 16),
 
                       // Products Card
-                      if (state.salesInvoice != null)
+                      if (state.selectedSalesInvoice != null)
                         Card(
                           elevation: 2,
                           shape: RoundedRectangleBorder(
@@ -275,9 +279,10 @@ class _WarrantyAddViewState extends State<WarrantyAddView> {
                                 ListView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: state.salesInvoice!.details.length,
+                                  itemCount: state.selectedSalesInvoice!.details.length,
                                   itemBuilder: (context, index) {
-                                    final detail = state.salesInvoice!.details[index];
+                                    final detail = state.selectedSalesInvoice!.details[index];
+                                    final product = state.products[detail.productID];
                                     final isSelected = state.selectedProducts.contains(detail.productID);
                                     
                                     return Card(
@@ -292,7 +297,7 @@ class _WarrantyAddViewState extends State<WarrantyAddView> {
                                           }
                                         },
                                         title: Text(
-                                          detail.productName ?? 'Unknown Product',
+                                          product?.productName ?? 'Loading...',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -307,6 +312,12 @@ class _WarrantyAddViewState extends State<WarrantyAddView> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
+                                              'Category: ${product?.category.getName() ?? 'Unknown'}',
+                                            ),
+                                            Text(
+                                              'Price: \$${detail.sellingPrice.toStringAsFixed(2)}',
+                                            ),
+                                            Text(
                                               'Available: ${detail.quantity}',
                                               style: const TextStyle(
                                                 color: Colors.blue,
@@ -314,51 +325,6 @@ class _WarrantyAddViewState extends State<WarrantyAddView> {
                                                 fontSize: 14,
                                               ),
                                             ),
-                                            if (isSelected) ...[
-                                              const SizedBox(height: 8),
-                                              Row(
-                                                children: [
-                                                  IconButton(
-                                                    icon: const Icon(Icons.remove_circle_outline),
-                                                    color: Colors.red,
-                                                    onPressed: state.productQuantities[detail.productID] == 0
-                                                        ? null
-                                                        : () => cubit.updateDetailQuantity(
-                                                              detail.productID,
-                                                              (state.productQuantities[detail.productID] ?? 0) - 1,
-                                                            ),
-                                                  ),
-                                                  SizedBox(
-                                                    width: 50,
-                                                    child: TextFormField(
-                                                      textAlign: TextAlign.center,
-                                                      keyboardType: TextInputType.number,
-                                                      initialValue: (state.productQuantities[detail.productID] ?? 0).toString(),
-                                                      onChanged: (value) {
-                                                        final quantity = int.tryParse(value) ?? 0;
-                                                        if (quantity >= 0 && quantity <= detail.quantity) {
-                                                          cubit.updateDetailQuantity(detail.productID, quantity);
-                                                        }
-                                                      },
-                                                      decoration: const InputDecoration(
-                                                        isDense: true,
-                                                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  IconButton(
-                                                    icon: const Icon(Icons.add_circle_outline),
-                                                    color: Colors.green,
-                                                    onPressed: (state.productQuantities[detail.productID] ?? 0) >= detail.quantity
-                                                        ? null
-                                                        : () => cubit.updateDetailQuantity(
-                                                              detail.productID,
-                                                              (state.productQuantities[detail.productID] ?? 0) + 1,
-                                                            ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
                                           ],
                                         ),
                                         controlAffinity: ListTileControlAffinity.leading,

@@ -366,7 +366,7 @@ class _HomeScreen extends State<HomeScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      entry.key,
+                      getCategoryName(entry.key),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(width: 4),
@@ -416,9 +416,23 @@ class _HomeScreen extends State<HomeScreen> {
       );
     }).toList();
   }
+}
 
-  Widget _buildTopProducts(HomeScreenState state) {
-    // TODO: Implement top products table
-    return const SizedBox.shrink();
+String getCategoryName(String key) {
+  switch (key) {
+    case 'ram':
+      return 'RAM';
+    case 'cpu':
+      return 'CPU';
+    case 'psu':
+      return 'PSU';
+    case 'gpu':
+      return 'GPU';
+    case 'drive':
+      return 'Drive';
+    case 'mainboard':
+      return 'Mainboard';
+    default:
+      return '';
   }
 }

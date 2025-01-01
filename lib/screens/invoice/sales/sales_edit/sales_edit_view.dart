@@ -8,6 +8,8 @@ import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
 import 'package:intl/intl.dart';
 import '../../../../enums/product_related/category_enum.dart';
 import '../../../../objects/invoice_related/sales_invoice_detail.dart';
+import '../../../../widgets/general/status_badge.dart';
+import '../permissions/sales_invoice_permissions.dart';
 import 'sales_edit_cubit.dart';
 import 'sales_edit_state.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -42,50 +44,84 @@ class _SalesEditScreenContent extends StatefulWidget {
 }
 
 class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
-  double _calculateTotalPrice() {
-    return widget.invoice.details.fold(0, (sum, detail) => sum + detail.subtotal);
-  }
-
-  void _updateQuantity(SalesInvoiceDetail detail, int newQuantity) async {
-    if (newQuantity <= 0) return;
-
+  void _showAddressBottomSheet() async {
     try {
-      final updatedDetail = SalesInvoiceDetail.withQuantity(
-        salesInvoiceDetailID: detail.salesInvoiceDetailID,
-        salesInvoiceID: detail.salesInvoiceID,
-        productID: detail.productID,
-        productName: detail.productName,
-        category: detail.category,
-        sellingPrice: detail.sellingPrice,
-        quantity: newQuantity,
+      final addresses = await Firebase().getCustomerAddresses(widget.invoice.customerID);
+      
+      if (!mounted) return;
+
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Chọn địa chỉ',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (addresses.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text('Không có địa chỉ nào'),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: addresses.length,
+                  itemBuilder: (context, index) {
+                    final address = addresses[index];
+                    return ListTile(
+                      title: Text(address.receiverName),
+                      subtitle: Text(address.toString()),
+                      trailing: address.isDefault ? Icon(
+                        Icons.check_circle,
+                        color: Theme.of(context).colorScheme.primary,
+                      ) : null,
+                      onTap: () {
+                        setState(() {
+                          widget.invoice.address = address.toString();
+                        });
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
       );
-
-      setState(() {
-        final index = widget.invoice.details.indexWhere(
-          (d) => d.salesInvoiceDetailID == detail.salesInvoiceDetailID
-        );
-        if (index != -1) {
-          widget.invoice.details[index] = updatedDetail;
-          widget.invoice.totalPrice = _calculateTotalPrice();
-        }
-      });
-
-      await context.read<SalesEditCubit>().updateInvoiceDetail(updatedDetail);
     } catch (e) {
-      setState(() {
-        final index = widget.invoice.details.indexWhere(
-          (d) => d.salesInvoiceDetailID == detail.salesInvoiceDetailID
-        );
-        if (index != -1) {
-          widget.invoice.details[index] = detail;
-          widget.invoice.totalPrice = _calculateTotalPrice();
-        }
-      });
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error updating quantity: $e'),
+            content: Text('Lỗi khi tải địa chỉ: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -93,118 +129,86 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
     }
   }
 
-  void _showAddressBottomSheet() {
-    final TextEditingController addressController = TextEditingController(
-      text: widget.invoice.address,
-    );
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Change Address',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: addressController,
-              decoration: InputDecoration(
-                hintText: 'Enter new address',
-                filled: true,
-                fillColor: Theme.of(context).cardColor,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              maxLines: 3,
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    widget.invoice.address = addressController.text;
-                  });
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Save Changes',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  void _removeProduct(SalesInvoiceDetail detail) async {
+  Widget _buildStatusDropdown<T extends Enum>({
+    required T value,
+    required List<T> items,
+    required void Function(T?) onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: DropdownButton<T>(
+        value: value,
+        isExpanded: true,
+        dropdownColor: Theme.of(context).cardColor,
+        underline: const SizedBox(),
+        items: items.map((T item) {
+          return DropdownMenuItem<T>(
+            value: item,
+            child: Text(item.toString()),
+          );
+        }).toList(),
+        onChanged: onChanged,
+      ),
+    );
+  }
+
+  IconData _getCategoryIcon(String? category) {
+    if (category == null) return Icons.device_unknown;
+
+    // Convert string to CategoryEnum
+    CategoryEnum? categoryEnum;
     try {
-      final index = widget.invoice.details.indexOf(detail);
-      
-      setState(() {
-        widget.invoice.details.removeWhere(
-          (d) => d.salesInvoiceDetailID == detail.salesInvoiceDetailID
-        );
-        widget.invoice.totalPrice = _calculateTotalPrice();
-      });
-
-      await context.read<SalesEditCubit>().removeInvoiceDetail(detail);
+      categoryEnum = CategoryEnum.nonEmptyValues.firstWhere(
+              (e) => e.getName().toLowerCase() == category.toLowerCase()
+      );
     } catch (e) {
-      setState(() {
-        widget.invoice.details.add(detail);
-        widget.invoice.totalPrice = _calculateTotalPrice();
-      });
+      return Icons.device_unknown;
+    }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error removing product: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    switch (categoryEnum) {
+      case CategoryEnum.ram:
+        return Icons.memory;
+      case CategoryEnum.cpu:
+        return Icons.computer;
+      case CategoryEnum.psu:
+        return Icons.power;
+      case CategoryEnum.gpu:
+        return Icons.videogame_asset;
+      case CategoryEnum.drive:
+        return Icons.storage;
+      case CategoryEnum.mainboard:
+        return Icons.developer_board;
+      default:
+        return Icons.device_unknown;
     }
   }
 
@@ -400,15 +404,17 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  _buildStatusDropdown<PaymentStatus>(
-                    value: state.selectedPaymentStatus,
-                    items: PaymentStatus.values,
-                    onChanged: (status) {
-                      if (status != null) {
-                        context.read<SalesEditCubit>().updatePaymentStatus(status);
-                      }
-                    },
-                  ),
+                  SalesInvoicePermissions.canEditPaymentStatus(state.userRole, state.invoice)
+                      ? _buildStatusDropdown<PaymentStatus>(
+                          value: state.selectedPaymentStatus,
+                          items: PaymentStatus.values,
+                          onChanged: (status) {
+                            if (status != null) {
+                              context.read<SalesEditCubit>().updatePaymentStatus(status);
+                            }
+                          },
+                        )
+                      : StatusBadge(status: state.selectedPaymentStatus),
 
                   const SizedBox(height: 24),
                   const Text(
@@ -419,15 +425,17 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  _buildStatusDropdown<SalesStatus>(
-                    value: state.selectedSalesStatus,
-                    items: SalesStatus.values,
-                    onChanged: (status) {
-                      if (status != null) {
-                        context.read<SalesEditCubit>().updateSalesStatus(status);
-                      }
-                    },
-                  ),
+                  SalesInvoicePermissions.canEditSalesStatus(state.userRole, state.invoice)
+                      ? _buildStatusDropdown<SalesStatus>(
+                          value: state.selectedSalesStatus,
+                          items: SalesStatus.values,
+                          onChanged: (status) {
+                            if (status != null) {
+                              context.read<SalesEditCubit>().updateSalesStatus(status);
+                            }
+                          },
+                        )
+                      : StatusBadge(status: state.selectedSalesStatus),
 
                   const SizedBox(height: 16),
                   const Text(
@@ -536,36 +544,7 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                                     ),
                                   ],
                                 ),
-                              ),
-                              // Controls
-                              const SizedBox(width: 12),
-                              Column(
-                                children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.add_circle_outline,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                    onPressed: () => _updateQuantity(detail, detail.quantity + 1),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.remove_circle_outline,
-                                      color: detail.quantity > 1 
-                                          ? Theme.of(context).colorScheme.primary
-                                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-                                    ),
-                                    onPressed: detail.quantity > 1 
-                                      ? () => _updateQuantity(detail, detail.quantity - 1)
-                                      : null,
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete_outline),
-                                    color: Colors.red,
-                                    onPressed: () => _removeProduct(detail),
-                                  ),
-                                ],
-                              ),
+                              ),                            // Controls
                             ],
                           ),
                         ),
@@ -620,88 +599,5 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
         );
       },
     );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.grey,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusDropdown<T extends Enum>({
-    required T value,
-    required List<T> items,
-    required void Function(T?) onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButton<T>(
-        value: value,
-        isExpanded: true,
-        dropdownColor: Theme.of(context).cardColor,
-        underline: const SizedBox(),
-        items: items.map((T item) {
-          return DropdownMenuItem<T>(
-            value: item,
-            child: Text(item.toString()),
-          );
-        }).toList(),
-        onChanged: onChanged,
-      ),
-    );
-  }
-
-  IconData _getCategoryIcon(String? category) {
-    if (category == null) return Icons.device_unknown;
-
-    // Convert string to CategoryEnum
-    CategoryEnum? categoryEnum;
-    try {
-      categoryEnum = CategoryEnum.nonEmptyValues.firstWhere(
-              (e) => e.getName().toLowerCase() == category.toLowerCase()
-      );
-    } catch (e) {
-      return Icons.device_unknown;
-    }
-
-    switch (categoryEnum) {
-      case CategoryEnum.ram:
-        return Icons.memory;
-      case CategoryEnum.cpu:
-        return Icons.computer;
-      case CategoryEnum.psu:
-        return Icons.power;
-      case CategoryEnum.gpu:
-        return Icons.videogame_asset;
-      case CategoryEnum.drive:
-        return Icons.storage;
-      case CategoryEnum.mainboard:
-        return Icons.developer_board;
-      default:
-        return Icons.device_unknown;
-    }
   }
 } 

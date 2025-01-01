@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:gizmoglobe_client/enums/product_related/mainboard_enums/mainboard_compatibility.dart';
 import 'package:gizmoglobe_client/enums/stakeholders/employee_role.dart';
@@ -134,7 +135,9 @@ class Database {
     try {
       await fetchDataFromFirestore();
     } catch (e) {
-      print('Lỗi khi khởi tạo database: $e');
+      if (kDebugMode) {
+        print('Lỗi khi khởi tạo database: $e');
+      }
       // Nếu không lấy được dữ liệu từ Firestore, sử dụng dữ liệu mẫu
       // _initializeSampleData();
     }
@@ -142,7 +145,9 @@ class Database {
 
   Future<void> fetchDataFromFirestore() async {
     try {
-      print('Bắt đầu lấy dữ liệu từ Firestore');
+      if (kDebugMode) {
+        print('Bắt đầu lấy dữ liệu từ Firestore');
+      }
       final manufacturerSnapshot = await FirebaseFirestore.instance
           .collection('manufacturers')
           .get();
@@ -154,14 +159,18 @@ class Database {
         );
       }).toList();
 
-      print('Số lượng manufacturers: ${manufacturerList.length}');
+      if (kDebugMode) {
+        print('Số lượng manufacturers: ${manufacturerList.length}');
+      }
 
       // Lấy danh sách products từ Firestore
       final productSnapshot = await FirebaseFirestore.instance
           .collection('products')
           .get();
 
-      print('Số lượng products trong snapshot: ${productSnapshot.docs.length}');
+      if (kDebugMode) {
+        print('Số lượng products trong snapshot: ${productSnapshot.docs.length}');
+      }
 
       productList = await Future.wait(productSnapshot.docs.map((doc) async {
         try {
@@ -171,7 +180,9 @@ class Database {
           final manufacturer = manufacturerList.firstWhere(
                 (m) => m.manufacturerID == data['manufacturerID'],
             orElse: () {
-              print('Manufacturer not found for product ${doc.id}');
+              if (kDebugMode) {
+                print('Manufacturer not found for product ${doc.id}');
+              }
               throw Exception('Manufacturer not found for product ${doc.id}');
             },
           );
@@ -180,14 +191,18 @@ class Database {
           final category = CategoryEnum.nonEmptyValues.firstWhere(
                 (c) => c.getName() == data['category'],
             orElse: () {
-              print('Invalid category for product ${doc.id}');
+              if (kDebugMode) {
+                print('Invalid category for product ${doc.id}');
+              }
               throw Exception('Invalid category for product ${doc.id}');
             },
           );
 
           final specificData = _getSpecificProductData(data, category);
           if (specificData.isEmpty) {
-            print('Cannot get specific data for product ${doc.id}');
+            if (kDebugMode) {
+              print('Cannot get specific data for product ${doc.id}');
+            }
             throw Exception('Cannot get specific data for product ${doc.id}');
           }
 
@@ -205,7 +220,9 @@ class Database {
               'status': ProductStatusEnum.values.firstWhere(
                     (s) => s.getName() == data['status'],
                 orElse: () {
-                  print('Invalid status for product ${doc.id}');
+                  if (kDebugMode) {
+                    print('Invalid status for product ${doc.id}');
+                  }
                   throw Exception('Invalid status for product ${doc.id}');
                 },
               ),
@@ -1204,49 +1221,49 @@ class Database {
       ),
     ];
 
-    warrantyInvoiceList = [
-      WarrantyInvoice(
-        customerID: 'noxiFkqUTN4bum27HPCq', // Tran Nhat Tan
-        date: DateTime(2024, 3, 1),
-        status: WarrantyStatus.pending,
-        reason: 'RAM không hoạt động',
-        details: [
-          WarrantyInvoiceDetail(
-            warrantyInvoiceID: '',
-            productID: '2xMyMBUL86Gv16kxUC8V', // G.Skill Ripjaws V DDR4
-            quantity: 1,
-          ),
-        ],
-      ),
-
-      WarrantyInvoice(
-        customerID: 'dKV74hSAXozpmhPgXerv', // Do Hong Quan
-        date: DateTime(2024, 3, 10),
-        status: WarrantyStatus.processing,
-        reason: 'CPU quá nóng khi sử dụng',
-        details: [
-          WarrantyInvoiceDetail(
-            warrantyInvoiceID: '',
-            productID: '3udzXJtFke9jwkqhVh46', // Intel Core i5-13600K
-            quantity: 1,
-          ),
-        ],
-      ),
-
-      WarrantyInvoice(
-        customerID: 'DyyMyOTtZ7J2SQzsr6IZ', // To Vinh Tien
-        date: DateTime(2024, 3, 15),
-        status: WarrantyStatus.completed,
-        reason: 'Mainboard không nhận RAM',
-        details: [
-          WarrantyInvoiceDetail(
-            warrantyInvoiceID: '',
-            productID: 'mL08tBQDtbM95zDqAbbj', // MSI PRO H610I
-            quantity: 1,
-          ),
-        ],
-      ),
-    ];
+    // warrantyInvoiceList = [
+    //   WarrantyInvoice(
+    //     customerID: 'noxiFkqUTN4bum27HPCq', // Tran Nhat Tan
+    //     date: DateTime(2024, 3, 1),
+    //     status: WarrantyStatus.pending,
+    //     reason: 'RAM không hoạt động',
+    //     details: [
+    //       WarrantyInvoiceDetail(
+    //         warrantyInvoiceID: '',
+    //         productID: '2xMyMBUL86Gv16kxUC8V', // G.Skill Ripjaws V DDR4
+    //         quantity: 1,
+    //       ),
+    //     ],
+    //   ),
+    //
+    //   WarrantyInvoice(
+    //     customerID: 'dKV74hSAXozpmhPgXerv', // Do Hong Quan
+    //     date: DateTime(2024, 3, 10),
+    //     status: WarrantyStatus.processing,
+    //     reason: 'CPU quá nóng khi sử dụng',
+    //     details: [
+    //       WarrantyInvoiceDetail(
+    //         warrantyInvoiceID: '',
+    //         productID: '3udzXJtFke9jwkqhVh46', // Intel Core i5-13600K
+    //         quantity: 1,
+    //       ),
+    //     ],
+    //   ),
+    //
+    //   WarrantyInvoice(
+    //     customerID: 'DyyMyOTtZ7J2SQzsr6IZ', // To Vinh Tien
+    //     date: DateTime(2024, 3, 15),
+    //     status: WarrantyStatus.completed,
+    //     reason: 'Mainboard không nhận RAM',
+    //     details: [
+    //       WarrantyInvoiceDetail(
+    //         warrantyInvoiceID: '',
+    //         productID: 'mL08tBQDtbM95zDqAbbj', // MSI PRO H610I
+    //         quantity: 1,
+    //       ),
+    //     ],
+    //   ),
+    // ];
 
     incomingInvoiceList = [
       IncomingInvoice(

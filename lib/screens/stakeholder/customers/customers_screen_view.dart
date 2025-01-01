@@ -7,6 +7,7 @@ import 'customers_screen_cubit.dart';
 import 'customers_screen_state.dart';
 import 'customer_detail/customer_detail_view.dart';
 import 'customer_edit/customer_edit_view.dart';
+import 'permissions/customer_permissions.dart';
 
 class CustomersScreen extends StatefulWidget {
   const CustomersScreen({super.key});
@@ -299,14 +300,16 @@ class _CustomersScreenState extends State<CustomersScreen> {
                         prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    GradientIconButton(
-                      icon: Icons.person_add,
-                      iconSize: 32,
-                      onPressed: () {
-                        _showAddCustomerModal(context);
-                      },
-                    )
+                    if (CustomerPermissions.canAddCustomers(state.userRole)) ...[
+                      const SizedBox(width: 8),
+                      GradientIconButton(
+                        icon: Icons.person_add,
+                        iconSize: 32,
+                        onPressed: () {
+                          _showAddCustomerModal(context);
+                        },
+                      ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -334,7 +337,10 @@ class _CustomersScreenState extends State<CustomersScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => CustomerDetailScreen.newInstance(customer: customer),
+                                  builder: (context) => CustomerDetailScreen.newInstance(
+                                    customer: customer,
+                                    readOnly: !CustomerPermissions.canEditCustomers(state.userRole),
+                                  ),
                                 ),
                               );
                             },
@@ -370,81 +376,41 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) => CustomerDetailScreen.newInstance(customer: customer),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          ListTile(
-                                            dense: true,
-                                            leading: const Icon(
-                                              Icons.edit_outlined,
-                                              size: 20,
-                                              color: Colors.white,
-                                            ),
-                                            title: const Text('Edit'),
-                                            onTap: () async {
-                                              Navigator.pop(context);
-                                              cubit.setSelectedIndex(null);
-                                              final updatedCustomer = await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => CustomerEditScreen(
+                                                  builder: (context) => CustomerDetailScreen.newInstance(
                                                     customer: customer,
+                                                    readOnly: !CustomerPermissions.canEditCustomers(state.userRole),
                                                   ),
                                                 ),
                                               );
-                                              
-                                              if (updatedCustomer != null) {
-                                                await cubit.updateCustomer(updatedCustomer);
-                                              }
                                             },
                                           ),
-                                          ListTile(
-                                            dense: true,
-                                            leading: Icon(
-                                              Icons.delete_outlined,
-                                              size: 20,
-                                              color: Theme.of(context).colorScheme.error,
-                                            ),
-                                            title: Text(
-                                              'Delete',
-                                              style: TextStyle(
-                                                color: Theme.of(context).colorScheme.error,
+                                          if (CustomerPermissions.canEditCustomers(state.userRole)) ...[
+                                            ListTile(
+                                              dense: true,
+                                              leading: const Icon(
+                                                Icons.edit_outlined,
+                                                size: 20,
+                                                color: Colors.white,
                                               ),
-                                            ),
-                                            onTap: () {
-                                              Navigator.pop(context);
-                                              cubit.setSelectedIndex(null);
-                                              showDialog(
-                                                context: context,
-                                                builder: (BuildContext context) {
-                                                  return AlertDialog(
-                                                    title: const Text('Delete Customer'),
-                                                    content: Text('Are you sure you want to delete ${customer.customerName}?'),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed: () => Navigator.pop(context),
-                                                        child: const Text('Cancel'),
-                                                      ),
-                                                      TextButton(
-                                                        onPressed: () async {
-                                                          Navigator.pop(context);
-                                                          await cubit.deleteCustomer(customer.customerID!);
-                                                        },
-                                                        child: Text(
-                                                          'Delete',
-                                                          style: TextStyle(
-                                                            color: Theme.of(context).colorScheme.error,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  );
-                                                },
-                                              );
-                                            },
-                                          ),
+                                              title: const Text('Edit'),
+                                              onTap: () async {
+                                                Navigator.pop(context);
+                                                cubit.setSelectedIndex(null);
+                                                final updatedCustomer = await Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => CustomerEditScreen(
+                                                      customer: customer,
+                                                    ),
+                                                  ),
+                                                );
+                                                
+                                                if (updatedCustomer != null) {
+                                                  await cubit.updateCustomer(updatedCustomer);
+                                                }
+                                              },
+                                            )
+                                          ],
                                         ],
                                       ),
                                     ),

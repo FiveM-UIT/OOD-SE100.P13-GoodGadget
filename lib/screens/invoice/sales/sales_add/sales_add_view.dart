@@ -44,143 +44,299 @@ class _SalesAddViewState extends State<_SalesAddView> {
 
     final invoice = await cubit.createInvoice();
     if (invoice != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tạo hóa đơn thành công'),
+          backgroundColor: Colors.green,
+        ),
+      );
       Navigator.pop(context, invoice);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(state.error ?? 'Có lỗi xảy ra'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
   void _showAddProductDialog(BuildContext dialogContext) {
     final _quantityController = TextEditingController(text: '1');
-    Product? selectedProduct;
 
     showDialog(
       context: dialogContext,
       builder: (_) => BlocProvider.value(
         value: BlocProvider.of<SalesAddCubit>(dialogContext),
-        child: StatefulBuilder(
-          builder: (context, setState) {
-            return BlocBuilder<SalesAddCubit, SalesAddState>(
-              builder: (context, state) {
-                return AlertDialog(
-                  title: const Text('Add Product'),
-                  content: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        DropdownButtonFormField<Product>(
-                          decoration: InputDecoration(
-                            labelText: 'Product',
-                            hintText: 'Select product',
-                            labelStyle: const TextStyle(color: Colors.white),
-                            hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.white),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                            ),
-                          ),
-                          value: selectedProduct,
-                          isExpanded: true,
-                          hint: Text(
-                            'Select product',
-                            style: TextStyle(color: Colors.white.withOpacity(0.7)),
-                          ),
-                          items: state.products
-                              .where((product) => product.stock > 0)
-                              .map((product) {
-                            return DropdownMenuItem(
-                              value: product,
-                              child: Text(
-                                '${product.productName} (\$${product.sellingPrice.toStringAsFixed(2)}) - Stock: ${product.stock}',
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            );
-                          }).toList(),
-                          dropdownColor: Theme.of(context).colorScheme.surface,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedProduct = value;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextField(
-                          controller: _quantityController,
-                          decoration: InputDecoration(
-                            labelText: 'Quantity',
-                            hintText: 'Enter quantity',
-                            labelStyle: const TextStyle(color: Colors.white),
-                            hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.white),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                            ),
-                          ),
-                          keyboardType: TextInputType.number,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        if (selectedProduct == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please select a product')),
-                          );
-                          return;
-                        }
-
-                        final quantity = int.tryParse(_quantityController.text) ?? 0;
-                        if (quantity <= 0) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Quantity must be greater than 0')),
-                          );
-                          return;
-                        }
-
-                        if (quantity > selectedProduct!.stock) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Not enough stock')),
-                          );
-                          return;
-                        }
-
-                        context.read<SalesAddCubit>().addInvoiceDetail(
-                          selectedProduct!,
-                          quantity,
-                        );
-                        Navigator.pop(context);
+        child: BlocBuilder<SalesAddCubit, SalesAddState>(
+          builder: (context, state) {
+            return AlertDialog(
+              title: const Text('Add Product'),
+              content: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<Product>(
+                      value: state.selectedModalProduct,
+                      onChanged: (product) {
+                        context.read<SalesAddCubit>().updateSelectedModalProduct(product);
                       },
-                      child: const Text('Add'),
+                      decoration: InputDecoration(
+                        labelText: 'Product',
+                        hintText: 'Select product',
+                        labelStyle: const TextStyle(color: Colors.white),
+                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                        ),
+                      ),
+                      hint: Text(
+                        'Select product',
+                        style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                      ),
+                      items: state.products
+                          .where((product) => product.stock > 0)
+                          .map((product) {
+                        return DropdownMenuItem<Product>(
+                          value: product,
+                          child: Container(
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width * 0.6,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    product.productName,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '(\$${product.sellingPrice.toStringAsFixed(2)})',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '[${product.stock}]',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.7),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      dropdownColor: Theme.of(context).colorScheme.surface,
+                      style: const TextStyle(color: Colors.white),
+                      isExpanded: true,
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _quantityController,
+                      decoration: InputDecoration(
+                        labelText: 'Quantity',
+                        hintText: 'Enter quantity',
+                        labelStyle: const TextStyle(color: Colors.white),
+                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ],
-                );
-              },
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    context.read<SalesAddCubit>().updateSelectedModalProduct(null);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (state.selectedModalProduct == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please select a product')),
+                      );
+                      return;
+                    }
+
+                    final quantity = int.tryParse(_quantityController.text) ?? 0;
+                    if (quantity <= 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Quantity must be greater than 0')),
+                      );
+                      return;
+                    }
+
+                    if (quantity > state.selectedModalProduct!.stock) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Not enough stock')),
+                      );
+                      return;
+                    }
+
+                    context.read<SalesAddCubit>().addInvoiceDetail(
+                      state.selectedModalProduct!,
+                      quantity,
+                    );
+                    context.read<SalesAddCubit>().updateSelectedModalProduct(null);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Add'),
+                ),
+              ],
             );
           },
         ),
       ),
     );
+  }
+
+  void _showAddressBottomSheet(BuildContext context, SalesAddState state) async {
+    try {
+      if (state.selectedCustomer == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select a customer first'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      final addresses = await Firebase().getCustomerAddresses(state.selectedCustomer!.customerID!);
+
+      if (!mounted) return;
+
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Enter Address',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (addresses.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text('No address found'),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: addresses.length,
+                  itemBuilder: (context, index) {
+                    final address = addresses[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        title: Text(
+                          address.receiverName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(
+                          address.toString(),
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                          ),
+                        ),
+                        trailing: address.isDefault
+                            ? Icon(
+                                Icons.check_circle,
+                                color: Theme.of(context).colorScheme.primary,
+                              )
+                            : null,
+                        onTap: () {
+                          _addressController.text = address.toString();
+                          cubit.updateAddress(address.toString());
+                          Navigator.pop(context);
+                        },
+                      ),
+                    );
+                  },
+                ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -287,10 +443,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
                               onChanged: (customer) {
                                 if (customer != null) {
                                   cubit.updateCustomer(customer);
-                                  // Auto-fill address if available
-                                  if (customer.addresses?.isNotEmpty ?? false) {
-                                    _addressController.text = customer.addresses! as String;
-                                  }
+                                  _addressController.clear();
                                 }
                               },
                               validator: (value) {
@@ -303,12 +456,15 @@ class _SalesAddViewState extends State<_SalesAddView> {
                             const SizedBox(height: 16),
                             TextFormField(
                               controller: _addressController,
+                              readOnly: true,
+                              onTap: () => _showAddressBottomSheet(context, state),
                               decoration: InputDecoration(
-                                labelText: 'Delivery Address',
-                                hintText: 'Enter delivery address',
+                                labelText: 'Address',
                                 labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
-                                hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                                prefixIcon: Icon(Icons.location_on_outlined, color: Colors.white.withOpacity(0.7)),
+                                prefixIcon: Icon(
+                                  Icons.location_on_outlined,
+                                  color: Colors.white.withOpacity(0.7),
+                                ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -323,15 +479,18 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                 filled: true,
                                 fillColor: Theme.of(context).colorScheme.surface,
                                 suffixIcon: IconButton(
-                                  icon: Icon(Icons.clear, color: Colors.white.withOpacity(0.7)),
-                                  onPressed: () => _addressController.clear(),
+                                  icon: Icon(
+                                    Icons.arrow_drop_down_circle_outlined,
+                                    color: Colors.white.withOpacity(0.7),
+                                  ),
+                                  onPressed: () => _showAddressBottomSheet(context, state),
                                 ),
                               ),
                               style: const TextStyle(color: Colors.white),
                               maxLines: 3,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter delivery address';
+                                  return 'Vui lòng chọn địa chỉ giao hàng';
                                 }
                                 return null;
                               },
@@ -411,41 +570,6 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                   ),
                                 ),
                               ],
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              readOnly: true,
-                              decoration: InputDecoration(
-                                labelText: 'Invoice Date',
-                                labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
-                                prefixIcon: Icon(Icons.calendar_today, color: Colors.white.withOpacity(0.7)),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(color: Colors.white),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                                ),
-                                filled: true,
-                                fillColor: Theme.of(context).colorScheme.surface,
-                              ),
-                              style: const TextStyle(color: Colors.white),
-                              controller: TextEditingController(
-                                text: DateFormat('dd/MM/yyyy').format(state.selectedDate),
-                              ),
-                              onTap: () async {
-                                final date = await showDatePicker(
-                                  context: context,
-                                  initialDate: state.selectedDate,
-                                  firstDate: DateTime(2000),
-                                  lastDate: DateTime(2100),
-                                );
-                                if (date != null) {
-                                  cubit.updateDate(date);
-                                }
-                              },
                             ),
                             const SizedBox(height: 16),
                             Card(
@@ -565,6 +689,10 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                 itemCount: state.invoiceDetails.length,
                                 itemBuilder: (context, index) {
                                   final detail = state.invoiceDetails[index];
+                                  final product = state.products.firstWhere(
+                                    (p) => p.productID == detail.productID,
+                                  );
+                                  
                                   return Card(
                                     margin: const EdgeInsets.only(bottom: 8),
                                     child: Padding(
@@ -594,23 +722,56 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                             ],
                                           ),
                                           const SizedBox(height: 8),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          Wrap(
+                                            spacing: 16,
+                                            runSpacing: 8,
+                                            crossAxisAlignment: WrapCrossAlignment.center,
                                             children: [
+                                              Text(
+                                                'Price: \$${detail.sellingPrice.toStringAsFixed(2)}',
+                                                style: TextStyle(
+                                                  color: Colors.white.withOpacity(0.8),
+                                                ),
+                                              ),
                                               Row(
+                                                mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  Text(
-                                                    'Price: \$${detail.sellingPrice.toStringAsFixed(2)}',
-                                                    style: TextStyle(
-                                                      color: Colors.white.withOpacity(0.8),
+                                                  IconButton(
+                                                    icon: Icon(
+                                                      Icons.remove_circle_outline,
+                                                      color: detail.quantity > 1 
+                                                          ? Theme.of(context).colorScheme.primary
+                                                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                                                    ),
+                                                    onPressed: detail.quantity > 1
+                                                        ? () => cubit.updateDetailQuantity(index, detail.quantity - 1)
+                                                        : null,
+                                                    padding: EdgeInsets.zero,
+                                                    constraints: const BoxConstraints(),
+                                                  ),
+                                                  Container(
+                                                    constraints: const BoxConstraints(minWidth: 40),
+                                                    child: Text(
+                                                      '${detail.quantity}',
+                                                      style: const TextStyle(
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: 16,
+                                                      ),
+                                                      textAlign: TextAlign.center,
                                                     ),
                                                   ),
-                                                  const SizedBox(width: 16),
-                                                  Text(
-                                                    'Quantity: ${detail.quantity}',
-                                                    style: TextStyle(
-                                                      color: Colors.white.withOpacity(0.8),
+                                                  IconButton(
+                                                    icon: Icon(
+                                                      Icons.add_circle_outline,
+                                                      color: detail.quantity < product.stock
+                                                          ? Theme.of(context).colorScheme.primary
+                                                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
                                                     ),
+                                                    onPressed: detail.quantity < product.stock
+                                                        ? () => cubit.updateDetailQuantity(index, detail.quantity + 1)
+                                                        : null,
+                                                    padding: EdgeInsets.zero,
+                                                    constraints: const BoxConstraints(),
                                                   ),
                                                 ],
                                               ),
@@ -623,6 +784,16 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                               ),
                                             ],
                                           ),
+                                          if (product != null) ...[
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'Available stock: ${product.stock}',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white.withOpacity(0.6),
+                                              ),
+                                            ),
+                                          ],
                                         ],
                                       ),
                                     ),

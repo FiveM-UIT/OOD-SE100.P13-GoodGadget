@@ -305,7 +305,6 @@ class ProductArgument {
           efficiency: (product).efficiency,
           modular: (product).modular,
         );
-        break;
       case CategoryEnum.gpu:
         return result.copyWith(
           gpuSeries: (product as GPU).series,

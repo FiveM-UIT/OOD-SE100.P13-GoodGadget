@@ -295,103 +295,169 @@ class _WarrantyAddViewState extends State<WarrantyAddView> {
                                     
                                     return Card(
                                       margin: const EdgeInsets.only(bottom: 8),
-                                      child: CheckboxListTile(
-                                        value: isSelected,
-                                        onChanged: (bool? value) {
-                                          if (value == true) {
-                                            cubit.selectProduct(detail.productID);
-                                          } else {
-                                            cubit.deselectProduct(detail.productID);
-                                          }
-                                        },
+                                      child: ListTile(
+                                        leading: Checkbox(
+                                          value: isSelected,
+                                          onChanged: (bool? value) {
+                                            if (value == true) {
+                                              cubit.selectProduct(detail.productID);
+                                            } else {
+                                              cubit.deselectProduct(detail.productID);
+                                            }
+                                          },
+                                          activeColor: Theme.of(context).primaryColor,
+                                          checkColor: Colors.white,
+                                          side: BorderSide(
+                                            color: Colors.white.withOpacity(0.8),
+                                            width: 2,
+                                          ),
+                                        ),
                                         title: Text(
                                           product?.productName ?? 'Loading...',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        activeColor: Theme.of(context).primaryColor,
-                                        checkColor: Colors.white,
-                                        side: BorderSide(
-                                          color: Colors.white.withOpacity(0.8),
-                                          width: 2,
-                                        ),
                                         subtitle: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              'Category: ${product?.category.getName() ?? 'Unknown'}',
-                                            ),
-                                            Text(
-                                              'Price: \$${detail.sellingPrice.toStringAsFixed(2)}',
-                                            ),
-                                            Row(
+                                            Wrap(
+                                              spacing: 8,
+                                              runSpacing: 8,
                                               children: [
-                                                Text(
-                                                  'Available: ${detail.quantity}',
-                                                  style: const TextStyle(
-                                                    color: Colors.blue,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14,
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                  decoration: BoxDecoration(
+                                                    color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                                    borderRadius: BorderRadius.circular(12),
+                                                  ),
+                                                  child: Text(
+                                                    'Category: ${product?.category.getName() ?? 'Unknown'}',
+                                                    style: TextStyle(
+                                                      color: Theme.of(context).primaryColor,
+                                                      fontWeight: FontWeight.w500,
+                                                      fontSize: 13,
+                                                    ),
+                                                    overflow: TextOverflow.ellipsis,
                                                   ),
                                                 ),
-                                                const Spacer(),
-                                                if (isSelected) ...[
-                                                  IconButton(
-                                                    icon: Icon(
-                                                      Icons.remove_circle_outline,
-                                                      color: state.productQuantities[detail.productID] == 1
-                                                          ? Colors.grey
-                                                          : Theme.of(context).primaryColor,
-                                                    ),
-                                                    onPressed: state.productQuantities[detail.productID] == 1
-                                                        ? null
-                                                        : () => cubit.decrementProductQuantity(detail.productID),
-                                                    constraints: const BoxConstraints(
-                                                      minWidth: 40,
-                                                      minHeight: 40,
-                                                    ),
-                                                    padding: EdgeInsets.zero,
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.green.withOpacity(0.1),
+                                                    borderRadius: BorderRadius.circular(12),
                                                   ),
-                                                  Container(
-                                                    width: 40,
-                                                    decoration: BoxDecoration(
-                                                      color: Theme.of(context).primaryColor.withOpacity(0.1),
-                                                      borderRadius: BorderRadius.circular(8),
-                                                    ),
-                                                    padding: const EdgeInsets.symmetric(vertical: 4),
-                                                    child: Text(
-                                                      '${state.productQuantities[detail.productID] ?? 1}',
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 16,
-                                                        color: Theme.of(context).primaryColor,
-                                                      ),
-                                                      textAlign: TextAlign.center,
+                                                  child: Text(
+                                                    'Price: \$${detail.sellingPrice.toStringAsFixed(2)}',
+                                                    style: const TextStyle(
+                                                      color: Colors.green,
+                                                      fontWeight: FontWeight.w500,
+                                                      fontSize: 13,
                                                     ),
                                                   ),
-                                                  IconButton(
-                                                    icon: Icon(
-                                                      Icons.add_circle_outline,
-                                                      color: (state.productQuantities[detail.productID] ?? 1) >= detail.quantity
-                                                          ? Colors.grey
-                                                          : Theme.of(context).primaryColor,
-                                                    ),
-                                                    onPressed: (state.productQuantities[detail.productID] ?? 1) >= detail.quantity
-                                                        ? null
-                                                        : () => cubit.incrementProductQuantity(detail.productID),
-                                                    constraints: const BoxConstraints(
-                                                      minWidth: 40,
-                                                      minHeight: 40,
-                                                    ),
-                                                    padding: EdgeInsets.zero,
-                                                  ),
-                                                ],
+                                                ),
                                               ],
                                             ),
+                                            const SizedBox(height: 8),
+                                            if (isSelected)
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Available: ${detail.quantity}',
+                                                    style: const TextStyle(
+                                                      color: Colors.blue,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () {}, // Prevent tap propagation
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Material(
+                                                          color: Colors.transparent,
+                                                          child: IconButton(
+                                                            icon: Icon(
+                                                              Icons.remove_circle_outline,
+                                                              color: state.productQuantities[detail.productID] == 1
+                                                                  ? Colors.grey
+                                                                  : Theme.of(context).primaryColor,
+                                                            ),
+                                                            onPressed: state.productQuantities[detail.productID] == 1
+                                                                ? null
+                                                                : () {
+                                                                    cubit.decrementProductQuantity(detail.productID);
+                                                                  },
+                                                            constraints: const BoxConstraints(
+                                                              minWidth: 40,
+                                                              minHeight: 40,
+                                                            ),
+                                                            padding: EdgeInsets.zero,
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          width: 40,
+                                                          decoration: BoxDecoration(
+                                                            color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                                            borderRadius: BorderRadius.circular(8),
+                                                          ),
+                                                          padding: const EdgeInsets.symmetric(vertical: 4),
+                                                          child: Text(
+                                                            '${state.productQuantities[detail.productID] ?? 1}',
+                                                            style: TextStyle(
+                                                              fontWeight: FontWeight.bold,
+                                                              fontSize: 16,
+                                                              color: Theme.of(context).primaryColor,
+                                                            ),
+                                                            textAlign: TextAlign.center,
+                                                          ),
+                                                        ),
+                                                        Material(
+                                                          color: Colors.transparent,
+                                                          child: IconButton(
+                                                            icon: Icon(
+                                                              Icons.add_circle_outline,
+                                                              color: (state.productQuantities[detail.productID] ?? 1) >= detail.quantity
+                                                                  ? Colors.grey
+                                                                  : Theme.of(context).primaryColor,
+                                                            ),
+                                                            onPressed: (state.productQuantities[detail.productID] ?? 1) >= detail.quantity
+                                                                ? null
+                                                                : () {
+                                                                    cubit.incrementProductQuantity(detail.productID);
+                                                                  },
+                                                            constraints: const BoxConstraints(
+                                                              minWidth: 40,
+                                                              minHeight: 40,
+                                                            ),
+                                                            padding: EdgeInsets.zero,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            else
+                                              Text(
+                                                'Available: ${detail.quantity}',
+                                                style: const TextStyle(
+                                                  color: Colors.blue,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
                                           ],
                                         ),
-                                        controlAffinity: ListTileControlAffinity.leading,
+                                        onTap: () {
+                                          if (isSelected) {
+                                            cubit.deselectProduct(detail.productID);
+                                          } else {
+                                            cubit.selectProduct(detail.productID);
+                                          }
+                                        },
                                       ),
                                     );
                                   },

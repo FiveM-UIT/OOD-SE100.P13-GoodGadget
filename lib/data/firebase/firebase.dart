@@ -1241,7 +1241,6 @@ class Firebase {
         throw Exception('Product not found');
       }
 
-      final currentStock = productDoc.data()?['stock'] ?? 0;
       final oldDetail = await FirebaseFirestore.instance
           .collection('sales_invoice_details')
           .doc(detail.salesInvoiceDetailID)

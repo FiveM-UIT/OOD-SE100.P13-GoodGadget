@@ -88,7 +88,7 @@ class _AddProductState extends State<AddProductScreen> {
         elevation: 0,
         leading: GradientIconButton(
           icon: Icons.chevron_left,
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context, ProcessState.idle),
           fillColor: Colors.transparent,
         ),
         title: GradientText(text: 'Add Product'),

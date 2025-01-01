@@ -32,9 +32,7 @@ import '../../objects/invoice_related/sales_invoice.dart';
 import '../../objects/invoice_related/sales_invoice_detail.dart';
 import '../../objects/product_related/product_factory.dart';
 import '../firebase/firebase.dart';
-import '../../enums/invoice_related/warranty_status.dart';
 import '../../objects/invoice_related/warranty_invoice.dart';
-import '../../objects/invoice_related/warranty_invoice_detail.dart';
 import '../../objects/invoice_related/incoming_invoice.dart';
 import '../../objects/invoice_related/incoming_invoice_detail.dart';
 

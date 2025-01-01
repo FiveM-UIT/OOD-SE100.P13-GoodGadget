@@ -12,6 +12,8 @@ import '../../../objects/product_related/product.dart';
 import '../../../widgets/dialog/information_dialog.dart';
 import '../../../data/database/database.dart';
 import '../../../enums/stakeholders/employee_role.dart';
+import '../../../widgets/general/status_badge.dart';
+import '../../../widgets/general/gradient_text.dart';
 
 
 class ProductDetailScreen extends StatefulWidget {
@@ -49,24 +51,23 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             fillColor: Colors.transparent,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.share),
-            onPressed: () {
-              // Implement share functionality
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.favorite_border),
-            onPressed: () {
-              // Implement wishlist functionality
-            },
-          ),
+        actions: const [
+          // IconButton(
+          //   icon: Icon(Icons.share),
+          //   onPressed: () {
+          //     // Implement share functionality
+          //   },
+          // ),
+          // IconButton(
+          //   icon: Icon(Icons.favorite_border),
+          //   onPressed: () {
+          //     // Implement wishlist functionality
+          //   },
+          // ),
         ],
         title: BlocBuilder<ProductDetailCubit, ProductDetailState>(
-          builder: (context, state) => Text(
-            state.product.productName,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          builder: (context, state) => GradientText(
+            text: state.product.productName,
           ),
         ),
       ),
@@ -123,6 +124,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         value: state.product.manufacturer.manufacturerName,
                       ),
                       
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Row(
+                          children: [
+                            Icon(Icons.circle, size: 20, color: Colors.grey[500]),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Status: ',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                              ),
+                            ),
+                            StatusBadge(status: state.product.status),
+                          ],
+                        ),
+                      ),
+                      
                       // Thêm thông tin về giá và discount
                       _buildPriceSection(
                         sellingPrice: state.product.sellingPrice,
@@ -143,7 +162,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       
                       Row(
                         children: [
-                          _buildStatusChip(state.product.status),
+                          StatusBadge(status: state.product.status),
                           const SizedBox(width: 16),
                           Icon(
                             state.product.stock > 0 ? Icons.check_circle : Icons.error,
@@ -291,7 +310,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         chipColor = Colors.green.withOpacity(0.1);
         textColor = Colors.green;
         break;
-      case 'inactive':
+      case 'discontinued':
         chipColor = Colors.red.withOpacity(0.1);
         textColor = Colors.red;
         break;

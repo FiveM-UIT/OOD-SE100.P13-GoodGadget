@@ -16,6 +16,7 @@ import '../../mixin/product_tab_mixin.dart';
 import '../../product_detail/product_detail_view.dart';
 import 'product_tab_cubit.dart';
 import 'product_tab_state.dart';
+import '../../../../widgets/general/status_badge.dart';
 
 class ProductTab extends StatefulWidget {
   const ProductTab({super.key});
@@ -326,24 +327,7 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                                             ],
                                           ),
                                         ),
-                                        Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: product.status == ProductStatusEnum.active
-                                                ? Colors.green.withOpacity(0.1)
-                                                : Colors.red.withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                          child: Text(
-                                            product.status.toString(),
-                                            style: TextStyle(
-                                              color: product.status == ProductStatusEnum.active
-                                                  ? Colors.green
-                                                  : Colors.red,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
+                                        StatusBadge(status: product.status),
                                       ],
                                     ),
                                   ),

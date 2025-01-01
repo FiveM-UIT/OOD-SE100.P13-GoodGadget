@@ -95,7 +95,7 @@ class _VendorDetailScreenState extends State<VendorDetailScreen> {
                             icon: const Icon(Icons.edit, color: Colors.white),
                             label: const Text('Edit', style: TextStyle(color: Colors.white)),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
+                              backgroundColor: Colors.green,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                           ),

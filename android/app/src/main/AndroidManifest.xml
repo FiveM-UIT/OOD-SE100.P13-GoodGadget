@@ -2,7 +2,7 @@
     package="com.example.goodgadget">
 
     <application
-        android:label="goodgadget"
+        android:label="GoodGadget"
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/LaunchTheme"
         android:name="${applicationName}">

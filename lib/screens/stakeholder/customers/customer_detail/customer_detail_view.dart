@@ -267,12 +267,12 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: Row(
+                        child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.add_location, color: Colors.white),
-                            const SizedBox(width: 8),
-                            const Text(
+                            Icon(Icons.add_location, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text(
                               'Add Address',
                               style: TextStyle(
                                 fontSize: 16,
@@ -384,53 +384,6 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                               ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.green,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (dialogContext) => AlertDialog(
-                                    title: const Text('Delete Customer'),
-                                    content: const Text(
-                                      'Are you sure you want to delete this customer?',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(dialogContext),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () async {
-                                          Navigator.pop(dialogContext); // Close dialog
-                                          await cubit.deleteCustomer();
-                                          if (mounted) {
-                                            Navigator.pop(context); // Return to list
-                                          }
-                                        },
-                                        child: const Text(
-                                          'Delete',
-                                          style: TextStyle(color: Colors.red),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.white,
-                              ),
-                              label: const Text(
-                                  'Delete',
-                                  style: TextStyle(color: Colors.white),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
                                 padding: const EdgeInsets.symmetric(vertical: 12),
                               ),
                             ),

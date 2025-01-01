@@ -2165,6 +2165,59 @@ class Firebase {
       rethrow;
     }
   }
+
+  Future<void> updateUsername(String newUsername) async {
+    try {
+      final User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('No user logged in');
+
+      // Update username in users collection
+      await _firestore.collection('users').doc(user.uid).update({
+        'username': newUsername,
+      });
+
+      // Get user role to determine if additional updates are needed
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      final role = userDoc.data()?['role'] as String?;
+
+      // Update name in respective collection based on role
+      if (role == 'customer') {
+        final customerDoc = await _firestore
+            .collection('customers')
+            .where('email', isEqualTo: user.email)
+            .get();
+        if (customerDoc.docs.isNotEmpty) {
+          await _firestore
+              .collection('customers')
+              .doc(customerDoc.docs.first.id)
+              .update({'customerName': newUsername});
+        }
+      } else if (role == 'admin' || role == 'employee') {
+        final employeeDoc = await _firestore
+            .collection('employees')
+            .where('email', isEqualTo: user.email)
+            .get();
+        if (employeeDoc.docs.isNotEmpty) {
+          await _firestore
+              .collection('employees')
+              .doc(employeeDoc.docs.first.id)
+              .update({'employeeName': newUsername});
+        }
+      }
+    } catch (e) {
+      print('Error updating username: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> resetPassword(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      print('Error sending password reset email: $e');
+      rethrow;
+    }
+  }
 }
 
 Manufacturer _mapManufacturerFromJson(Map<String, dynamic> json, String id) {

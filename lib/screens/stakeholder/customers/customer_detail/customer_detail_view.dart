@@ -54,22 +54,54 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: SingleChildScrollView(
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Header
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 28,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Add New Address',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Receiver Name Field
+                  Text(
+                    'Receiver Name',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   FieldWithIcon(
                     controller: receiverNameController,
-                    hintText: 'Receiver Name',
+                    hintText: 'Enter receiver name',
+                    prefixIcon: const Icon(Icons.person_outline, color: Colors.white70,),
                     onChanged: (value) {
                       cubit.updateNewAddress(
                         receiverName: value,
@@ -77,11 +109,22 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                     },
                     fillColor: Theme.of(context).colorScheme.surface,
                   ),
+                  const SizedBox(height: 16),
+
+                  // Receiver Phone Field
+                  Text(
+                    'Receiver Phone',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
                   const SizedBox(height: 8),
-            
                   FieldWithIcon(
                     controller: receiverPhoneController,
-                    hintText: 'Receiver Phone',
+                    hintText: 'Enter phone number',
+                    prefixIcon: const Icon(Icons.phone_outlined, color: Colors.white70,),
                     onChanged: (value) {
                       cubit.updateNewAddress(
                         receiverPhone: value,
@@ -91,8 +134,18 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                     keyboardType: TextInputType.phone,
                     fillColor: Theme.of(context).colorScheme.surface,
                   ),
+                  const SizedBox(height: 16),
+
+                  // Address Picker
+                  Text(
+                    'Location',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
                   const SizedBox(height: 8),
-            
                   AddressPicker(
                     onAddressChanged: (province, district, ward) {
                       cubit.updateNewAddress(
@@ -102,11 +155,22 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                       );
                     },
                   ),
+                  const SizedBox(height: 16),
+
+                  // Street Field
+                  Text(
+                    'Street Address',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
                   const SizedBox(height: 8),
-            
                   FieldWithIcon(
                     controller: streetController,
                     hintText: 'Street name, building, house no.',
+                    prefixIcon: const Icon(Icons.home_outlined, color: Colors.white70,),
                     onChanged: (value) {
                       cubit.updateNewAddress(
                         street: value,
@@ -114,23 +178,47 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                     },
                     fillColor: Theme.of(context).colorScheme.surface,
                   ),
-                  const SizedBox(height: 16),
-            
-                  Row(
-                    children: [
-                      GradientCheckbox(
-                        value: isDefault,
-                        onChanged: (value) {
-                          isDefault = value ?? false;
-                          cubit.updateNewAddress(
-                            isDefault: isDefault,
-                          );
-                        },
+                  const SizedBox(height: 20),
+
+                  // Default Address Checkbox
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                       ),
-                      const SizedBox(width: 12),
-                      const Text('Set as default address'),
-                    ],
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        GradientCheckbox(
+                          value: isDefault,
+                          onChanged: (value) {
+                            setState(() {
+                              isDefault = value ?? false;
+                              cubit.updateNewAddress(
+                                isDefault: isDefault,
+                              );
+                            });
+                          },
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Set as default address',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(height: 24),
+
+                  // Action Buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -138,8 +226,8 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                         onPressed: () => Navigator.pop(context),
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
+                            horizontal: 24,
+                            vertical: 12,
                           ),
                         ),
                         child: Text(
@@ -147,41 +235,52 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                           style: TextStyle(
                             color: Colors.grey.shade400,
                             fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
+                      const SizedBox(width: 12),
                       ElevatedButton(
                         onPressed: () async {
                           if (receiverNameController.text.isEmpty ||
                               receiverPhoneController.text.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Please fill in required fields'),
+                                content: Text('Please fill in all required fields'),
                                 backgroundColor: Colors.red,
                               ),
                             );
                             return;
                           }
                           await cubit.addAddress();
-                          Navigator.pop(context);
+                          if (mounted) {
+                            Navigator.pop(context);
+                          }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
+                            horizontal: 24,
+                            vertical: 12,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text(
-                          'Add address',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.add_location, color: Colors.white),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Add Address',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -233,118 +332,11 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Center(
-                            child: CircleAvatar(
-                              radius: 50,
-                              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                              child: Icon(
-                                Icons.person,
-                                size: 50,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
+                          _buildHeaderSection(context, state),
                           const SizedBox(height: 24),
-                          Container(
-                            width: double.infinity,
-                            child: Text(
-                              state.customer.customerName,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-                          const Text(
-                            'Customer Information',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ),
+                          _buildInfoSection(context, state),
                           const SizedBox(height: 24),
-                          _buildInfoRow('Email', state.customer.email),
-                          _buildInfoRow('Phone', state.customer.phoneNumber),
-                          const SizedBox(height: 32),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Expanded(
-                                child: Text(
-                                  'Addresses',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.add),
-                                color: Colors.blue,
-                                onPressed: () {
-                                  _showAddAddressDialog(context);
-                                },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          ...state.customer.addresses!.map((address) {
-                            return GestureDetector(
-                              onTap: () {
-                                // Address press logic here
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(bottom: 16),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface,
-                                  borderRadius: BorderRadius.circular(8),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.3),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      address.toString(),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    if (address.isDefault)
-                                      Container(
-                                        margin: const EdgeInsets.only(top: 8),
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        child: const Text(
-                                          'Default address',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }),
+                          _buildAddressesSection(context, state),
                         ],
                       ),
                     ),
@@ -455,24 +447,221 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {Color? valueColor}) {
+  Widget _buildHeaderSection(BuildContext context, CustomerDetailState state) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary.withOpacity(0.8),
+            Theme.of(context).colorScheme.primary.withOpacity(0.6),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: const BorderRadius.all(Radius.circular(30)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Hero(
+            tag: 'customer_avatar_${state.customer.customerID}',
+            child: CircleAvatar(
+              radius: 60,
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Icon(
+                Icons.person,
+                size: 60,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            state.customer.customerName,
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoSection(BuildContext context, CustomerDetailState state) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Customer Information',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _buildInfoRow('Name', state.customer.customerName),
+              _buildInfoRow('Email', state.customer.email),
+              _buildInfoRow('Phone', state.customer.phoneNumber),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddressesSection(BuildContext context, CustomerDetailState state) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on_outlined,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Addresses',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    color: Theme.of(context).colorScheme.primary,
+                    onPressed: () => _showAddAddressDialog(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ...state.customer.addresses!.map((address) {
+                return GestureDetector(
+                  onTap: () {
+                    // Address press logic here
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          address.toString(),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        if (address.isDefault)
+                          Container(
+                            margin: const EdgeInsets.only(top: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'Default address',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.grey,
-              fontWeight: FontWeight.w500,
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              color: valueColor ?? Colors.white,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],

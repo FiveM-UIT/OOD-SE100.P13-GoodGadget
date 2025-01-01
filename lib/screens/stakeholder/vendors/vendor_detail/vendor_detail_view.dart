@@ -52,42 +52,8 @@ class _VendorDetailScreenState extends State<VendorDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Center(
-                            child: CircleAvatar(
-                              radius: 50,
-                              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                              child: Icon(
-                                Icons.business,
-                                size: 50,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          SizedBox(
-                            width: double.infinity,
-                            child: Text(
-                              state.manufacturer.manufacturerName,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-                          const Text(
-                            'Manufacturer Information',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          _buildInfoRow('Name', state.manufacturer.manufacturerName),
-                          _buildInfoRow('Status', state.manufacturer.status.getName()),
+                          _buildHeaderSection(context, state),
+                          _buildInfoSection(context, state),
                         ],
                       ),
                     ),
@@ -165,7 +131,7 @@ class _VendorDetailScreenState extends State<VendorDetailScreen> {
                                       },
                                       child: Text(
                                         state.manufacturer.status == ManufacturerStatus.active 
-                                          ? 'Deactivate' 
+                                          ? 'Inactive'
                                           : 'Activate',
                                         style: TextStyle(
                                           color: state.manufacturer.status == ManufacturerStatus.active
@@ -209,24 +175,179 @@ class _VendorDetailScreenState extends State<VendorDetailScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {Color? valueColor}) {
+  Widget _buildHeaderSection(BuildContext context, VendorDetailState state) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary.withOpacity(0.8),
+            Theme.of(context).colorScheme.primary.withOpacity(0.6),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: const BorderRadius.all(Radius.circular(30)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Hero(
+            tag: 'vendor_avatar_${state.manufacturer.manufacturerID}',
+            child: CircleAvatar(
+              radius: 60,
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Icon(
+                Icons.business,
+                size: 60,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            state.manufacturer.manufacturerName,
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          _buildStatusBadge(state.manufacturer.status),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(ManufacturerStatus status) {
+    final isActive = status == ManufacturerStatus.active;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: isActive ? Colors.green.shade100 : Colors.red.shade100,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isActive ? Colors.green : Colors.red,
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isActive ? Icons.check_circle : Icons.cancel,
+            size: 20,
+            color: isActive ? Colors.green : Colors.red,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            status.getName().toUpperCase(),
+            style: TextStyle(
+              color: isActive ? Colors.green.shade800 : Colors.red.shade800,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoSection(BuildContext context, VendorDetailState state) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Manufacturer Information',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _buildInfoRow('Name',
+                  state.manufacturer.manufacturerName,
+                valueColor: Colors.white,
+              ),
+              _buildInfoRow(
+                'Status', 
+                state.manufacturer.status.getName(),
+                valueColor: state.manufacturer.status == ManufacturerStatus.active 
+                    ? Colors.green.shade400 
+                    : Colors.red.shade400,
+                icon: state.manufacturer.status == ManufacturerStatus.active
+                    ? Icons.check_circle
+                    : Icons.cancel,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value, {Color? valueColor, IconData? icon}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.grey,
-              fontWeight: FontWeight.w500,
+          Expanded(
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              color: valueColor ?? Colors.white,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 16, color: valueColor),
+                  const SizedBox(width: 4),
+                ],
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: valueColor ?? Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

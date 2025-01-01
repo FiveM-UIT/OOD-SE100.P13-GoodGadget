@@ -75,17 +75,50 @@ class SalesAddCubit extends Cubit<SalesAddState> {
   }
 
   void addInvoiceDetail(Product product, int quantity) {
-    final detail = SalesInvoiceDetail.withQuantity(
-      productID: product.productID!,
-      productName: product.productName,
-      category: product.category.getName(),
-      sellingPrice: product.sellingPrice,
-      quantity: quantity,
-      salesInvoiceID: '',
+    // Tìm xem sản phẩm đã tồn tại trong invoice chưa
+    final existingDetailIndex = state.invoiceDetails.indexWhere(
+      (detail) => detail.productID == product.productID
     );
 
-    final details = List<SalesInvoiceDetail>.from(state.invoiceDetails)
-      ..add(detail);
+    final List<SalesInvoiceDetail> details = List<SalesInvoiceDetail>.from(state.invoiceDetails);
+
+    if (existingDetailIndex != -1) {
+      // Nếu sản phẩm đã tồn tại
+      final existingDetail = details[existingDetailIndex];
+      final newQuantity = existingDetail.quantity + quantity;
+
+      // Kiểm tra số lượng tồn kho
+      if (newQuantity > product.stock) {
+        emit(state.copyWith(
+          error: 'Not enough stock',
+          selectedCustomer: state.selectedCustomer,
+          address: state.address,
+        ));
+        return;
+      }
+
+      // Cập nhật số lượng mới
+      details[existingDetailIndex] = SalesInvoiceDetail.withQuantity(
+        salesInvoiceDetailID: existingDetail.salesInvoiceDetailID,
+        salesInvoiceID: existingDetail.salesInvoiceID,
+        productID: existingDetail.productID,
+        productName: existingDetail.productName,
+        category: existingDetail.category,
+        sellingPrice: existingDetail.sellingPrice,
+        quantity: newQuantity,
+      );
+    } else {
+      // Nếu là sản phẩm mới
+      final detail = SalesInvoiceDetail.withQuantity(
+        productID: product.productID!,
+        productName: product.productName,
+        category: product.category.getName(),
+        sellingPrice: product.sellingPrice,
+        quantity: quantity,
+        salesInvoiceID: '',
+      );
+      details.add(detail);
+    }
 
     emit(state.copyWith(
       invoiceDetails: details,

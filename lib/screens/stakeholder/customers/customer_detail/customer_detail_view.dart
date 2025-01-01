@@ -179,44 +179,6 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                     },
                     fillColor: Theme.of(context).colorScheme.surface,
                   ),
-                  const SizedBox(height: 20),
-
-                  // Default Address Checkbox
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: Row(
-                      children: [
-                        GradientCheckbox(
-                          value: isDefault,
-                          onChanged: (value) {
-                            setState(() {
-                              isDefault = value ?? false;
-                              cubit.updateNewAddress(
-                                isDefault: isDefault,
-                              );
-                            });
-                          },
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Set as default address',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                   const SizedBox(height: 24),
 
                   // Action Buttons

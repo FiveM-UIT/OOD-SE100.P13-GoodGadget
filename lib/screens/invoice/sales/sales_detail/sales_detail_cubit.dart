@@ -3,6 +3,7 @@ import 'package:gizmoglobe_client/data/firebase/firebase.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice.dart';
 import '../../../../objects/invoice_related/sales_invoice_detail.dart';
 import 'sales_detail_state.dart';
+import 'package:gizmoglobe_client/objects/product_related/product.dart';
 
 class SalesDetailCubit extends Cubit<SalesDetailState> {
   final Firebase _firebase = Firebase();
@@ -10,6 +11,7 @@ class SalesDetailCubit extends Cubit<SalesDetailState> {
   SalesDetailCubit(SalesInvoice invoice) 
       : super(SalesDetailState(invoice: invoice)) {
     _loadInvoiceDetails();
+    _loadUserRole();
   }
 
   Future<void> _loadInvoiceDetails() async {
@@ -41,6 +43,24 @@ class SalesDetailCubit extends Cubit<SalesDetailState> {
         isLoading: false,
         error: e.toString(),
       ));
+    }
+  }
+
+  Future<void> _loadUserRole() async {
+    try {
+      final userRole = await _firebase.getUserRole();
+      emit(state.copyWith(userRole: userRole));
+    } catch (e) {
+      print('Error loading user role: $e');
+    }
+  }
+
+  Future<Product?> getProduct(String productId) async {
+    try {
+      return await _firebase.getProduct(productId);
+    } catch (e) {
+      print('Error loading product: $e');
+      return null;
     }
   }
 }

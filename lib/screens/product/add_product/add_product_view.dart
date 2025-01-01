@@ -31,13 +31,6 @@ import '../../../enums/product_related/ram_enums/ram_bus.dart';
 import '../../../enums/product_related/ram_enums/ram_capacity_enum.dart';
 import '../../../enums/product_related/ram_enums/ram_type.dart';
 import '../../../objects/manufacturer.dart';
-import '../../../objects/product_related/cpu.dart';
-import '../../../objects/product_related/drive.dart';
-import '../../../objects/product_related/gpu.dart';
-import '../../../objects/product_related/mainboard.dart';
-import '../../../objects/product_related/product.dart';
-import '../../../objects/product_related/psu.dart';
-import '../../../objects/product_related/ram.dart';
 import '../../../widgets/general/field_with_icon.dart';
 import '../../../widgets/general/gradient_dropdown.dart';
 import '../../main/main_screen/main_screen_view.dart';
@@ -91,30 +84,35 @@ class _AddProductState extends State<AddProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: GradientIconButton(
           icon: Icons.chevron_left,
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context, ProcessState.idle),
           fillColor: Colors.transparent,
         ),
-        title: const GradientText(text: 'Add Product'),
+        title: GradientText(text: 'Add Product'),
         actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                cubit.addProduct();
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: BlocBuilder<AddProductCubit, AddProductState>(
+              buildWhen: (previous, current) => 
+                previous.processState != current.processState,
+              builder: (context, state) {
+                return state.processState == ProcessState.loading
+                    ? const Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : GradientIconButton(
+                        icon: Icons.check,
+                        onPressed: () => cubit.addProduct(),
+                        fillColor: Colors.transparent,
+                      );
               },
-              icon: const Icon(Icons.save_outlined, size: 20),
-              label: const Text('Save'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF202046),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
             ),
           ),
         ],
@@ -129,15 +127,7 @@ class _AddProductState extends State<AddProductScreen> {
                     title: state.dialogName.toString(),
                     content: state.notifyMessage.toString(),
                     onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MainScreen(),
-                        ),
-                      ).then((_) {
-                        MainScreen().setIndex(1);
-                      });
+                      Navigator.pop(context, state.processState);
                     },
                   ),
             );
@@ -149,12 +139,13 @@ class _AddProductState extends State<AddProductScreen> {
                     InformationDialog(
                       title: state.dialogName.toString(),
                       content: state.notifyMessage.toString(),
-                      onPressed: () {},
+                      onPressed: () {
+                        cubit.toIdle();
+                      },
                     ),
               );
             }
           }
-          cubit.toIdle();
         },
         builder: (context, state) {
           return SingleChildScrollView(
@@ -787,12 +778,25 @@ Widget buildInputWidget<T>(
             inputFormatters = [FilteringTextInputFormatter.digitsOnly];
           } else if (T == double) {
             keyboardType = const TextInputType.numberWithOptions(decimal: true);
-            inputFormatters = [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))];
+            inputFormatters = [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+              if (propertyName == "Discount")
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  if (newValue.text.isEmpty) return newValue;
+                  try {
+                    final double? value = double.tryParse(newValue.text);
+                    if (value != null && value > 1) {
+                      return oldValue;
+                    }
+                  } catch (_) {}
+                  return newValue;
+                }),
+            ];
           } else {
             keyboardType = TextInputType.text;
             inputFormatters = [FilteringTextInputFormatter.allow(RegExp(r'.*'))];
           }
-
+          
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -800,13 +804,25 @@ Widget buildInputWidget<T>(
               FieldWithIcon(
                 controller: controller,
                 hintText: 'Enter $propertyName',
-                onSubmitted: (value) {
+                onChanged: (value) {
                   if (value.isEmpty) {
                     onChanged(null);
                   } else if (T == int) {
-                    onChanged(int.tryParse(value) as T?);
+                    final parsed = int.tryParse(value);
+                    if (parsed != null) {
+                      onChanged(parsed as T?);
+                    }
                   } else if (T == double) {
-                    onChanged(double.tryParse(value) as T?);
+                    if (value == '.' || value.endsWith('.')) return; // Allow typing decimals
+                    final parsed = double.tryParse(value);
+                    if (parsed != null) {
+                      if (propertyName == "Discount" && parsed > 1) {
+                        controller.text = "0";
+                        onChanged(1.0 as T?);
+                      } else {
+                        onChanged(parsed as T?);
+                      }
+                    }
                   } else {
                     onChanged(value as T?);
                   }
@@ -818,6 +834,7 @@ Widget buildInputWidget<T>(
             ],
           );
         }
+        return Container();
       }
   );
 }

@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_cubit.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_state.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_tab/product_tab_view.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
+import '../../../data/database/database.dart';
+import '../../../enums/processing/process_state_enum.dart';
 import '../../../enums/product_related/category_enum.dart';
 import '../../../objects/product_related/product.dart';
-import '../../../widgets/general/gradient_dropdown.dart';
+import '../../../widgets/general/gradient_icon_button.dart';
 import '../add_product/add_product_view.dart';
+import 'package:gizmoglobe_client/enums/stakeholders/employee_role.dart';
 
 class ProductScreen extends StatefulWidget {
   final List<Product>? initialProducts;
@@ -37,7 +38,7 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
     searchController = TextEditingController();
     searchFocusNode = FocusNode();
     tabController = TabController(length: getTabCount(), vsync: this);
-    cubit.initialize(widget.initialProducts ?? []);
+    cubit.initialize(widget.initialProducts ?? Database().productList);
   }
 
   @override
@@ -76,7 +77,7 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
               height: 40,
               controller: searchController,
               focusNode: searchFocusNode,
-              hintText: 'Find your item',
+              hintText: 'Find your item...',
               fillColor: Theme.of(context).colorScheme.surface,
               prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
               onChanged: (value) {
@@ -84,26 +85,33 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
               },
             ),
             actions: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddProductScreen.newInstance(),
-                    ),
-                  );
+              FutureBuilder<bool>(
+                future: Database().isUserAdmin(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data == true) {
+                    return Container(
+                      margin: const EdgeInsets.only(right: 16),
+                      child: GradientIconButton(
+                        icon: Icons.add,
+                        iconSize: 32,
+                        onPressed: () async {
+                          ProcessState result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AddProductScreen.newInstance(),
+                            ),
+                          );
+
+                          if (result == ProcessState.success) {
+                            cubit.initialize(Database().productList);
+                          }
+                        },
+                      ),
+                    );
+                  }
+                  return Container();
                 },
-                icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text('Add', style: TextStyle(color: Colors.white)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.onPrimary,
-                  padding: const EdgeInsets.fromLTRB(8, 4, 12, 4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                ),
               ),
-              const SizedBox(width: 8),
             ],
             bottom: TabBar(
               controller: tabController,

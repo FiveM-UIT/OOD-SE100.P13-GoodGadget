@@ -2,14 +2,10 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_cubit.dart';
-import 'package:gizmoglobe_client/screens/product/product_detail/product_detail_state.dart';
-import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_view.dart';
 import 'package:gizmoglobe_client/widgets/dialog/information_dialog.dart';
 import 'package:gizmoglobe_client/widgets/general/app_text_style.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
-import 'package:intl/intl.dart';
 
 import '../../../data/database/database.dart';
 import '../../../enums/processing/process_state_enum.dart';
@@ -31,15 +27,11 @@ import '../../../enums/product_related/ram_enums/ram_capacity_enum.dart';
 import '../../../enums/product_related/ram_enums/ram_type.dart';
 import '../../../objects/manufacturer.dart';
 import '../../../objects/product_related/cpu.dart';
-import '../../../objects/product_related/drive.dart';
 import '../../../objects/product_related/gpu.dart';
-import '../../../objects/product_related/mainboard.dart';
 import '../../../objects/product_related/product.dart';
 import '../../../objects/product_related/psu.dart';
-import '../../../objects/product_related/ram.dart';
 import '../../../widgets/general/field_with_icon.dart';
 import '../../../widgets/general/gradient_dropdown.dart';
-import '../../main/main_screen/main_screen_view.dart';
 import 'edit_product_state.dart';
 import 'edit_product_cubit.dart';
 
@@ -117,30 +109,35 @@ class _EditProductState extends State<EditProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: GradientIconButton(
           icon: Icons.chevron_left,
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context, ProcessState.idle),
           fillColor: Colors.transparent,
         ),
         title: const GradientText(text: 'Edit Product'),
         actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                cubit.editProduct();
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: BlocBuilder<EditProductCubit, EditProductState>(
+              buildWhen: (previous, current) => 
+                previous.processState != current.processState,
+              builder: (context, state) {
+                return state.processState == ProcessState.loading
+                    ? const Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : GradientIconButton(
+                        icon: Icons.check,
+                        onPressed: () => cubit.editProduct(),
+                        fillColor: Colors.transparent,
+                      );
               },
-              icon: const Icon(Icons.save_outlined, size: 20),
-              label: const Text('Save'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF202046),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
             ),
           ),
         ],
@@ -155,15 +152,11 @@ class _EditProductState extends State<EditProductScreen> {
                     title: state.dialogName.toString(),
                     content: state.notifyMessage.toString(),
                     onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MainScreen(),
-                        ),
-                            (Route<dynamic> route) => false,
-                      ).then((_) {
-                        MainScreen().setIndex(1);
-                      });
+                      if (state.productArgument?.buildProduct() != widget.product) {
+                        Navigator.pop(context, ProcessState.success);
+                      } else {
+                        Navigator.pop(context, state.processState);
+                      }
                     },
                   ),
             );
@@ -175,12 +168,13 @@ class _EditProductState extends State<EditProductScreen> {
                     InformationDialog(
                       title: state.dialogName.toString(),
                       content: state.notifyMessage.toString(),
-                      onPressed: () {},
+                      onPressed: (){
+                        cubit.toIdle();
+                      },
                     ),
               );
             }
           }
-          cubit.toIdle();
         },
         builder: (context, state) {
           return SingleChildScrollView(
@@ -813,7 +807,20 @@ Widget buildInputWidget<T>(
             inputFormatters = [FilteringTextInputFormatter.digitsOnly];
           } else if (T == double) {
             keyboardType = const TextInputType.numberWithOptions(decimal: true);
-            inputFormatters = [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))];
+            inputFormatters = [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+              if (propertyName == "Discount")
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  if (newValue.text.isEmpty) return newValue;
+                  try {
+                    final double? value = double.tryParse(newValue.text);
+                    if (value != null && value > 1) {
+                      return oldValue;
+                    }
+                  } catch (_) {}
+                  return newValue;
+                }),
+            ];
           } else {
             keyboardType = TextInputType.text;
             inputFormatters = [FilteringTextInputFormatter.allow(RegExp(r'.*'))];
@@ -826,13 +833,25 @@ Widget buildInputWidget<T>(
               FieldWithIcon(
                 controller: controller,
                 hintText: 'Enter $propertyName',
-                onSubmitted: (value) {
+                onChanged: (value) {
                   if (value.isEmpty) {
                     onChanged(null);
                   } else if (T == int) {
-                    onChanged(int.tryParse(value) as T?);
+                    final parsed = int.tryParse(value);
+                    if (parsed != null) {
+                      onChanged(parsed as T?);
+                    }
                   } else if (T == double) {
-                    onChanged(double.tryParse(value) as T?);
+                    if (value == '.' || value.endsWith('.')) return; // Allow typing decimals
+                    final parsed = double.tryParse(value);
+                    if (parsed != null) {
+                      if (propertyName == "Discount" && parsed > 1) {
+                        controller.text = "0";
+                        onChanged(1.0 as T?);
+                      } else {
+                        onChanged(parsed as T?);
+                      }
+                    }
                   } else {
                     onChanged(value as T?);
                   }

@@ -6,6 +6,8 @@ import 'vendors_screen_cubit.dart';
 import 'vendors_screen_state.dart';
 import 'package:gizmoglobe_client/screens/stakeholder/vendors/vendor_detail/vendor_detail_view.dart';
 import 'package:gizmoglobe_client/screens/stakeholder/vendors/vendor_edit/vendor_edit_view.dart';
+import '../../../enums/stakeholders/manufacturer_status.dart';
+import 'package:gizmoglobe_client/widgets/general/status_badge.dart';
 
 class VendorsScreen extends StatefulWidget {
   const VendorsScreen({super.key});
@@ -22,167 +24,227 @@ class VendorsScreen extends StatefulWidget {
 class _VendorsScreenState extends State<VendorsScreen> {
   final TextEditingController searchController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
+  ManufacturerStatus selectedStatus = ManufacturerStatus.active;
   
   VendorsScreenCubit get cubit => context.read<VendorsScreenCubit>();
 
   void _showAddManufacturerModal() {
-    // Reset controller
+    // Reset controllers and status
     nameController.clear();
+    selectedStatus = ManufacturerStatus.active;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.business_center,
-                      color: Theme.of(context).primaryColor,
-                      size: 28,
-                    ),
-                    const SizedBox(width: 12),
-                    const Flexible(
-                      child: Text(
-                        'Add New Manufacturer',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Manufacturer Name',
-                    prefixIcon: Icon(
-                      Icons.business_center,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    labelStyle: const TextStyle(color: Colors.white),
-                    floatingLabelStyle: MaterialStateTextStyle.resolveWith(
-                      (states) => TextStyle(
-                        color: states.contains(MaterialState.focused)
-                            ? Theme.of(context).primaryColor
-                            : Colors.white,
-                      ),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).primaryColor,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.business_center,
+                          color: Theme.of(context).primaryColor,
+                          size: 28,
                         ),
-                      ),
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(
-                          color: Colors.grey.shade400,
-                          fontSize: 14,
+                        const SizedBox(width: 12),
+                        const Flexible(
+                          child: Text(
+                            'Add New Manufacturer',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    TextFormField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Manufacturer Name',
+                        prefixIcon: Icon(
+                          Icons.business_center,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        labelStyle: const TextStyle(color: Colors.white),
+                        floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                          (states) => TextStyle(
+                            color: states.contains(MaterialState.focused)
+                                ? Theme.of(context).primaryColor
+                                : Colors.white,
+                          ),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor,
+                            width: 2,
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (nameController.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please enter manufacturer name'),
-                                backgroundColor: Colors.red,
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<ManufacturerStatus>(
+                      value: selectedStatus,
+                      decoration: InputDecoration(
+                        labelText: 'Status',
+                        prefixIcon: Icon(
+                          Icons.circle,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        labelStyle: const TextStyle(color: Colors.white),
+                        floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                          (states) => TextStyle(
+                            color: states.contains(MaterialState.focused)
+                                ? Theme.of(context).primaryColor
+                                : Colors.white,
+                          ),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      items: ManufacturerStatus.values.map((status) {
+                        return DropdownMenuItem(
+                          value: status,
+                          child: Text(
+                            status.getName(),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            selectedStatus = newValue;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color: Colors.grey.shade400,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (nameController.text.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Please enter manufacturer name'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return;
+                              }
+
+                              final error = await cubit.createManufacturer(
+                                nameController.text,
+                                selectedStatus,
+                              );
+
+                              if (error != null) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(error),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              } else {
+                                if (mounted) {
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Manufacturer added successfully'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
                               ),
-                            );
-                            return;
-                          }
-
-                          final error = await cubit.createManufacturer(nameController.text);
-
-                          if (error != null) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(error),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          } else {
-                            if (mounted) {
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Manufacturer added successfully'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            }
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text(
+                              'Add Manufacturer',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
-                        child: const Text(
-                          'Add Manufacturer',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -221,12 +283,14 @@ class _VendorsScreenState extends State<VendorsScreen> {
                         prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    GradientIconButton(
-                      icon: Icons.business_center,
-                      iconSize: 32,
-                      onPressed: _showAddManufacturerModal,
-                    )
+                    if (state.userRole == 'admin') ...[
+                      const SizedBox(width: 8),
+                      GradientIconButton(
+                        icon: Icons.add,
+                        iconSize: 32,
+                        onPressed: _showAddManufacturerModal,
+                      ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -292,81 +356,102 @@ class _VendorsScreenState extends State<VendorsScreen> {
                                                 MaterialPageRoute(
                                                   builder: (context) => VendorDetailScreen(
                                                     manufacturer: manufacturer,
+                                                    readOnly: state.userRole != 'admin',
                                                   ),
                                                 ),
                                               );
                                             },
                                           ),
-                                          ListTile(
-                                            dense: true,
-                                            leading: const Icon(
-                                              Icons.edit_outlined,
-                                              size: 20,
-                                              color: Colors.white,
-                                            ),
-                                            title: const Text('Edit'),
-                                            onTap: () async {
-                                              Navigator.pop(context);
-                                              cubit.setSelectedIndex(null);
-                                              final updatedManufacturer = await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => VendorEditScreen(
-                                                    manufacturer: manufacturer,
-                                                  ),
-                                                ),
-                                              );
-                                              
-                                              if (updatedManufacturer != null) {
-                                                await cubit.updateManufacturer(updatedManufacturer);
-                                              }
-                                            },
-                                          ),
-                                          ListTile(
-                                            dense: true,
-                                            leading: Icon(
-                                              Icons.delete_outlined,
-                                              size: 20,
-                                              color: Theme.of(context).colorScheme.error,
-                                            ),
-                                            title: Text(
-                                              'Delete',
-                                              style: TextStyle(
-                                                color: Theme.of(context).colorScheme.error,
+                                          if (state.userRole == 'admin') ...[
+                                            ListTile(
+                                              dense: true,
+                                              leading: const Icon(
+                                                Icons.edit_outlined,
+                                                size: 20,
+                                                color: Colors.white,
                                               ),
+                                              title: const Text('Edit'),
+                                              onTap: () async {
+                                                Navigator.pop(context);
+                                                cubit.setSelectedIndex(null);
+                                                final updatedManufacturer = await Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => VendorEditScreen(
+                                                      manufacturer: manufacturer,
+                                                    ),
+                                                  ),
+                                                );
+                                                
+                                                if (updatedManufacturer != null) {
+                                                  await cubit.updateManufacturer(updatedManufacturer);
+                                                }
+                                              },
                                             ),
-                                            onTap: () {
-                                              Navigator.pop(context);
-                                              cubit.setSelectedIndex(null);
-                                              showDialog(
-                                                context: context,
-                                                builder: (BuildContext context) {
-                                                  return AlertDialog(
-                                                    title: const Text('Delete Manufacturer'),
-                                                    content: Text('Are you sure you want to delete ${manufacturer.manufacturerName}?'),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed: () => Navigator.pop(context),
-                                                        child: const Text('Cancel'),
+                                            ListTile(
+                                              dense: true,
+                                              leading: Icon(
+                                                manufacturer.status == ManufacturerStatus.active 
+                                                  ? Icons.block_outlined 
+                                                  : Icons.check_circle_outline,
+                                                size: 20,
+                                                color: manufacturer.status == ManufacturerStatus.active
+                                                  ? Theme.of(context).colorScheme.error
+                                                  : Colors.green,
+                                              ),
+                                              title: Text(
+                                                manufacturer.status == ManufacturerStatus.active 
+                                                  ? 'Deactivate' 
+                                                  : 'Activate',
+                                                style: TextStyle(
+                                                  color: manufacturer.status == ManufacturerStatus.active
+                                                    ? Theme.of(context).colorScheme.error
+                                                    : Colors.green,
+                                                ),
+                                              ),
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                                cubit.setSelectedIndex(null);
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: Text(
+                                                        manufacturer.status == ManufacturerStatus.active 
+                                                          ? 'Deactivate Manufacturer' 
+                                                          : 'Activate Manufacturer'
                                                       ),
-                                                      TextButton(
-                                                        onPressed: () async {
-                                                          Navigator.pop(context);
-                                                          await cubit.deleteManufacturer(manufacturer.manufacturerID!);
-                                                        },
-                                                        child: Text(
-                                                          'Delete',
-                                                          style: TextStyle(
-                                                            color: Theme.of(context).colorScheme.error,
+                                                      content: Text(
+                                                        'Are you sure you want to ${manufacturer.status == ManufacturerStatus.active ? "deactivate" : "activate"} ${manufacturer.manufacturerName}?'
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () => Navigator.pop(context),
+                                                          child: const Text('Cancel'),
+                                                        ),
+                                                        TextButton(
+                                                          onPressed: () async {
+                                                            Navigator.pop(context);
+                                                            await cubit.toggleManufacturerStatus(manufacturer);
+                                                          },
+                                                          child: Text(
+                                                            manufacturer.status == ManufacturerStatus.active 
+                                                              ? 'Deactivate' 
+                                                              : 'Activate',
+                                                            style: TextStyle(
+                                                              color: manufacturer.status == ManufacturerStatus.active
+                                                                ? Theme.of(context).colorScheme.error
+                                                                : Colors.green,
+                                                            ),
                                                           ),
                                                         ),
-                                                      ),
-                                                    ],
-                                                  );
-                                                },
-                                              );
-                                            },
-                                          ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          ],
                                         ],
                                       ),
                                     ),
@@ -410,6 +495,8 @@ class _VendorsScreenState extends State<VendorsScreen> {
                                             fontSize: 16,
                                           ),
                                         ),
+                                      ),
+                                      StatusBadge(status: manufacturer.status.getName(),
                                       ),
                                     ],
                                   ),

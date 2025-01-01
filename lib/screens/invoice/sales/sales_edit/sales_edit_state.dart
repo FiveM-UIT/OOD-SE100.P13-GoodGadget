@@ -9,6 +9,7 @@ class SalesEditState extends Equatable {
   final String? error;
   final PaymentStatus selectedPaymentStatus;
   final SalesStatus selectedSalesStatus;
+  final String? userRole;
 
   const SalesEditState({
     required this.invoice,
@@ -16,6 +17,7 @@ class SalesEditState extends Equatable {
     this.error,
     required this.selectedPaymentStatus,
     required this.selectedSalesStatus,
+    this.userRole,
   });
 
   SalesEditState copyWith({
@@ -24,6 +26,7 @@ class SalesEditState extends Equatable {
     String? error,
     PaymentStatus? selectedPaymentStatus,
     SalesStatus? selectedSalesStatus,
+    String? userRole,
   }) {
     return SalesEditState(
       invoice: invoice ?? this.invoice,
@@ -31,6 +34,7 @@ class SalesEditState extends Equatable {
       error: error,
       selectedPaymentStatus: selectedPaymentStatus ?? this.selectedPaymentStatus,
       selectedSalesStatus: selectedSalesStatus ?? this.selectedSalesStatus,
+      userRole: userRole ?? this.userRole,
     );
   }
 
@@ -41,5 +45,6 @@ class SalesEditState extends Equatable {
         error,
         selectedPaymentStatus,
         selectedSalesStatus,
+        userRole,
       ];
 } 

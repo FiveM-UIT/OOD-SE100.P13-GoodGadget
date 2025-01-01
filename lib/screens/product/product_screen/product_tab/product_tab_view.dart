@@ -16,41 +16,42 @@ import '../../mixin/product_tab_mixin.dart';
 import '../../product_detail/product_detail_view.dart';
 import 'product_tab_cubit.dart';
 import 'product_tab_state.dart';
+import '../../../../widgets/general/status_badge.dart';
 
 class ProductTab extends StatefulWidget {
   const ProductTab({super.key});
 
-  static Widget newInstance({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+  static Widget newInstance({String? searchText, required List<Product> initialProducts}) => BlocProvider<TabCubit>(
     create: (context) => AllTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
 
-  static Widget newRam({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+  static Widget newRam({String? searchText, required List<Product> initialProducts}) => BlocProvider<TabCubit>(
     create: (context) => RamTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
 
-  static Widget newCpu({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+  static Widget newCpu({String? searchText, required List<Product> initialProducts}) => BlocProvider<TabCubit>(
     create: (context) => CpuTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
 
-  static Widget newPsu({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+  static Widget newPsu({String? searchText, required List<Product> initialProducts}) => BlocProvider<TabCubit>(
     create: (context) => PsuTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
 
-  static Widget newGpu({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+  static Widget newGpu({String? searchText, required List<Product> initialProducts}) => BlocProvider<TabCubit>(
     create: (context) => GpuTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
 
-  static Widget newDrive({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+  static Widget newDrive({String? searchText, required List<Product> initialProducts}) => BlocProvider<TabCubit>(
     create: (context) => DriveTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
 
-  static Widget newMainboard({String? searchText, List<Product>? initialProducts}) => BlocProvider<TabCubit>(
+  static Widget newMainboard({String? searchText, required List<Product> initialProducts}) => BlocProvider<TabCubit>(
     create: (context) => MainboardTabCubit()..initialize(const FilterArgument(), searchText: searchText, initialProducts: initialProducts),
     child: const ProductTab(),
   );
@@ -170,16 +171,22 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                             }
 
                             return GestureDetector(
-                              onTap: () {
+                              onTap: () async{
                                 cubit.setSelectedProduct(null);
-                                Navigator.of(context).push(
+                                ProcessState result = await Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (context) => ProductDetailScreen.newInstance(product),
                                   ),
                                 );
+
+                                if (result == ProcessState.success) {
+                                  await cubit.reloadProducts();
+                                }
                               },
-                              onLongPress: () {
+                              onLongPress: () async {
                                 cubit.setSelectedProduct(product);
+                                final bool isAdmin = await Database().isUserAdmin();
+                                
                                 showDialog(
                                   context: context,
                                   barrierDismissible: true,
@@ -225,45 +232,51 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                                                 );
                                               },
                                             ),
-                                            ListTile(
-                                              dense: true,
-                                              leading: const Icon(
-                                                Icons.edit_outlined,
-                                                size: 20,
-                                                color: Colors.white,
-                                              ),
-                                              title: const Text('Edit'),
-                                              onTap: () async {
-                                                Navigator.pop(context);
-                                                cubit.setSelectedProduct(null);
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) => EditProductScreen.newInstance(product),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                            ListTile(
-                                              dense: true,
-                                              leading: Icon(
-                                                product.status == ProductStatusEnum.discontinued
-                                                    ? Icons.check_circle_outline
-                                                    : Icons.cancel_outlined,
-                                                size: 20,
-                                                color: Colors.white,
-                                              ),
-                                              title: product.status == ProductStatusEnum.discontinued
-                                                  ? const Text('Activate', style: TextStyle())
-                                                  : const Text('Discontinue', style: TextStyle()),
-                                              onTap: () async {
-                                                Navigator.pop(context);
-                                                cubit.toLoading();
-                                                cubit.setSelectedProduct(null);
+                                            if (isAdmin) ...[
+                                              ListTile(
+                                                dense: true,
+                                                leading: const Icon(
+                                                  Icons.edit_outlined,
+                                                  size: 20,
+                                                  color: Colors.white,
+                                                ),
+                                                title: const Text('Edit'),
+                                                onTap: () async {
+                                                  Navigator.pop(context);
+                                                  cubit.setSelectedProduct(null);
+                                                  ProcessState processState = await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) => EditProductScreen.newInstance(product),
+                                                    ),
+                                                  );
 
-                                                await cubit.changeStatus(product);
-                                              },
-                                            ),
+                                                  if (processState == ProcessState.success) {
+                                                    await cubit.reloadProducts();
+                                                  }
+                                                },
+                                              ),
+                                              ListTile(
+                                                dense: true,
+                                                leading: Icon(
+                                                  product.status == ProductStatusEnum.discontinued
+                                                      ? Icons.check_circle_outline
+                                                      : Icons.cancel_outlined,
+                                                  size: 20,
+                                                  color: Colors.white,
+                                                ),
+                                                title: product.status == ProductStatusEnum.discontinued
+                                                    ? const Text('Activate', style: TextStyle())
+                                                    : const Text('Discontinue', style: TextStyle()),
+                                                onTap: () async {
+                                                  Navigator.pop(context);
+                                                  cubit.toLoading();
+                                                  cubit.setSelectedProduct(null);
+
+                                                  await cubit.changeStatus(product);
+                                                },
+                                              ),
+                                            ],
                                           ],
                                         ),
                                       ),
@@ -314,24 +327,7 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                                             ],
                                           ),
                                         ),
-                                        Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: product.status == ProductStatusEnum.active
-                                                ? Colors.green.withOpacity(0.1)
-                                                : Colors.red.withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                          child: Text(
-                                            product.status.toString(),
-                                            style: TextStyle(
-                                              color: product.status == ProductStatusEnum.active
-                                                  ? Colors.green
-                                                  : Colors.red,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
+                                        StatusBadge(status: product.status),
                                       ],
                                     ),
                                   ),

@@ -223,7 +223,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
       if (state.selectedCustomer == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Vui lòng chọn khách hàng trước'),
+            content: Text('Please select a customer first'),
             backgroundColor: Colors.red,
           ),
         );
@@ -231,7 +231,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
       }
 
       final addresses = await Firebase().getCustomerAddresses(state.selectedCustomer!.customerID!);
-      
+
       if (!mounted) return;
 
       showModalBottomSheet(
@@ -256,7 +256,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Chọn địa chỉ',
+                    'Enter Address',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -272,7 +272,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
               if (addresses.isEmpty)
                 const Padding(
                   padding: EdgeInsets.all(16.0),
-                  child: Text('Không có địa chỉ nào'),
+                  child: Text('No address found'),
                 )
               else
                 ListView.builder(
@@ -307,7 +307,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
                             color: Colors.white.withOpacity(0.7),
                           ),
                         ),
-                        trailing: address.isDefault 
+                        trailing: address.isDefault
                             ? Icon(
                                 Icons.check_circle,
                                 color: Theme.of(context).colorScheme.primary,
@@ -331,7 +331,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Lỗi khi tải địa chỉ: $e'),
+            content: Text('Error: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -459,7 +459,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
                               readOnly: true,
                               onTap: () => _showAddressBottomSheet(context, state),
                               decoration: InputDecoration(
-                                labelText: 'Địa chỉ giao hàng',
+                                labelText: 'Address',
                                 labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
                                 prefixIcon: Icon(
                                   Icons.location_on_outlined,

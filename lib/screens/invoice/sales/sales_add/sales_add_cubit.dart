@@ -61,11 +61,17 @@ class SalesAddCubit extends Cubit<SalesAddState> {
   }
 
   void updatePaymentStatus(PaymentStatus status) {
-    emit(state.copyWith(paymentStatus: status));
+    emit(state.copyWith(
+      paymentStatus: status,
+      selectedCustomer: state.selectedCustomer,
+    ));
   }
 
   void updateSalesStatus(SalesStatus status) {
-    emit(state.copyWith(salesStatus: status));
+    emit(state.copyWith(
+      salesStatus: status,
+      selectedCustomer: state.selectedCustomer,
+    ));
   }
 
   void addInvoiceDetail(Product product, int quantity) {

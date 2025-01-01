@@ -34,10 +34,10 @@ class _UserScreen extends State<UserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showUpdateSamplesModal(context),
-        child: const Icon(Icons.cloud_upload),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () => _showUpdateSamplesModal(context),
+      //   child: const Icon(Icons.cloud_upload),
+      // ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
@@ -205,16 +205,16 @@ class _UserScreen extends State<UserScreen> {
                   const SizedBox(height: 16),
                   _buildSettingsItem(
                     icon: Icons.person_outline,
-                    title: "Edit Profile",
-                    subtitle: "Update your personal information",
-                    onTap: () {},
+                    title: "Edit Username",
+                    subtitle: "Update your display name",
+                    onTap: () => _showEditUsernameDialog(context),
                     iconColor: Colors.blue,
                   ),
                   _buildSettingsItem(
                     icon: Icons.lock_outline,
-                    title: "Change Password",
-                    subtitle: "Manage your account security",
-                    onTap: () {},
+                    title: "Reset Password",
+                    subtitle: "Send password reset email",
+                    onTap: () => _showResetPasswordDialog(context),
                     iconColor: Colors.orange,
                   ),
                   
@@ -579,6 +579,102 @@ class _UserScreen extends State<UserScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showEditUsernameDialog(BuildContext context) {
+    final TextEditingController controller = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Edit Username'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              hintText: 'Enter new username',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (controller.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Username cannot be empty')),
+                  );
+                  return;
+                }
+                
+                try {
+                  await Firebase().updateUsername(controller.text.trim());
+                  if (mounted) {
+                    Navigator.pop(context);
+                    cubit.getUser(); // Refresh user info
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Username updated successfully')),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: ${e.toString()}')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Update'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showResetPasswordDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Reset Password'),
+          content: const Text(
+            'A password reset link will be sent to your email address. Would you like to proceed?'
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await Firebase().resetPassword(cubit.state.email);
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Password reset email sent. Please check your inbox.'),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: ${e.toString()}')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Send Reset Link'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

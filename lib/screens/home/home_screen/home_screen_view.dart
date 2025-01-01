@@ -57,7 +57,7 @@ class _HomeScreen extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GradientText(text: 'Welcome back,'),
+                      const GradientText(text: 'Welcome back,'),
                       Text(
                         state.username,
                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -259,7 +259,7 @@ class _HomeScreen extends State<HomeScreen> {
           horizontalInterval: 1,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: Colors.grey.withOpacity(0.1),
+              color: Theme.of(context).colorScheme.surface.withOpacity(0.2),
               strokeWidth: 1,
             );
           },

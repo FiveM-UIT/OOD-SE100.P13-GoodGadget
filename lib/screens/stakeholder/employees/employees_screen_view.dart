@@ -1,5 +1,8 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+// ignore: unused_import
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gizmoglobe_client/objects/employee.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';

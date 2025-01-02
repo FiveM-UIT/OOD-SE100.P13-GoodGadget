@@ -781,16 +781,16 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                               ),
                                             ],
                                           ),
-                                          if (product != null) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'Available stock: ${product.stock}',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.white.withOpacity(0.6),
-                                              ),
+                                          ...[
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Available stock: ${product.stock}',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.white.withOpacity(0.6),
                                             ),
-                                          ],
+                                          ),
+                                        ],
                                         ],
                                       ),
                                     ),

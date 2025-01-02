@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:equatable/equatable.dart';
 import 'package:gizmoglobe_client/enums/processing/dialog_name_enum.dart';
 import 'package:gizmoglobe_client/enums/processing/notify_message_enum.dart';

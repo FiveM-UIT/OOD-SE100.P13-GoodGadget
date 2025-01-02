@@ -836,7 +836,6 @@ Widget buildInputWidget<T>(
             ],
           );
         }
-        return Container();
       }
   );
 }

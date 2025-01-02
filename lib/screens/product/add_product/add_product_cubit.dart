@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/data/database/database.dart';

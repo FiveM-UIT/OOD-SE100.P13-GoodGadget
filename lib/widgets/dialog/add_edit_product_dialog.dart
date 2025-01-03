@@ -19,7 +19,7 @@ import '../../../data/database/database.dart'; // Import the Database class
 class AddEditProductDialog extends StatefulWidget {
   final Product? product;
 
-  const AddEditProductDialog({Key? key, this.product}) : super(key: key);
+  const AddEditProductDialog({super.key, this.product});
 
   @override
   State<AddEditProductDialog> createState() => _AddEditProductDialogState();

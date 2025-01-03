@@ -781,7 +781,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                               ),
                                             ],
                                           ),
-                                          ...[
+                                          if (product != null) ...[
                                           const SizedBox(height: 4),
                                           Text(
                                             'Available stock: ${product.stock}',

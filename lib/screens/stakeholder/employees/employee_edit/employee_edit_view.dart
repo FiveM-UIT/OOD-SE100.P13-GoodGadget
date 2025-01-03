@@ -31,7 +31,7 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
     super.initState();
     employeeName = widget.employee.employeeName;
     phoneNumber = widget.employee.phoneNumber;
-    role = widget.employee.role;
+    role = widget.employee.role as RoleEnum;
   }
 
   @override

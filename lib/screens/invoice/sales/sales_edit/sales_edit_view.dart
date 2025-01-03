@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice.dart';
@@ -322,7 +324,7 @@ class _SalesEditScreenContentState extends State<_SalesEditScreenContent> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surfaceVariant,
+                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
                                   color: Theme.of(context).dividerColor.withOpacity(0.1),

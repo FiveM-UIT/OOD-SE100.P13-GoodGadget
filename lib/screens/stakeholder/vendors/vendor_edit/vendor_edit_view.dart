@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
@@ -90,9 +92,9 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                           decoration: InputDecoration(
                             labelText: 'Name',
                             labelStyle: const TextStyle(color: Colors.white),
-                            floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                            floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                               (states) => TextStyle(
-                                color: states.contains(MaterialState.focused)
+                                color: states.contains(WidgetState.focused)
                                     ? Theme.of(context).primaryColor
                                     : Colors.white,
                               ),
@@ -124,9 +126,9 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                           decoration: InputDecoration(
                             labelText: 'Status',
                             labelStyle: const TextStyle(color: Colors.white),
-                            floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                            floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                               (states) => TextStyle(
-                                color: states.contains(MaterialState.focused)
+                                color: states.contains(WidgetState.focused)
                                     ? Theme.of(context).primaryColor
                                     : Colors.white,
                               ),

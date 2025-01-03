@@ -1,4 +1,7 @@
+// ignore_for_file: type_literal_in_constant_pattern
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:gizmoglobe_client/enums/product_related/cpu_enums/cpu_family.dart';
 import 'package:gizmoglobe_client/enums/product_related/drive_enums/drive_capacity.dart';
 import 'package:gizmoglobe_client/enums/product_related/drive_enums/drive_type.dart';
@@ -73,7 +76,7 @@ Future<void> pushProductSamplesToFirebase() async {
 
       // Thêm các thuộc tính đặc thù cho từng loại sản phẩm
       switch (product.runtimeType) {
-        case RAM:
+        case RAM _:
           final ram = product as RAM;
           productData.addAll({
             'bus': ram.bus.getName(),
@@ -82,7 +85,7 @@ Future<void> pushProductSamplesToFirebase() async {
           });
           break;
 
-        case CPU:
+        case CPU _:
           final cpu = product as CPU;
           productData.addAll({
             'family': cpu.family.getName(),
@@ -92,7 +95,7 @@ Future<void> pushProductSamplesToFirebase() async {
           });
           break;
 
-        case GPU:
+        case GPU _:
           final gpu = product as GPU;
           productData.addAll({
             'series': gpu.series.getName(),
@@ -102,7 +105,7 @@ Future<void> pushProductSamplesToFirebase() async {
           });
           break;
 
-        case Mainboard:
+        case Mainboard _:
           final mainboard = product as Mainboard;
           productData.addAll({
             'formFactor': mainboard.formFactor.getName(),
@@ -111,7 +114,7 @@ Future<void> pushProductSamplesToFirebase() async {
           });
           break;
 
-        case Drive:
+        case Drive _:
           final drive = product as Drive;
           productData.addAll({
             'type': drive.type.getName(),
@@ -119,7 +122,7 @@ Future<void> pushProductSamplesToFirebase() async {
           });
           break;
 
-        case PSU:
+        case PSU _:
           final psu = product as PSU;
           productData.addAll({
             'wattage': psu.wattage,
@@ -138,7 +141,12 @@ Future<void> pushProductSamplesToFirebase() async {
       });
     }
   } catch (e) {
-    print('Error pushing product samples to Firebase: $e');
+    if (kDebugMode) {
+      if (kDebugMode) {
+        // ignore: avoid_print
+        print('Error pushing product samples to Firebase: $e');
+      }
+    }
   }
 }
 
@@ -163,6 +171,7 @@ Future<void> pushAddressSamplesToFirebase() async {
       await docRef.update({'addressID': docRef.id});
     }
   } catch (e) {
+    // ignore: avoid_print
     print('Error pushing address samples to Firebase: $e');
     rethrow;
   }
@@ -244,8 +253,10 @@ Future<void> pushSalesInvoiceSampleData() async {
     // Thực thi batch
     await batch.commit();
 
+    // ignore: avoid_print
     print('Successfully pushed sales invoice samples to Firestore');
   } catch (e) {
+    // ignore: avoid_print
     print('Error in pushSalesInvoiceSampleData: $e');
     rethrow;
   }

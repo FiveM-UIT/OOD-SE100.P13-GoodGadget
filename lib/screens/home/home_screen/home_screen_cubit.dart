@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/payment_status.dart';
 import '../../../data/database/database.dart';

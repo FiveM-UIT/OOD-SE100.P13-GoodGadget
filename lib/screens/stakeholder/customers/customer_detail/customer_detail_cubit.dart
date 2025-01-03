@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/data/database/database.dart';
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
@@ -21,7 +22,9 @@ class CustomerDetailCubit extends Cubit<CustomerDetailState> {
       final userRole = await _firebase.getUserRole();
       emit(state.copyWith(userRole: userRole));
     } catch (e) {
-      print('Error loading user role: $e');
+      if (kDebugMode) {
+        print('Error loading user role: $e');
+      }
     }
   }
 

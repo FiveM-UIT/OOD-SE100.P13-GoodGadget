@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -312,6 +314,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                     color: Theme.of(context).colorScheme.surface,
                     boxShadow: [
                       BoxShadow(
+                        // ignore: deprecated_member_use
                         color: Colors.black.withOpacity(0.2),
                         blurRadius: 8,
                         offset: const Offset(0, -4),

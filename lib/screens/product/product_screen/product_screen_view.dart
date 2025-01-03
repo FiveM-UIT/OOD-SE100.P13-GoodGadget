@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_screen_cubit.dart';
@@ -64,6 +66,7 @@ class _ProductScreenState extends State<ProductScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: _onWillPop,
       child: GestureDetector(

@@ -21,6 +21,7 @@ class SalesScreenCubit extends Cubit<SalesScreenState> {
       final userRole = await _firebase.getUserRole();
       emit(state.copyWith(userRole: userRole));
     } catch (e) {
+      // ignore: avoid_print
       print('Error loading user role: $e');
     }
   }

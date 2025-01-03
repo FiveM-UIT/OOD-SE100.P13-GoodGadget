@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors_in_immutables
+
 import 'package:equatable/equatable.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/payment_status.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/sales_status.dart';

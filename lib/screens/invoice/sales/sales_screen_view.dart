@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/screens/invoice/sales/sales_add/sales_add_view.dart';
@@ -305,7 +307,7 @@ class _SalesScreenState extends State<SalesScreen> {
                                 style: TextStyle(
                                   color: Theme.of(context)
                                       .colorScheme
-                                      .onBackground
+                                      .onSurface
                                       .withOpacity(0.6),
                                 ),
                               ),

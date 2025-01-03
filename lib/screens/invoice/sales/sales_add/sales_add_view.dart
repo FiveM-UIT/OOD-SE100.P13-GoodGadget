@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, no_leading_underscores_for_local_identifiers
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice.dart';
@@ -353,6 +355,7 @@ class _SalesAddViewState extends State<_SalesAddView> {
               onPressed: () => Navigator.pop(context),
               fillColor: Colors.transparent,
             ),
+            // ignore: prefer_const_constructors
             title: GradientText(text: 'New Invoice'),
             actions: [
               Padding(

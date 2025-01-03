@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/widgets/general/field_with_icon.dart';
@@ -82,9 +84,9 @@ class _VendorsScreenState extends State<VendorsScreen> {
                           color: Theme.of(context).primaryColor,
                         ),
                         labelStyle: const TextStyle(color: Colors.white),
-                        floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                        floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                           (states) => TextStyle(
-                            color: states.contains(MaterialState.focused)
+                            color: states.contains(WidgetState.focused)
                                 ? Theme.of(context).primaryColor
                                 : Colors.white,
                           ),
@@ -117,9 +119,9 @@ class _VendorsScreenState extends State<VendorsScreen> {
                           color: Theme.of(context).primaryColor,
                         ),
                         labelStyle: const TextStyle(color: Colors.white),
-                        floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                        floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                           (states) => TextStyle(
-                            color: states.contains(MaterialState.focused)
+                            color: states.contains(WidgetState.focused)
                                 ? Theme.of(context).primaryColor
                                 : Colors.white,
                           ),

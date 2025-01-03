@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/payment_status.dart';
@@ -37,6 +39,7 @@ class _IncomingDetailScreenState extends State<IncomingDetailScreen> {
       margin: const EdgeInsets.symmetric(vertical: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
+        // ignore: deprecated_member_use
         color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
@@ -124,6 +127,7 @@ class _IncomingDetailScreenState extends State<IncomingDetailScreen> {
                                 ),
                               ),
                               const SizedBox(height: 24),
+                              // ignore: sized_box_for_whitespace
                               Container(
                                 width: double.infinity,
                                 child: Text(

@@ -168,6 +168,7 @@ class FilterArgument {
       maxPsuWattage: filter?.maxPsuWattage ?? this.maxPsuWattage,
       gpuBusList: filter?.gpuBusList ?? this.gpuBusList,
       gpuCapacityList: filter?.gpuCapacityList ?? this.gpuCapacityList,
+      // ignore: unnecessary_this
       gpuSeriesList: filter?.gpuSeriesList ?? this.gpuSeriesList,
       minGpuClockSpeed: filter?.minGpuClockSpeed ?? this.minGpuClockSpeed,
       maxGpuClockSpeed: filter?.maxGpuClockSpeed ?? this.maxGpuClockSpeed,

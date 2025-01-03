@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:gizmoglobe_client/data/database/database.dart';
 import 'package:gizmoglobe_client/objects/address_related/address.dart';
 

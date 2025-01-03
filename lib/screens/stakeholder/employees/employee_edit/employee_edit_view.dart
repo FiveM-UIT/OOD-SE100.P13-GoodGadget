@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:gizmoglobe_client/enums/stakeholders/employee_role.dart';
 import 'package:gizmoglobe_client/objects/employee.dart';
@@ -98,9 +100,9 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
                           decoration: InputDecoration(
                             labelText: 'Full Name',
                             labelStyle: const TextStyle(color: Colors.white),
-                            floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                            floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                               (states) => TextStyle(
-                                color: states.contains(MaterialState.focused)
+                                color: states.contains(WidgetState.focused)
                                     ? Theme.of(context).primaryColor
                                     : Colors.white,
                               ),
@@ -132,9 +134,9 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
                           decoration: InputDecoration(
                             labelText: 'Phone Number',
                             labelStyle: const TextStyle(color: Colors.white),
-                            floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                            floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                               (states) => TextStyle(
-                                color: states.contains(MaterialState.focused)
+                                color: states.contains(WidgetState.focused)
                                     ? Theme.of(context).primaryColor
                                     : Colors.white,
                               ),
@@ -167,9 +169,9 @@ class _EmployeeEditScreenState extends State<EmployeeEditScreen> {
                           decoration: InputDecoration(
                             labelText: 'Role',
                             labelStyle: const TextStyle(color: Colors.white),
-                            floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                            floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                               (states) => TextStyle(
-                                color: states.contains(MaterialState.focused)
+                                color: states.contains(WidgetState.focused)
                                     ? Theme.of(context).primaryColor
                                     : Colors.white,
                               ),

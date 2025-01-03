@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/warranty_invoice.dart';
@@ -497,6 +499,7 @@ class _WarrantyAddViewState extends State<WarrantyAddView> {
       context: dialogContext,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        // ignore: deprecated_member_use
         return WillPopScope(
           onWillPop: () async => false,
           child: const Center(

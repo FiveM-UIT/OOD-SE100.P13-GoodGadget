@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/warranty_invoice.dart';
@@ -118,6 +120,7 @@ class _WarrantyDetailView extends StatelessWidget {
                               width: double.infinity,
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
+                                // ignore: deprecated_member_use
                                 color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(

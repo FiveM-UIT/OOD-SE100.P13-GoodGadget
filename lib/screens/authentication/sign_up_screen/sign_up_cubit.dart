@@ -73,6 +73,7 @@ class SignUpCubit extends Cubit<SignUpState> {
       }
 
       // Kiểm tra email đã tồn tại trong auth
+      // ignore: deprecated_member_use
       final signInMethods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(state.email);
       if (signInMethods.isNotEmpty) {
         emit(state.copyWith(
@@ -143,6 +144,7 @@ class SignUpCubit extends Cubit<SignUpState> {
           print('Firestore Error: $firestoreError');
           // Xóa tài khoản Auth nếu có lỗi
           await userCredential.user?.delete();
+          // ignore: use_rethrow_when_possible
           throw firestoreError;
         }
       }

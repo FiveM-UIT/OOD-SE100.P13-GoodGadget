@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/screens/product/edit_product/edit_product_view.dart';
@@ -292,6 +294,7 @@ class _ProductTabState extends State<ProductTab> with SingleTickerProviderStateM
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: isSelected
+                                        // ignore: deprecated_member_use
                                         ? Theme.of(context).primaryColor.withOpacity(0.1)
                                         : Colors.transparent,
                                     borderRadius: BorderRadius.circular(8),

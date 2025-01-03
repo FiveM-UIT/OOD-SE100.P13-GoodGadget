@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
 import 'package:gizmoglobe_client/objects/manufacturer.dart';
@@ -42,7 +43,9 @@ class VendorsScreenCubit extends Cubit<VendorsScreenState> {
         isLoading: false,
       ));
     } catch (e) {
-      print('Lỗi khi tải danh sách nhà sản xuất: $e');
+      if (kDebugMode) {
+        print('Lỗi khi tải danh sách nhà sản xuất: $e');
+      }
       emit(state.copyWith(isLoading: false));
     }
   }

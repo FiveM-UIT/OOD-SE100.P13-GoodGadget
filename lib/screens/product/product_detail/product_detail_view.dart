@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/screens/product/edit_product/edit_product_view.dart';
@@ -224,6 +226,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     color: Theme.of(context).scaffoldBackgroundColor,
                     boxShadow: [
                       BoxShadow(
+                        // ignore: deprecated_member_use
                         color: Colors.black.withOpacity(0.1),
                         blurRadius: 8,
                         offset: const Offset(0, -4),

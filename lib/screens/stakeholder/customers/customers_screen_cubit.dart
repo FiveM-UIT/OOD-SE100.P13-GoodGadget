@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
 import 'package:gizmoglobe_client/objects/customer.dart';
@@ -41,7 +42,10 @@ class CustomersScreenCubit extends Cubit<CustomersScreenState> {
         isLoading: false,
       ));
     } catch (e) {
-      print('Lỗi khi tải danh sách khách hàng: $e');
+      if (kDebugMode) {
+        // ignore: avoid_print
+        print('Lỗi khi tải danh sách khách hàng: $e');
+      }
       emit(state.copyWith(isLoading: false));
     }
   }

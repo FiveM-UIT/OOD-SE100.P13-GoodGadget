@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -79,9 +81,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
                       color: Theme.of(context).primaryColor,
                     ),
                     labelStyle: const TextStyle(color: Colors.white),
-                    floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                    floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                       (states) => TextStyle(
-                        color: states.contains(MaterialState.focused)
+                        color: states.contains(WidgetState.focused)
                             ? Theme.of(context).primaryColor
                             : Colors.white,
                       ),
@@ -114,9 +116,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
                       color: Theme.of(context).primaryColor,
                     ),
                     labelStyle: const TextStyle(color: Colors.white),
-                    floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                    floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                       (states) => TextStyle(
-                        color: states.contains(MaterialState.focused)
+                        color: states.contains(WidgetState.focused)
                             ? Theme.of(context).primaryColor
                             : Colors.white,
                       ),
@@ -149,9 +151,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
                       color: Theme.of(context).primaryColor,
                     ),
                     labelStyle: const TextStyle(color: Colors.white),
-                    floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                    floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                       (states) => TextStyle(
-                        color: states.contains(MaterialState.focused)
+                        color: states.contains(WidgetState.focused)
                             ? Theme.of(context).primaryColor
                             : Colors.white,
                       ),
@@ -426,9 +428,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
                               child: Container(
                                 margin: const EdgeInsets.only(bottom: 8),
                                 decoration: BoxDecoration(
-                                  color: state.selectedIndex == index 
-                                      ? Theme.of(context).primaryColor.withOpacity(0.1) 
-                                      : Theme.of(context).cardColor,
+                                  color: state.selectedIndex != index
+                                      ? Theme.of(context).cardColor
+                                      : Theme.of(context).primaryColor.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Padding(

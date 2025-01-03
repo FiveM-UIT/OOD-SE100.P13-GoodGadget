@@ -1,3 +1,5 @@
+// ignore_for_file: type_literal_in_constant_pattern
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/payment_status.dart';

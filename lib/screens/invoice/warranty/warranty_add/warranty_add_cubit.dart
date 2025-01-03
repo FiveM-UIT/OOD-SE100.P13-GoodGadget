@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, prefer_final_fields
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/warranty_invoice.dart';

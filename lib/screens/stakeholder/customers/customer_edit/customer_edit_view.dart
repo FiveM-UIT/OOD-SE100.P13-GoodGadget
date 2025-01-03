@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gizmoglobe_client/objects/customer.dart';
@@ -65,6 +67,7 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -130,9 +133,9 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
                             decoration: InputDecoration(
                               labelText: 'Full Name',
                               labelStyle: const TextStyle(color: Colors.white),
-                              floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                              floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                                 (states) => TextStyle(
-                                  color: states.contains(MaterialState.focused)
+                                  color: states.contains(WidgetState.focused)
                                       ? Theme.of(context).primaryColor
                                       : Colors.white,
                                 ),
@@ -172,9 +175,9 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
                             decoration: InputDecoration(
                               labelText: 'Phone Number',
                               labelStyle: const TextStyle(color: Colors.white),
-                              floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+                              floatingLabelStyle: WidgetStateTextStyle.resolveWith(
                                 (states) => TextStyle(
-                                  color: states.contains(MaterialState.focused)
+                                  color: states.contains(WidgetState.focused)
                                       ? Theme.of(context).primaryColor
                                       : Colors.white,
                                 ),

@@ -1154,7 +1154,6 @@ class Firebase {
         };
       }
 
-      print('Product not found: $productID');
       return {
         'productName': 'Unknown Product',
         'category': '',
@@ -1163,7 +1162,6 @@ class Firebase {
         'sellingPrice': 0,
       };
     } catch (e) {
-      print('Error getting product details for $productID: $e');
       return {
         'productName': 'Unknown Product',
         'category': '',

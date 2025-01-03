@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:equatable/equatable.dart';
 import 'package:gizmoglobe_client/enums/processing/process_state_enum.dart';
 import 'package:gizmoglobe_client/enums/product_related/category_enum.dart';

@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/enums/product_related/category_enum.dart';
 import 'package:gizmoglobe_client/objects/product_related/product.dart';
-import 'package:gizmoglobe_client/objects/manufacturer.dart';
 import 'package:gizmoglobe_client/screens/product/product_screen/product_tab/product_tab_cubit.dart';
 import 'package:intl/intl.dart';
 

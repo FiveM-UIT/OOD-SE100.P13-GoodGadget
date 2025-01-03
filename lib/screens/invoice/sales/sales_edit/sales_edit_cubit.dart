@@ -3,7 +3,6 @@ import 'package:gizmoglobe_client/data/firebase/firebase.dart';
 import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/payment_status.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/sales_status.dart';
-import '../../../../objects/invoice_related/sales_invoice_detail.dart';
 import '../permissions/sales_invoice_permissions.dart';
 import 'sales_edit_state.dart';
 

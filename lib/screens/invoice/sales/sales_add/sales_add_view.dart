@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gizmoglobe_client/objects/invoice_related/sales_invoice.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_icon_button.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/payment_status.dart';
 import 'package:gizmoglobe_client/enums/invoice_related/sales_status.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gizmoglobe_client/data/firebase/firebase.dart';
 import 'package:gizmoglobe_client/widgets/general/gradient_text.dart';
-import 'package:intl/intl.dart';
 import '../../../../objects/product_related/product.dart';
 import 'sales_add_cubit.dart';
 import 'sales_add_state.dart';
@@ -785,15 +782,15 @@ class _SalesAddViewState extends State<_SalesAddView> {
                                             ],
                                           ),
                                           if (product != null) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'Available stock: ${product.stock}',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.white.withOpacity(0.6),
-                                              ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Available stock: ${product.stock}',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.white.withOpacity(0.6),
                                             ),
-                                          ],
+                                          ),
+                                        ],
                                         ],
                                       ),
                                     ),

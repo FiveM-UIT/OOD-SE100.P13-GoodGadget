@@ -99,7 +99,6 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
                               itemCount: state.invoices.length,
                               itemBuilder: (context, index) {
                                 final invoice = state.invoices[index];
-                                final isSelected = state.selectedIndex == index;
 
                                 return GestureDetector(
                                   behavior: HitTestBehavior.opaque,

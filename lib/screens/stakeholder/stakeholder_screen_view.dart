@@ -1,4 +1,6 @@
 // lib/screens/main/main_screen/main_screen_view.dart
+// ignore_for_file: unused_import
+
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

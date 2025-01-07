@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -834,7 +836,6 @@ Widget buildInputWidget<T>(
             ],
           );
         }
-        return Container();
       }
   );
 }

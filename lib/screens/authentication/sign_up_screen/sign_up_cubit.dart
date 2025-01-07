@@ -149,20 +149,15 @@ class SignUpCubit extends Cubit<SignUpState> {
     } catch (error) {
       print('Sign Up Error: $error');
       
-      String errorMessage = 'Đăng ký thất bại';
       if (error is FirebaseAuthException) {
         switch (error.code) {
           case 'email-already-in-use':
-            errorMessage = 'Email đã được sử dụng';
             break;
           case 'weak-password':
-            errorMessage = 'Mật khẩu quá yếu';
             break;
           case 'invalid-email':
-            errorMessage = 'Email không hợp lệ';
             break;
           default:
-            errorMessage = error.message ?? 'Lỗi không xác định';
         }
       }
 

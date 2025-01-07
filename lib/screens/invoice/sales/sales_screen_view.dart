@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/screens/invoice/sales/sales_add/sales_add_view.dart';
@@ -314,7 +316,6 @@ class _SalesScreenState extends State<SalesScreen> {
                               itemCount: state.invoices.length,
                               itemBuilder: (context, index) {
                                 final invoice = state.invoices[index];
-                                final isSelected = state.selectedIndex == index;
 
                                 return GestureDetector(
                                   onTap: () async {

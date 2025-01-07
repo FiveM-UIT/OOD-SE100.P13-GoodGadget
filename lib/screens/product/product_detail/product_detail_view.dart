@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import, unused_element
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gizmoglobe_client/screens/product/edit_product/edit_product_view.dart';

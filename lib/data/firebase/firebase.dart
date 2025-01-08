@@ -1,5 +1,3 @@
-// ignore_for_file: type_literal_in_constant_pattern
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:gizmoglobe_client/enums/product_related/cpu_enums/cpu_family.dart';
@@ -293,9 +291,13 @@ class Firebase {
           ...customer.toMap()
         });
       }
-      print('Successfully pushed customer data');
+      if (kDebugMode) {
+        print('Successfully pushed customer data');
+      }
     } catch (e) {
-      print('Error pushing sample data: $e');
+      if (kDebugMode) {
+        print('Error pushing sample data: $e');
+      }
       rethrow;
     }
   }
@@ -310,7 +312,9 @@ class Firebase {
         return Customer.fromMap(doc.id, doc.data() as Map<String, dynamic>);
       }).toList();
     } catch (e) {
-      print('Lỗi khi lấy danh sách khách hàng: $e');
+      if (kDebugMode) {
+        print('Lỗi khi lấy danh sách khách hàng: $e');
+      }
       rethrow;
     }
   }
@@ -371,7 +375,9 @@ class Firebase {
         });
       }
     } catch (e) {
-      print('Error updating customer: $e');
+      if (kDebugMode) {
+        print('Error updating customer: $e');
+      }
       rethrow;
     }
   }
@@ -401,7 +407,9 @@ class Firebase {
       // như orders, cart items, etc.
 
     } catch (e) {
-      print('Lỗi khi xóa khách hàng: $e');
+      if (kDebugMode) {
+        print('Lỗi khi xóa khách hàng: $e');
+      }
       rethrow;
     }
   }
@@ -1333,7 +1341,9 @@ class Firebase {
         'salesInvoiceDetailID': docRef.id,
       });
     } catch (e) {
-      print('Error creating sales invoice detail: $e');
+      if (kDebugMode) {
+        print('Error creating sales invoice detail: $e');
+      }
       rethrow;
     }
   }

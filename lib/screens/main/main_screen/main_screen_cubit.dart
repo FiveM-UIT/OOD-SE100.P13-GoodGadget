@@ -10,7 +10,7 @@ class MainScreenCubit extends Cubit<MainScreenState> {
 
   Future<void> getUserName() async {
     try {
-      await Database().getUsername();
+      await Database().getUser();
       emit(state.copyWith(username: Database().username));
     } catch (e) {
       debugPrint('Error fetching username: $e');

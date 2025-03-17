@@ -41,6 +41,7 @@ class Database {
 
   String? username;
   String? email;
+  String? avatarUrl;
   RoleEnum? role;
 
   List<Manufacturer> manufacturerList = [];
@@ -1345,20 +1346,44 @@ class Database {
      _initializeSampleData();
   }
 
-  Future<void> getUsername() async {
-    final User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      username = userDoc['username'];
+  Future<void> getUser() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        
+        if (doc.exists) {
+          username = doc.data()?['username'] ?? '';
+          email = user.email ?? '';
+          avatarUrl = doc.data()?['avatarUrl'];
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error getting user: $e');
+      }
+      rethrow;
     }
   }
 
-  Future<void> getUser() async {
-    final User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      username = userDoc['username'];
-      email = userDoc['email'];
+  Future<void> updateUserAvatar(String url) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({'avatarUrl': url});
+        avatarUrl = url;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error updating avatar: $e');
+      }
+      rethrow;
     }
   }
 

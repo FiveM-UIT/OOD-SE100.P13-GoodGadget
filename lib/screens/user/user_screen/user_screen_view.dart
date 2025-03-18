@@ -73,39 +73,20 @@ class _UserScreen extends State<UserScreen> {
                     builder: (context, state) {
                       return Row(
                         children: [
-                          GestureDetector(
-                            onTap: () => _handleAvatarTap(context),
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: Colors.white.withOpacity(0.2),
-                                  width: 1,
-                                ),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.2),
+                                width: 1,
                               ),
-                              child: state.avatarUrl != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Image.network(
-                                      state.avatarUrl!,
-                                      width: 72,
-                                      height: 72,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) =>
-                                        const Icon(
-                                          Icons.person,
-                                          color: Colors.white,
-                                          size: 72,
-                                        ),
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.person,
-                                    color: Colors.white,
-                                    size: 72,
-                                  ),
+                            ),
+                            child: const Icon(
+                              Icons.person,
+                              color: Colors.white,
+                              size: 40,
                             ),
                           ),
                           const SizedBox(width: 20),
@@ -754,32 +735,5 @@ class _UserScreen extends State<UserScreen> {
         );
       },
     );
-  }
-
-  void _handleAvatarTap(BuildContext context) async {
-    try {
-      await cubit.updateAvatar();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error_outline, color: Colors.white),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text('Error updating avatar: ${e.toString()}'),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
-      }
-    }
   }
 }

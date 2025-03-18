@@ -1,2 +1,0 @@
-D:/Git/OOD-SE100.P13-GoodGadget/android/app/.cxx/Debug/2y713q3h/x86_64/CMakeFiles/edit_cache.dir
-D:/Git/OOD-SE100.P13-GoodGadget/android/app/.cxx/Debug/2y713q3h/x86_64/CMakeFiles/rebuild_cache.dir

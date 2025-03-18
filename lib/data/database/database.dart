@@ -39,8 +39,9 @@ import '../../objects/invoice_related/incoming_invoice_detail.dart';
 class Database {
   static final Database _database = Database._internal();
 
-  String? username;
-  String? email;
+  String username = '';
+  String email = '';
+  String avatarUrl = '';
   RoleEnum? role;
 
   List<Manufacturer> manufacturerList = [];
@@ -1354,11 +1355,18 @@ class Database {
   }
 
   Future<void> getUser() async {
-    final User? user = FirebaseAuth.instance.currentUser;
+    final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      final DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      username = userDoc['username'];
-      email = userDoc['email'];
+      final userData = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userData.exists) {
+        username = userData.data()?['username'] ?? '';
+        email = userData.data()?['email'] ?? '';
+        avatarUrl = userData.data()?['avatarUrl'] ?? '';
+      }
     }
   }
 
@@ -1414,6 +1422,20 @@ class Database {
       return false;
     } catch (e) {
       return false;
+    }
+  }
+
+  Future<void> updateUserAvatar(String avatarUrl) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({'avatarUrl': avatarUrl});
+      
+      // Cập nhật local state nếu cần
+      // Ví dụ nếu bạn có biến local để lưu avatarUrl
+      // this.avatarUrl = avatarUrl;
     }
   }
 }

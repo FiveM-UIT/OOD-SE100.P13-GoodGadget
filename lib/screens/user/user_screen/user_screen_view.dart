@@ -83,10 +83,65 @@ class _UserScreen extends State<UserScreen> {
                                 width: 1,
                               ),
                             ),
-                            child: const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 40,
+                            child: GestureDetector(
+                              onTap: () async {
+                                try {
+                                  await cubit.uploadAvatar();
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Error uploading avatar: $e')),
+                                    );
+                                  }
+                                }
+                              },
+                              child: Container(
+                                width: 72,
+                                height: 72,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.2),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: state.avatarUrl.isEmpty
+                                      ? const Icon(
+                                          Icons.person,
+                                          color: Colors.white,
+                                          size: 40,
+                                        )
+                                      : Image.network(
+                                          state.avatarUrl,
+                                          width: 72,
+                                          height: 72,
+                                          fit: BoxFit.cover,
+                                          loadingBuilder: (context, child, loadingProgress) {
+                                            if (loadingProgress == null) return child;
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress.expectedTotalBytes != null
+                                                    ? loadingProgress.cumulativeBytesLoaded /
+                                                        loadingProgress.expectedTotalBytes!
+                                                    : null,
+                                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                              ),
+                                            );
+                                          },
+                                          errorBuilder: (context, error, stackTrace) {
+                                            print('Error loading image: $error');
+                                            return const Icon(
+                                              Icons.person,
+                                              color: Colors.white,
+                                              size: 40,
+                                            );
+                                          },
+                                        ),
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 20),
